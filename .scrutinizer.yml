@@ -25,7 +25,4 @@ checks:
         assignment_of_null_return: true
 
 filter:
-    excluded_paths:
-        - smarty/*        
-		- rapi/fpdf/*
-		- PHPExcel/*
+    excluded_paths: [smarty/*, rapi/fpdf/*, rapi/PHPExcel/*]
