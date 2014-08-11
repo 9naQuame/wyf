@@ -105,6 +105,8 @@ class SystemLoginController extends Controller
      * It checks to ensure that the right user is logging in with the right
      * password.
      * 
+     * //Messy
+     * 
      * @param $data
      * @param $form
      * @param $callback_pass
@@ -118,19 +120,21 @@ class SystemLoginController extends Controller
                 "conditions" => "user_name='{$data["username"]}'"
             ), Model::MODE_ASSOC, false, false);
             
-        if($userData[0]["role_id"] == null)
+        if(count($userData) == 0){
+            $form->addError('Invalid username or password');
+        }
+        else if(count($userData) == 1 && $userData[0]["role_id"] == null)
         {
             $form->addError("Sorry! your account has no role attached!"); 
         }
-        else if(User::getPermission("can_log_in_to_web", $userData[0]["role_id"]))
+        else if (count($userData) == 1 && User::getPermission("can_log_in_to_web", $userData[0]["role_id"]))
         {
             $home = Application::getLink("/");
             
             /* Verify the password of the user or check if the user is logging in
              * for the first time.
              */
-            if ($userData[0]["password"] == md5($data["password"]) 
-                || $userData[0]["user_status"] == 2 )
+            if ($userData[0]["password"] == md5($data["password"]) || $userData[0]["user_status"] == 2 )
             {
                 switch ($userData[0]["user_status"])
                 {
@@ -168,13 +172,16 @@ class SystemLoginController extends Controller
             }
             else
             {
-                $form->addError("Please check your username or password");
-                return true;
+                $form->addError('Invalid username or password');
             }
+        }
+        else if(count)
+        {
+            $form->addError("You are not allowed to log in from this terminal");
         }
         else
         {
-            $form->addError("You are not allowed to log in from this terminal");
+            $form->addError("Invalid username or password");
         }
     }
 }
