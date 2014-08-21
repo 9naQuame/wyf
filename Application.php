@@ -228,7 +228,7 @@ class Application
      */
     public static function getLink($path)
     {
-        return Application::$prefix.$path;
+        return (Application::$prefix == '' ? '/' : Application::$prefix) . $path;
     }
 
     /**
@@ -404,4 +404,10 @@ class Application
     {
         self::$siteName = $siteName;
     }
+    
+    public static function getWyfHome($path = '')
+    {
+        return substr(__DIR__, strlen(getcwd()) + 1) . "/$path";
+    }
 }
+
