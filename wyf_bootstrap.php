@@ -48,6 +48,7 @@ $dbDriver = $config['db'][$selected]['driver'];
 $dbDriverClass = Application::camelize($dbDriver);
 add_include_path("lib/models/datastores/databases/$dbDriver");
 Db::$defaultDatabase = $selected;
+SQLDBDataStore::$activeDriver = $dbDriver;
 SQLDBDataStore::$activeDriverClass = $dbDriverClass;
 
 Application::$config = $config;

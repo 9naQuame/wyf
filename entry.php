@@ -69,7 +69,7 @@ $authExcludedPaths = array(
 // Can be overridden in the app bootstrap
 $fapiStyleSheet = false;
 
-//$t = new TemplateEngine();
+$t = new TemplateEngine();
 Application::$templateEngine = $t;
 
 /**

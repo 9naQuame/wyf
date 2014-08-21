@@ -15,6 +15,7 @@
 		"user",
 		"models",
 		"models/datastores",
+		"models/datastores/databases/postgresql",
 		"cache/"    
 	]
 }
