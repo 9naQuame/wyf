@@ -2,6 +2,9 @@
     "name" : "ekowabaka/wyf",
     "description" : "WYF Half-Baked App",
     "license" : "MIT",
+    "requires" : {
+        "smarty/smarty" : "3.1.19"
+    },
     "include-path" : [
 		"./",
 		"controllers",
