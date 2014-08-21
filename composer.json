@@ -1,0 +1,18 @@
+{
+    "name" : "ekowabaka/wyf",
+    "description" : "WYF Half-Baked App",
+    "license" : "MIT",
+    "include-path" : [
+		"./",
+		"controllers",
+		"fapi/Forms",
+		"toolbar",
+		"tapi",
+		"rapi",
+		"user",
+		"models",
+		"models/datastores",
+		"cache/"    
+	]
+}
+
