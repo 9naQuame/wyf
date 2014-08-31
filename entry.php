@@ -105,20 +105,20 @@ Application::$templateEngine = $t;
 // a login
 if ($_SESSION["logged_in"] == false && array_search($_GET["q"], $authExcludedPaths) === false && substr($_GET["q"], 0, 10) != "system/api")
 {
-    $redirect = urlencode(Application::getLink("/{$_GET["q"]}"));
+    $redirect = urlencode(Application::getLink("{$_GET["q"]}"));
     foreach($_GET as $key=>$value) 
     {
         if($key == "q") continue;
         $redirect .= urlencode("$key=$value");
     }
-    header("Location: ".Application::getLink("/system/login") . "?redirect=$redirect");
+    header("Location: ".Application::getLink("system/login") . "?redirect=$redirect");
 }
 else if ($_SESSION["logged_in"] === true )
 {
     // Force a password reset if user is logging in for the first time
     if ($_SESSION["user_mode"] == 2 && $_GET["q"] != "system/login/change_password")
     {
-        header("Location: " . Application::getLink("/system/login/change_password"));
+        header("Location: " . Application::getLink("system/login/change_password"));
     }
 
     Application::addJavaScript(Application::getLink(Application::getWyfHome("js/wyf.js")));
