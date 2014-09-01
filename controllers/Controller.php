@@ -421,10 +421,10 @@ class Controller
      * @param type $data
      * @return type
      */
-    public function arbitraryTemplate($arbitraryTemplate, $data)
+    public function arbitraryTemplate($arbitraryTemplate, $data, $absolute = false)
     {
         return array(
-            'template' => "file:/".SOFTWARE_HOME."/$arbitraryTemplate",
+            'template' => "file:/".($absolute ? '' : SOFTWARE_HOME . '/')."$arbitraryTemplate",
             'data' => $data        
         );
     }
