@@ -228,7 +228,7 @@ class Application
      */
     public static function getLink($path)
     {
-        return (Application::$prefix == '' ? '/' : Application::$prefix) . $path;
+        return Application::$prefix . $path;
     }
 
     /**
@@ -238,7 +238,7 @@ class Application
      */
     public static function addJavascript($href)
     {
-        Application::$javascripts[] = $href;
+        Application::$javascripts[] = "$href";
     }
 
     /**
