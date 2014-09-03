@@ -238,7 +238,7 @@ class Application
      */
     public static function addJavascript($href)
     {
-        Application::$javascripts[] = $href;
+        Application::$javascripts[] = "$href";
     }
 
     /**

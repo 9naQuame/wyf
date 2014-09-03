@@ -6,17 +6,17 @@
         "smarty/smarty" : "v3.1.19"
     },
     "include-path" : [
-		"./",
-		"controllers",
-		"fapi/Forms",
-		"toolbar",
-		"tapi",
-		"rapi",
-		"user",
-		"models",
-		"models/datastores",
-		"models/datastores/databases/postgresql",
-		"cache/"    
+            "./",
+            "controllers",
+            "fapi/Forms",
+            "toolbar",
+            "tapi",
+            "rapi",
+            "user",
+            "models",
+            "models/datastores",
+            "models/datastores/databases/postgresql",
+            "cache/"    
 	]
 }
 

@@ -42,6 +42,7 @@ if(isset($_REQUEST["__api_session_id"]))
 /**
  * Initialize the session handler
  */
+require "vendor/autoload.php";
 
 // Load the core utilities which handle auto loading of classes.
 include "coreutils.php";
