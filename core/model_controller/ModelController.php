@@ -516,7 +516,7 @@ class ModelController extends Controller
             $headers[] = $field->getLabel();
         }
         
-    	switch($params[0])
+    	/*switch($params[0])
         {
             case "pdf":
                 $report = new PDFReport();
@@ -548,7 +548,10 @@ class ModelController extends Controller
             case "xls":
                 $report = new XLSReport();
                 break;
-        }
+        }*/
+        
+        $reportClass = strtoupper($params[0]) . 'Report';
+        $report = new $reportClass();
         
         $title = new TextContent($this->label);
         $title->style["size"] = 12;
