@@ -91,13 +91,6 @@ class ModelController extends Controller
     protected $table;
 
     /**
-     * An instance of the simple xml object that is used to represent the app.xml
-     * file which contains extra directives for the ModelController.
-     * @var SimpleXMLObject
-     */
-    private $app;
-
-    /**
      * An instance of the Toolbar class. This toolbar is put on top of the list
      * which is used to display the model.
      * @var Toolbar
@@ -155,12 +148,6 @@ class ModelController extends Controller
     protected $permissionPrefix;
     
     /**
-     * Set to true whenever the model controller is operating in API mode.
-     * @var boolean
-     */
-    protected $apiMode = false;
-    
-    /**
      * Should this model controller show the add operation.
      * @var boolean
      */
@@ -207,30 +194,15 @@ class ModelController extends Controller
         $this->urlPath = Application::$prefix."/".str_replace(".","/",$this->urlBase);
         $this->permissionPrefix = str_replace(".", "_", $redirectedPackage) . str_replace(".", "_", $this->modelName);
         $this->localPath = "app/modules/".str_replace(".","/",$this->urlBase);
-        
-        if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || $_REQUEST["__api_mode"] == "yes")
-        {
-            Application::$template = "";
-            $this->apiMode = true;
-            unset($_REQUEST["__api_mode"]);
-            unset($_REQUEST["q"]);
-        }
-        else
-        {
-            $this->label = $this->model->label;
-            $this->description = $this->model->description;
-            Application::setTitle($this->label);
-            $this->toolbar = new Toolbar();
-            $this->table = new MultiModelTable(Application::$prefix."/".str_replace(".","/",$this->urlBase)."/");
-            $this->table->useAjax = true;
-        }
+
+        $this->label = $this->model->label;
+        $this->description = $this->model->description;
+        Application::setTitle($this->label);
+        $this->toolbar = new Toolbar();
+        $this->table = new MultiModelTable(Application::$prefix."/".str_replace(".","/",$this->urlBase)."/");
+        $this->table->useAjax = true;
         
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
-        
-        if(file_exists($this->localPath."/app.xml"))
-        {
-            $this->app = simplexml_load_file($this->localPath."/app.xml");
-        }
     }
     
     /**
@@ -241,12 +213,9 @@ class ModelController extends Controller
      */
     protected function setupList()
     {
-        if($this->hasAddOperation)
+        if($this->hasAddOperation && (User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation))
         {
-            if(User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation)
-            {
-                $this->toolbar->addLinkButton("New",$this->name . "/add");
-            }
+            $this->toolbar->addLinkButton("New",$this->name . "/add");
         }
 
         if(User::getPermission($this->permissionPrefix."_can_export"))
@@ -292,6 +261,27 @@ class ModelController extends Controller
             $this->table->addOperation("notes","Notes");
         }          
     }
+    
+    private function getDefaultFieldNames()
+    {
+        $fieldNames = array();
+        $keyField = $this->model->getKeyField();
+        $fieldNames[$keyField] = "{$this->model->package}.{$keyField}";
+        $fields = $this->model->getFields();
+
+        foreach($fields as $i => $field)
+        {
+            if($field["reference"] == "")
+            {
+                $fieldNames[$i] = $this->model->package.".".$field["name"];
+            }
+            else
+            {
+                $modelInfo = Model::resolvePath($field["reference"]);
+                $fieldNames[$i] = $modelInfo["model"] . "." . $field["referenceValue"];
+            }
+        }        
+    }
 
     /**
      * Default controller action. This is the default action which is executed
@@ -304,68 +294,27 @@ class ModelController extends Controller
         {
             $fieldNames = $this->listFields;
         }
-        else if($this->app != null)
-        {
-            $fieldNames = $this->app->xpath("/app:app/app:list/app:field");
-            $concatenatedLabels = $this->app->xpath("/app:app/app:list/app:field/@label");
-        }
         else
         {
-            $fieldNames = array();
-            $keyField = $this->model->getKeyField();
-            $fieldNames[$keyField] = "{$this->model->package}.{$keyField}";
-            $fields = $this->model->getFields();
-
-            foreach($fields as $i => $field)
-            {
-                if($field["reference"] == "")
-                {
-                    $fieldNames[$i] = $this->model->package.".".$field["name"];
-                }
-                else
-                {
-                    $modelInfo = Model::resolvePath($field["reference"]);
-                    $fieldNames[$i] = $modelInfo["model"] . "." . $field["referenceValue"];
-                }
-            }
+            $fieldNames = $this->getDefaultFieldNames();
         }
         
         foreach($fieldNames as $i => $fieldName)
         {
-            $fieldNames[$i] = substr((string)$fieldName, 0, 1) == "." ? $this->redirectedPackage . (string)$fieldName : (string)$fieldName;
+            $fieldNames[$i] = substr($fieldName, 0, 1) == "." ? $this->redirectedPackage . $fieldName : $fieldName;
         }
         
-        if(count($this->fieldNames)>0) $fieldNames = $this->fieldNames;
-        
-        if($this->apiMode === false)
-        {
-            $this->setupList();
-            $params["fields"] = $fieldNames;
-            $params["page"] = 0;
-            $params["sort_field"] =
+        $this->setupList();
+        $params["fields"] = $fieldNames;
+        $params["page"] = 0;
+        $params["sort_field"] = array(
             array(
-                array(
-                    "field" =>  $this->model->database . "." . $this->model->getKeyField(),
-                    "type"  =>  "DESC"
-                )
-            );
-            $this->table->setParams($params);
-            $return = '<div id="table-wrapper">' . $this->toolbar->render().$this->table->render() . '</div>';
-        } 
-        else
-        {
-            $params["fields"] = $fieldNames;
-            $params["page"] = 0;
-            $params["sort_field"] = 
-            array(
-                array(
-                    "field" =>  $this->model->database . "." . $this->model->getKeyField(),
-                    "type"  =>  "DESC"
-                )
-            );
-            $return = json_encode(SQLDBDataStore::getMulti($params));
-        }
-        return $return;
+                "field" =>  $this->model->database . "." . $this->model->getKeyField(),
+                "type"  =>  "DESC"
+            )
+        );
+        $this->table->setParams($params);
+        return '<div id="table-wrapper">' . $this->toolbar->render().$this->table->render() . '</div>';
     }
     
     private function createDefaultForm()
@@ -501,33 +450,19 @@ class ModelController extends Controller
     public function add()
     {
     	if(!User::getPermission($this->permissionPrefix."_can_add")) return;
-        if($this->apiMode === true)
-        {
-            $return = $this->model->setData($_REQUEST);
-            if($return === true)
-            {
-                $id = $this->model->save();
-                return json_encode(array("success"=>true, "data"=>$id));
-            }
-            else
-            {
-                return json_encode(array("success"=>false, "data"=>$return));
-            }
-        }
-        else
-        {
-            $form = $this->getForm();
-            $this->label = "New ".$this->label;
-            $form->setCallback($this->callbackMethod,
-                array(
-                    "action"=>"add",
-                    "instance"=>$this,
-                    "success_message"=>"Added new ".$this->model->name,
-                    "form"=>$form
-                )
-            );
-            return $form->render();
-        }
+
+        $form = $this->getForm();
+        $this->label = "New ".$this->label;
+        $form->setCallback($this->callbackMethod,
+            array(
+                "action"=>"add",
+                "instance"=>$this,
+                "success_message"=>"Added new ".$this->model->name,
+                "form"=>$form
+            )
+        );
+        
+        return $form->render();
     }
 
     /**
