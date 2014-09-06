@@ -1,42 +1,42 @@
 .tapi-table
 {
-border-collapse:collapse;
-empty-cells:show;
-background-color:#ffffff;
-width:100%;
-table-layout:fixed;
+    border-collapse:collapse;
+    empty-cells:show;
+    background-color:#ffffff;
+    width:100%;
+    table-layout:fixed;
 }
 
 .tapi-table thead
 {
-background-color:#dae9e9;
-color:#3F863F;
-font-weight:bold;
+    background-color:#ececec;
+    color:#202020;
+    font-weight:bold;
 }
 
 .tapi-table thead td
 {
-	padding:3px;
-	padding-right:7px;
-	padding-left:7px;
+    padding:3px;
+    padding-right:7px;
+    padding-left:7px;
 
 }
 
 .tapi-table tbody td
 {
-	padding:3px;
-	height: 20px;
-	text-overflow:ellipsis;
-	overflow:hidden;
-	white-space:nowrap;
+    padding:3px;
+    height: 20px;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
 }
 
 .tapi-table tbody td,.tapi-table tbody tr
 {
-	border-bottom:1px solid #CACACA;
-	border-right:1px dotted #dadada;
-	padding-right:7px;
-	padding-left:7px;
+    border-bottom:1px solid #CACACA;
+    border-right:1px dotted #dadada;
+    padding-right:7px;
+    padding-left:7px;
 }
 
 div.operations-box
@@ -51,14 +51,14 @@ div.operations-box
 }
 
 a.tapi-operation
-	{
-	padding-right:4px;
-	padding-top:2px;
-	padding-bottom:2px;
-	font-weight:normal;
-	font-size:smaller;
-	margin:2px;
-	background-color:#F7F7F7;
+{
+    padding-right:4px;
+    padding-top:2px;
+    padding-bottom:2px;
+    font-weight:normal;
+    font-size:smaller;
+    margin:2px;
+    background-color:#F7F7F7;
 }
 
 .tapi-icon
@@ -66,6 +66,32 @@ a.tapi-operation
     padding-left:17px;
     background-repeat: no-repeat;
     background-position: 3px 3px;
+}
+
+ul.table-pages
+{
+    list-style:none;
+    margin:0px;
+    padding:2px;
+    background-color:#e0e0e0;
+    font-size:smaller;  
+}
+
+ul.table-pages li
+{
+    display:inline;
+    padding:5px;
+}
+
+ul.table-pages a.page-selected
+{
+    color:#fff;
+}
+
+.tapi-search-row
+{
+    background-color:#ececec;
+    display:none;
 }
 
 .tapi-iaction{background-image:url(../images/icons/action.png)}

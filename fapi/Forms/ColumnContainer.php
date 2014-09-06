@@ -22,7 +22,7 @@ class ColumnContainer extends TableLayout
         parent::__construct(1,$num_columns);
     }
     
-    public function add($element)
+    public function add()
     {
         foreach(func_get_args() as $element)
         {

@@ -53,10 +53,15 @@ class TableLayout extends Container
      * @param $row The row to add the element to. Count starts from 0.
      * @param $column The column to add the element to. Count starts from 0.
      */
-    public function add($element,$row=-1,$column=-1)
+    public function add()//$element,$row=-1,$column=-1)
     {
+        $args = func_get_args();
+        $element = $args[0];
+        $row = isset($args[1]) ? $args[1] : null;
+        $column = isset($args[2]) ? $args[2] : null;
+        
         if($element->parent!=null) throw new Exception("Element being added to table already has a parent");
-        if($row==-1 || $column==-1)
+        if($row===null || $column===null)
         {
             parent::add($element);
         }

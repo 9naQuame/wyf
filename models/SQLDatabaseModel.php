@@ -7,6 +7,12 @@ class SQLDatabaseModel extends Model
         $this->database = (substr($this->database, 0, 1) == "."?$packageSchema: "") . $this->database;
     }
     
+    /**
+     * Returns a DataStore object which is based on the settings provided for
+     * the default datastore.
+     * 
+     * @return DataStore
+     */
     public static function getDatastoreInstance() 
     {
         $class = new ReflectionClass(SQLDBDataStore::$activeDriverClass);

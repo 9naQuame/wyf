@@ -432,7 +432,7 @@ abstract class ReportController extends Controller
             "script"=>$this->script,
             "filters"=>$form->render()
         );
-        return array("template"=>"file:".getcwd()."/lib/controllers/reports.tpl","data"=>$data);
+        return $this->arbitraryTemplate(__DIR__ . "/reports.tpl", $data, true);
     }
 
     /**
