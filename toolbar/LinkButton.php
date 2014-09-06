@@ -3,7 +3,7 @@ class LinkButton extends ToolbarButtonItem
 {
     protected $label;
     protected $link;
-    public $linkAttributes;
+    protected $linkAttributes;
 
     public function __construct($label,$link,$icon=null)
     {
@@ -23,5 +23,10 @@ class LinkButton extends ToolbarButtonItem
             "toolbar-linkbutton-".strtolower($this->label),
             "toolbar-toolitem-button"
         );
+    }
+    
+    public function setLinkAttributes($linkAttributes)
+    {
+        $this->linkAttributes = $linkAttributes;
     }
 }

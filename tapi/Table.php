@@ -69,7 +69,13 @@ class Table
     
     public function render($renderHeaders=true)
     {
-        if($renderHeaders) $table = $this->renderHeader();
+        if($renderHeaders) {
+            $table = $this->renderHeader();
+        }
+        
+        reset($this->data[0]);
+        next($this->data[0]);
+        $firstColumnKey = key($this->data[0]);
         
         foreach($this->data as $i => $row)
         {
@@ -84,7 +90,7 @@ class Table
                 {
                     $params = "align='right'";
                 }
-                $table .= "<td $params >" . strip_tags($value) . "</td>";
+                $table .= "<td $params >" . ($name == $firstColumnKey ? "<input type='checkbox' class='{$this->name}-checkbox' value='$key' > " : '') . strip_tags($value) . "</td>";
             }
             
             if($this->operations!=null)

@@ -160,7 +160,7 @@ var wyf =
 		
         checkToggle:function(id,checkbox)
         {
-            $("."+id+"-checkbox").attr("checked", checkbox.checked);
+            $("."+id+"-checkbox").prop('checked', checkbox.checked);
         },
 		
         remove:function(id)

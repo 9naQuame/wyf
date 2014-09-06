@@ -2,27 +2,27 @@
 /*
  * WYF Framework
  * Copyright (c) 2011 James Ekow Abaka Ainooson
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-*/
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
 
 /**
  * A controller for interacting with the data in models. This controller is loaded
@@ -186,13 +186,9 @@ class ModelController extends Controller
     protected $forceAddOperation = false;
     protected $forceEditOperation = false;
     protected $forceDeleteOperation = false;
-    
     protected $historyModels = array();
-    
     protected $urlBase;
-    
     private static $pendingErrors;
-    
     
     /**
      * Constructor for the ModelController.
@@ -261,7 +257,7 @@ class ModelController extends Controller
             $exportButton->addMenuItem("Template", "#","wyf.openWindow('".$this->urlPath."/export/csv/template')");
             $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
             $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
-            $this->toolbar->add($exportButton);//addLinkButton("Export",$this->urlPath."/export");
+            $this->toolbar->add($exportButton);
         }
 
         if(User::getPermission($this->permissionPrefix."_can_import"))
@@ -269,22 +265,16 @@ class ModelController extends Controller
             $this->toolbar->addLinkButton("Import",$this->urlPath."/import");
         }
         
-        $this->toolbar->addLinkButton("Search","#")->linkAttributes="onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\"";
+        $this->toolbar->addLinkButton("Search","#")->setLinkAttributes("onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\"");
     
-        if($this->hasEditOperation)
+        if($this->hasEditOperation && (User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation))
         {
-            if(User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation)
-            {
-                $this->table->addOperation("edit","Edit");
-            }
+            $this->table->addOperation("edit","Edit");
         }
         
-        if($this->hasDeleteOperation)
+        if($this->hasDeleteOperation && (User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation))
         {
-            if(User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation)
-            {
-                $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
-            }
+            $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
         }
 
         if(User::getPermission($this->permissionPrefix."_can_view"))

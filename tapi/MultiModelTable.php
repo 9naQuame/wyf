@@ -38,14 +38,11 @@ class MultiModelTable extends Table
         $table = "<table class='tapi-table' id='$this->name'>";
 
         //Render Headers
-        $table .= "<thead><tr>";
-        //$table .= "<td><input type='checkbox' onchange=\"wyf.tapi.checkToggle('$this->name',this)\"></td>";
+        $table .= "<thead><tr><td><input type='checkbox' onchange=\"wyf.tapi.checkToggle('$this->name',this)\"> {$this->headers[0]}</td>";
 
-        foreach($this->headers as $i => $header)
+        for($i = 1; $i < count($this->headers); $i++)
         {
-            $table.="<td onclick=\"wyf.tapi.sort('".$this->name."','".$this->tableData["rawFields"][$i+1]."')\">
-            $header
-            </td>";
+            $table.="<td onclick=\"wyf.tapi.sort('".$this->name."','".$this->tableData["rawFields"][$i+1]."')\">{$this->headers[$i]}</td>";
         }
         
         if($this->useInlineOperations)
