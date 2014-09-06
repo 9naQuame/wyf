@@ -125,8 +125,8 @@ class ORMSQLDatabaseModel extends SQLDatabaseModel
 
             if($field["required"])
             {
-                $this->fields[$name]["validators"][] =
-                array(
+                $this->fields[$name]['required'] = true;
+                $this->fields[$name]["validators"][] = array(
                     "type" => "required",
                     "parameter" => ""
                 );
@@ -153,8 +153,8 @@ class ORMSQLDatabaseModel extends SQLDatabaseModel
 
             if($field["unique"])
             {
-                $this->fields[$name]["validators"][] =
-                array(
+                $this->fields[$name]['unique'] = true;
+                $this->fields[$name]["validators"][] = array(
                     "type" => "unique",
                     "parameter" => ""
                 );

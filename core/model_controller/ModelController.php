@@ -280,7 +280,9 @@ class ModelController extends Controller
                 $modelInfo = Model::resolvePath($field["reference"]);
                 $fieldNames[$i] = $modelInfo["model"] . "." . $field["referenceValue"];
             }
-        }        
+        }   
+        
+        return $fieldNames;
     }
 
     /**
@@ -315,92 +317,6 @@ class ModelController extends Controller
         );
         $this->table->setParams($params);
         return '<div id="table-wrapper">' . $this->toolbar->render().$this->table->render() . '</div>';
-    }
-    
-    private function createDefaultForm()
-    {
-        // Generate a form automatically
-        $fieldNames = array();
-        $fields = $this->model->getFields();
-
-        $form = new Form();
-        $names = array_keys($fields);
-
-        for($i=0; $i<count($fields); $i++)
-        {
-            $field = $fields[$names[$i]];
-            if($field['key'] == 'primary') continue;
-
-            if($fieldNames[$i]["renderer"]=="")
-            {
-                if($field["reference"]=="")
-                {
-                    switch($field["type"])
-                    {
-                        case "boolean":
-                            $element = new Checkbox($field["label"],$field["name"],$field["description"],1);
-                            break;
-
-                        case "enum":
-                            $element = new SelectionList($field["label"],$field["name"]);
-                            foreach($field["options"] as $value => $option)
-                            {
-                                $element->addOption($option, $value."");
-                            }
-                            break;
-
-                        case "date":
-                        case "datetime":
-                            $element = new DateField($field["label"], $field["name"]);
-                            break;
-
-                        case "integer":
-                        case "double":
-                            $element = new TextField($field["label"],$field["name"],$field["description"]);
-                            $element->setAsNumeric();
-                            break;
-
-                        case "textarea":
-                            $element = new TextArea($field["label"],$field["name"],$field["description"]);
-                            break;
-
-                        default:
-                            $element = new TextField($field["label"],$field["name"],$field["description"]);
-                            break;
-                    }
-                }
-                else
-                {
-                    $element = new ModelField($field["reference"],$field["referenceValue"]);
-                }
-
-                foreach($field["validators"] as $validator)
-                {
-                    switch($validator["type"])
-                    {
-                        case "required":
-                            $element->setRequired(true);
-                            break;
-                        case "unique":
-                            $element->setUnique(true);
-                            break;
-                        case "regexp":
-                            $element->setRegexp((string)$validator["parameter"]);
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                $renderer = (string)$fieldNames[$i]["renderer"];
-                $element = new $renderer();
-            }
-            $form->add($element);
-        }
-
-        $form->addAttribute("style","width:50%");
-        $form->useAjax(true, false);
-        return $form;
     }
 
     /**
@@ -438,7 +354,7 @@ class ModelController extends Controller
         }
         else
         {
-            $form = $this->createDefaultForm();
+            $form = new DefaultForm($this->model);
         }
         return $form;
     }
@@ -453,7 +369,8 @@ class ModelController extends Controller
 
         $form = $this->getForm();
         $this->label = "New ".$this->label;
-        $form->setCallback($this->callbackMethod,
+        $form->setCallback(
+            $this->callbackMethod,
             array(
                 "action"=>"add",
                 "instance"=>$this,
