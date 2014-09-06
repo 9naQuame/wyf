@@ -10,11 +10,8 @@ class User
      * @param string $activity
      * @param string $data
      */
-    public static function log($activity,$data=null)
-    {
-        $db = Db::get();
-        $data = Db::escape(json_encode($data));
-                
+    public static function log($activity)
+    {           
         if(ENABLE_AUDIT_TRAILS === true && class_exists("SystemAuditTrailModel", false))
         {
             SystemAuditTrailModel::log(

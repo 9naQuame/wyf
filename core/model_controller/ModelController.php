@@ -175,7 +175,6 @@ class ModelController extends Controller
     protected $forceDeleteOperation = false;
     protected $historyModels = array();
     protected $urlBase;
-    private static $pendingErrors;
     
     /**
      * Constructor for the ModelController.
@@ -381,6 +380,30 @@ class ModelController extends Controller
         
         return $form->render();
     }
+    
+    private function setFormErrors($form, $errors)
+    {
+        $fields = array_keys($errors);
+        foreach($fields as $field)
+        {
+            foreach($errors[$field] as $error)
+            {
+                try{
+                    $element = $form->getElementByName($field);
+                }
+                catch(Exception $e)
+                {
+                    $element = $form->getElementById(str_replace(".", "_", $field));
+                }
+                $element->addError($error);
+            }
+        }
+
+        foreach($errors as $fieldName => $error)
+        {
+            $form->addError($error);
+        }        
+    }
 
     /**
      * The callback used by the form class. This callback is only called when
@@ -389,88 +412,30 @@ class ModelController extends Controller
      * @param array $data The data from the form
      * @param Form $form an instance of the form
      * @param mixed $c Specific data from the form, this normally includes an instance of the controller
-     * @param boolean $redirect If true the controller redirects the page after execution
+     * 
      * @see ModelController::$callbackFunction
      * @return boolean
      */
-    public static function callback($data, $form, $c, $redirect=true, &$id=null)
-    { 
-        switch($c["action"])
+    public static function callback($data, $form, $c)
+    {
+        $return = $c["instance"]->model->setData($data);
+        if($return===true)
         {
-        case "add":
-            $return = $c["instance"]->model->setData($data);
-            if($return===true)
+            if($c['action'] == 'add')
             {
                 $id = $c["instance"]->model->save();
-                User::log($c["success_message"],$data);
-                if($redirect)
-                {
-                    Application::redirect($c["instance"]->urlPath."?notification=".urlencode($c["success_message"]));
-                }
-                else
-                {
-                    return true;
-                }
             }
             else
             {
-                $fields = array_keys($return["errors"]);
-                foreach($fields as $field)
-                {
-                    foreach($return["errors"][$field] as $error)
-                    {
-                        try{
-                            $element = $c["form"]->getElementByName($field);
-                        }
-                        catch(Exception $e)
-                        {
-                            $element = $c["form"]->getElementById(str_replace(".", "_", $field));
-                        }
-                        $element->addError(str_replace("%field_name%",$element->getLabel(),$error));
-                    }
-                }
-                
-                foreach($return['errors'] as $fieldName => $error)
-                {
-                    $form->addError(str_replace("%field_name%",str_replace('_', ' ', $fieldName),$error));
-                }
+                $id = $c["instance"]->model->update($c["key_field"],$c["key_value"]);
             }
-            break;
-
-        case "edit":
-            $return = $c["instance"]->model->setData($data,$c["key_field"],$c["key_value"]);
-            if($return===true)
-            {
-                $c["instance"]->model->update($c["key_field"],$c["key_value"]);
-                User::log($c["success_message"],$data);
-                if($redirect)
-                {
-                    Application::redirect($c["instance"]->urlPath."?notification=".urlencode($c["success_message"]));
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                $fields = array_keys($return["errors"]);
-                self::$pendingErrors = $return['errors'];
-                foreach($fields as $field)
-                {
-                    foreach($return["errors"][$field] as $error)
-                    {
-                        $element = $c["form"]->getElementByName($field);
-                        $element->addError(str_replace("%field_name%",$element->getLabel(),$error));
-                    }
-                }
-                foreach($return['errors'] as $fieldName => $error)
-                {
-                    $form->addError(str_replace("%field_name%",str_replace('_', ' ', $fieldName),$error));
-                }
-            }
-            break;
+            User::log($c["success_message"]);
+            Application::redirect($c["instance"]->urlPath."?notification=".urlencode($c["success_message"]));
         }
+        else
+        {
+            self::setFormErrors($form, $return['errors']);
+        }        
     }
 
     protected function getModelData($id)
