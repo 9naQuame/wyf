@@ -75,27 +75,6 @@ class ModelController extends Controller
      * @var string
      */
     protected $localPath;
-
-    /**
-     * An instance of the template engine.
-     * @todo Take this variable out so that the output is handled by a third party;
-     * @var TemplateEngine
-     */
-    private $t;
-
-    /**
-     * An instance of the Table class that is stored in here for the purpose
-     * of displaying and also manipulating the model's data.
-     * @var Table
-     */
-    protected $table;
-
-    /**
-     * An instance of the Toolbar class. This toolbar is put on top of the list
-     * which is used to display the model.
-     * @var Toolbar
-     */
-    protected $toolbar;
     
     /**
      * The controller action to be performed.
@@ -174,7 +153,6 @@ class ModelController extends Controller
     protected $forceEditOperation = false;
     protected $forceDeleteOperation = false;
     protected $historyModels = array();
-    protected $urlBase;
     
     /**
      * Constructor for the ModelController.
@@ -187,111 +165,22 @@ class ModelController extends Controller
         $this->modelName = ($this->modelName == "" ? $model : $this->modelName);
         $this->model = Model::load($this->modelName);
         $this->name = $this->model->name;
-        $this->t = $t;
-        $this->path = $path;
-        $this->urlBase = $this->urlBase == '' ? ($redirectedPackage != '' ? "$redirectedPackage" : '') . $this->modelName : $this->urlBase;
-        $this->urlPath = Application::$prefix."/".str_replace(".","/",$this->urlBase);
+        $urlBase = ($redirectedPackage != '' ? "$redirectedPackage" : '') . $this->modelName;
+        $this->urlPath = Application::$prefix."/".str_replace(".","/",$urlBase);
         $this->permissionPrefix = str_replace(".", "_", $redirectedPackage) . str_replace(".", "_", $this->modelName);
-        $this->localPath = "app/modules/".str_replace(".","/",$this->urlBase);
-
+        $this->localPath = "app/modules/".str_replace(".","/",$urlBase);
         $this->label = $this->model->label;
         $this->description = $this->model->description;
         Application::setTitle($this->label);
-        $this->toolbar = new Toolbar();
-        $this->table = new MultiModelTable(Application::$prefix."/".str_replace(".","/",$this->urlBase)."/");
-        $this->table->useAjax = true;
         
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
     }
     
-    private function setupCRUDOperations()
+    protected function setupListView($listView)
     {
-        if($this->hasAddOperation && (User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation))
-        {
-            $this->toolbar->addLinkButton("New",$this->name . "/add");
-        }  
-        if($this->hasEditOperation && (User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation))
-        {
-            $this->table->addOperation("edit","Edit");
-        }
-        if($this->hasDeleteOperation && (User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation))
-        {
-            $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
-        }        
-    }
-
-    private function setupImportExportOperations()
-    {
-        if(User::getPermission($this->permissionPrefix."_can_export"))
-        {
-            $exportButton = new MenuButton("Export");
-            $exportButton->addMenuItem("PDF", "#","wyf.openWindow('".$this->urlPath."/export/pdf')");
-            $exportButton->addMenuItem("CSV Data", "#","wyf.openWindow('".$this->urlPath."/export/csv')");
-            $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
-            $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
-            $this->toolbar->add($exportButton);
-        }    
-        if(User::getPermission($this->permissionPrefix."_can_import"))
-        {
-            $this->toolbar->addLinkButton("Import",$this->urlPath."/import");
-        }          
-    }
-
-    /**
-     * Sets up the list that is shown by default when the Model controller is
-     * used. This list normall has the toolbar on top and the table below.
-     * This method performs checks to ensure that the user has permissions
-     * to access a particular operation before it renders the operation.
-     */
-    protected function setupList()
-    {
-
-        $this->setupCRUDOperations();
-        $this->setupImportExportOperations();
         
-        $this->toolbar->addLinkButton("Search","#")->setLinkAttributes(
-            "onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\""
-        );
-
-        if(User::getPermission($this->permissionPrefix."_can_view"))
-        {
-            $this->table->addOperation("view","View");
-        }
-        
-        if(User::getPermission($this->permissionPrefix."_can_audit"))
-        {
-            $this->table->addOperation("audit","History");
-        }          
-        
-        if(User::getPermission($this->permissionPrefix."_can_view_notes"))
-        {
-            $this->table->addOperation("notes","Notes");
-        }          
     }
     
-    private function getDefaultFieldNames()
-    {
-        $fieldNames = array();
-        $keyField = $this->model->getKeyField();
-        $fieldNames[$keyField] = "{$this->model->package}.{$keyField}";
-        $fields = $this->model->getFields();
-
-        foreach($fields as $i => $field)
-        {
-            if($field["reference"] == "")
-            {
-                $fieldNames[$i] = $this->model->package.".".$field["name"];
-            }
-            else
-            {
-                $modelInfo = Model::resolvePath($field["reference"]);
-                $fieldNames[$i] = $modelInfo["model"] . "." . $field["referenceValue"];
-            }
-        }   
-        
-        return $fieldNames;
-    }
-
     /**
      * Default controller action. This is the default action which is executed
      * when no action is specified for a given call.
@@ -299,31 +188,17 @@ class ModelController extends Controller
      */
     public function getContents()
     {
-        if(count($this->listFields) > 0)
-        {
-            $fieldNames = $this->listFields;
-        }
-        else
-        {
-            $fieldNames = $this->getDefaultFieldNames();
-        }
-        
-        foreach($fieldNames as $i => $fieldName)
-        {
-            $fieldNames[$i] = substr($fieldName, 0, 1) == "." ? $this->redirectedPackage . $fieldName : $fieldName;
-        }
-        
-        $this->setupList();
-        $params["fields"] = $fieldNames;
-        $params["page"] = 0;
-        $params["sort_field"] = array(
+        $listView = new MCListView(
             array(
-                "field" =>  $this->model->database . "." . $this->model->getKeyField(),
-                "type"  =>  "DESC"
+                'model' => $this->model, 
+                'url_path' => $this->urlPath, 
+                'list_fields' =>$this->listFields,
+                'permission_prefix' => $this->permissionPrefix
             )
         );
-        $this->table->setParams($params);
-        return '<div id="table-wrapper">' . $this->toolbar->render().$this->table->render() . '</div>';
+        
+        $this->setupListView($listView);
+        return '<div id="table-wrapper">' . $listView->render() . '</div>';
     }
 
     /**
