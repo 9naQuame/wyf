@@ -515,40 +515,12 @@ class ModelController extends Controller
      */
     public function export($params)
     {
-        $fields = $this->getForm()->getFields();
-        $fieldNames = array();
-        $headers = array();
-        foreach($fields as $field)
-        {
-            $fieldNames[] = $field->getName();
-            $headers[] = $field->getLabel();
-        }
-        
-        $reportClass = strtoupper($params[0]) . 'Report';
-        $report = new $reportClass();
-        
-        $title = new TextContent($this->label);
-        $title->style["size"] = 12;
-        $title->style["bold"] = true;
-        
-        $this->model->setQueryResolve(false);
-        $data = $this->model->get(array("fields"=>$fieldNames));
-        
-        foreach($data as $j => $row)
-        {
-            for($i = 0; $i < count($row); $i++)
-            {
-                $fields[$i]->setValue($row[$fieldNames[$i]]);
-                $data[$j][$fieldNames[$i]] = strip_tags($fields[$i]->getDisplayValue());
-            }
-        }
-        
-        $table = new TableContent($headers,$data);
-        $table->style["decoration"] = true;
-
-        $report->add($title,$table);
-        $report->output();
-        die();
+        $exporter = new MCDataExporterJob();
+        $exporter->fields = $this->getForm()->getFields(); 
+        $exporter->format = $params[0];
+        $exporter->model = $this->model;
+        $exporter->label = $this->label;
+        $exporter->run();
     }
 
     /**
