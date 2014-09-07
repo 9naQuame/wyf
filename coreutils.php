@@ -35,13 +35,7 @@ function add_include_path($path, $addBase = true)
 
 function autoloader($class)
 {
-    if((include_once $class.".php") === false)
-    {
-        if((include_once str_replace("_", "/", $class) . '.php') === false)
-        {
-            
-        }
-    }
+    @include_once $class.".php";
 }
 
 /**

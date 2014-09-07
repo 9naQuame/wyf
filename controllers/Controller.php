@@ -137,6 +137,8 @@ class Controller
     
     public $redirectedPackageName;
     
+    private static $templateEngine;
+    
     /**
      * A utility method to load a controller. This method loads the controller
      * and fetches the contents of the controller into the Controller::$contents
@@ -325,10 +327,12 @@ class Controller
             
             if(is_array($ret))
             {
-                $t = new TemplateEngine();
+                $t = self::getTemplateEngine();
                 $t->assign('controller_path', $controller_path);
                 $t->assign($ret["data"]);
-                $controller->content = $t->fetch(isset($ret["template"])?$ret["template"]:$path[$i+1].".tpl");
+                $controller->content = $t->fetch(
+                    isset($ret["template"]) ? $ret["template"] : $path[$i+1] . ".tpl"
+                );
             }
             else if(is_string($ret))
             {
@@ -337,6 +341,15 @@ class Controller
         }
         
         return $controller;
+    }
+    
+    public static function getTemplateEngine()
+    {
+        if(!is_object(self::$templateEngine))
+        {
+            self::$templateEngine = new TemplateEngine();
+        }
+        return self::$templateEngine;
     }
 
     /**
@@ -374,18 +387,6 @@ class Controller
     public function getPermissions()
     {
 
-    }
-
-    /**
-     * Returns an array description to be used for rendering the smarty template.
-     * 
-     * @param string   $template
-     * @param array    $data
-     * @deprecated Do not use in new code
-     */
-    public function getTemplateDescription($template,$data)
-    {
-        return array("template"=>"file:/".getcwd()."/app/modules/$template","data"=>$data);
     }
     
     /**

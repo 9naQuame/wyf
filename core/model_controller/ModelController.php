@@ -541,144 +541,11 @@ class ModelController extends Controller
         $report->output();
         die();
     }
-    
-    private function doImport()
-    {
-        $uploadfile = "app/temp/" . uniqid() . "_data";
-        $cleared = move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile);                
-        if (!$cleared) die("Failed to upload file");
-            
-        $file = fopen($uploadfile,"r");
-        $headers = fgetcsv($file);
-        $model = $this->model;
-        $formFields = $this->getForm()->getFields();
-        $fileFields = array();
-        
-        foreach($formFields as $field)
-        {
-            $index = array_search($field->getLabel(), $headers);
-            if($index !== false)
-            {
-                $fileFields[] = $field;
-            }
-        }
-        
-        $primary_key = $model->getKeyField();
-        $secondary_key = $model->getKeyField("secondary");
-        $tertiary_key = $model->getKeyField("tertiary");
-        $hasErrors = false;
-        
-        if($secondary_key == null)
-        {
-            print "<div id='information'><h4>Warning</h4>  This model has no secondary keys so imported data may overlap</div>";
-        }
-
-        $out = "<table class='data-table'>";
-        $out .= "<thead><tr><td>Save Status</td><td>".implode("</td><td>",$headers)."</td></tr></thead>";
-        $out .= "<tbody>";
-        $line = 1;
-        $status = "<h3>Successfully Imported</h3>";
-        
-        $model->datastore->beginTransaction();
-
-        while(!feof($file))
-        {
-            $data = fgetcsv($file);
-            $model_data = array();
-            $errors = array();
-            $hasValues = false;
-            
-            if(!is_array($data)) continue;
-
-            foreach($data as $i => $value)
-            {
-                if(trim($value) !== '') $hasValues = true;
-                $formFields[$i]->setWithDisplayValue($value);
-                $display_data[$fileFields[$i]->getName()] = $value;
-                $model_data[$fileFields[$i]->getName()] = $formFields[$i]->getValue();
-            }
-            
-            if(!$hasValues) continue;
-            
-            if($secondary_key!=null && $model_data[$secondary_key] != '')
-            {
-                $temp_data = $model->getWithField($secondary_key,$model_data[$secondary_key]);
-                if(count($temp_data)>0) 
-                {
-                    if($tertiary_key != "")
-                    {
-                        $model_data[$primary_key] = $temp_data[0][$primary_key];
-                        $model_data[$tertiary_key] = $temp_data[0][$tertiary_key];
-                    }
-                                        
-                    $validated = $model->setData($model_data,$primary_key,$temp_data[0][$primary_key]);
-                    if($validated===true) $model->update($primary_key,$temp_data[0][$primary_key]);
-                    $saveStatus = 'Updated';
-                }
-                else
-                {
-                    $validated = $model->setData($model_data);
-                    if($validated===true) $model->save();
-                    $saveStatus = 'Added';
-                }
-            }
-            else
-            {
-                $validated = $model->setData($model_data);
-                if($validated===true) $model->save();
-                $saveStatus = 'Added';
-            }
-
-            if($validated===true)
-            {
-                $out .= "<tr><td>$saveStatus</td><td>".implode("</td><td>",$display_data)."</td></tr>";
-            }
-            else
-            {
-                $out .= "<tr style='border:1px solid red'><td>Error</td>";
-                foreach($display_data as $field=>$value)
-                {
-                    $out .= "<td>$value";
-                    if(count($validated["errors"][$field])>0)
-                    {
-                        $out .= "<div class='fapi-error'><ul>";
-                        foreach($validated["errors"][$field] as $error)
-                        {
-                            $error = str_replace("%field_name%",$fieldInfo[$field]["label"],$error);
-                            $out .= "<li>$error</li>";
-                            if($cli) echo "*** Error on line $line ! [$field] $error ($value)\n";
-                        }
-                        $out .= "</ul></div>";
-                    }
-                    $out .= "</td>";
-                }
-                $out .= "</tr>";
-                $hasErrors = true;
-                $status = "<h3>Errors Importing Data</h3><div class='error'>Errors on line $line</div>";
-                if($_POST["break_on_errors"]=="1") break;
-            }
-            $line++;
-        }
-        $out .= "</tbody>";
-        $out .= "</table>";
-        
-        if(!$hasErrors) $model->datastore->endTransaction();
-
-        if($cli)
-        {
-            message($status, $cli, null, false);
-        }
-        else
-        {
-            print "$status<div style='overflow:auto; height:400px; border:1px solid #909090'>$out</div>";
-        }
-        die();
-    }
 
     /**
      * Provides all the necessary forms needed to start an update.
      * @param $params
-     * @return unknown_type
+     * @return string
      */
     public function import()
     {
@@ -692,22 +559,37 @@ class ModelController extends Controller
         $form->setCallback($this->getClassName() . '::importCallback', $this);
         $form->setSubmitValue('Import Data');
 
-        return $form->render();
+        return $this->arbitraryTemplate(
+            Application::getWyfHome('core/model_controller/templates/import.tpl'), 
+            array(
+                'form' => $form->render()
+            )
+        );
     }
     
-    public function importSuccess($params)
+    public function importReport($status)
     {
-        
+        self::getTemplateEngine()->assign('import_status', $status['statuses']);
+        self::getTemplateEngine()->assign('import_headers', $status['headers']);
+        self::getTemplateEngine()->assign('import_message', $status['message']);
     }
     
-    public static function importCallback($data, $form, $instace)
+    public static function importCallback($data, $form, $instance)
     {
         $id = uniqid();
         $uploadfile = "app/temp/{$id}_data";
         if(move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile))
         {
             $importer = new MCDataImporterJob();
-            $importer->run();
+            $importer->file = $uploadfile;
+            $importer->model = $instance->model->package;
+            $importer->fields = $instance->getForm()->getFields();
+            $status = $importer->run();
+            $instance->importReport($status);
+            if(is_string($status))
+            {
+                $form->addError($status);
+            }
         }
         else
         {
