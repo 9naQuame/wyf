@@ -204,19 +204,24 @@ class ModelController extends Controller
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
     }
     
-    /**
-     * Sets up the list that is shown by default when the Model controller is
-     * used. This list normall has the toolbar on top and the table below.
-     * This method performs checks to ensure that the user has permissions
-     * to access a particular operation before it renders the operation.
-     */
-    protected function setupList()
+    private function setupCRUDOperations()
     {
         if($this->hasAddOperation && (User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation))
         {
             $this->toolbar->addLinkButton("New",$this->name . "/add");
+        }  
+        if($this->hasEditOperation && (User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation))
+        {
+            $this->table->addOperation("edit","Edit");
         }
+        if($this->hasDeleteOperation && (User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation))
+        {
+            $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
+        }        
+    }
 
+    private function setupImportExportOperations()
+    {
         if(User::getPermission($this->permissionPrefix."_can_export"))
         {
             $exportButton = new MenuButton("Export");
@@ -225,24 +230,28 @@ class ModelController extends Controller
             $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
             $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
             $this->toolbar->add($exportButton);
-        }
-
+        }    
         if(User::getPermission($this->permissionPrefix."_can_import"))
         {
             $this->toolbar->addLinkButton("Import",$this->urlPath."/import");
-        }
+        }          
+    }
+
+    /**
+     * Sets up the list that is shown by default when the Model controller is
+     * used. This list normall has the toolbar on top and the table below.
+     * This method performs checks to ensure that the user has permissions
+     * to access a particular operation before it renders the operation.
+     */
+    protected function setupList()
+    {
+
+        $this->setupCRUDOperations();
+        $this->setupImportExportOperations();
         
-        $this->toolbar->addLinkButton("Search","#")->setLinkAttributes("onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\"");
-    
-        if($this->hasEditOperation && (User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation))
-        {
-            $this->table->addOperation("edit","Edit");
-        }
-        
-        if($this->hasDeleteOperation && (User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation))
-        {
-            $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
-        }
+        $this->toolbar->addLinkButton("Search","#")->setLinkAttributes(
+            "onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\""
+        );
 
         if(User::getPermission($this->permissionPrefix."_can_view"))
         {
