@@ -1,6 +1,6 @@
 <?php
 
-class DefaultForm extends Form
+class MCDefaultForm extends Form
 {
     public function __construct(Model $model)
     {
@@ -25,6 +25,8 @@ class DefaultForm extends Form
             
             $this->add($element);
         }
+        
+        $this->addAttribute('style', 'width:50%');
     }
     
     private function getNumericField($field)

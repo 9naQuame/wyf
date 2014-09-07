@@ -221,8 +221,7 @@ class ModelController extends Controller
         {
             $exportButton = new MenuButton("Export");
             $exportButton->addMenuItem("PDF", "#","wyf.openWindow('".$this->urlPath."/export/pdf')");
-            $exportButton->addMenuItem("Data", "#","wyf.openWindow('".$this->urlPath."/export/csv')");
-            $exportButton->addMenuItem("Template", "#","wyf.openWindow('".$this->urlPath."/export/csv/template')");
+            $exportButton->addMenuItem("CSV Data", "#","wyf.openWindow('".$this->urlPath."/export/csv')");
             $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
             $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
             $this->toolbar->add($exportButton);
@@ -353,7 +352,7 @@ class ModelController extends Controller
         }
         else
         {
-            $form = new DefaultForm($this->model);
+            $form = new MCDefaultForm($this->model);
         }
         return $form;
     }
@@ -515,40 +514,6 @@ class ModelController extends Controller
             $fieldNames[] = $field->getName();
             $headers[] = $field->getLabel();
         }
-        
-    	/*switch($params[0])
-        {
-            case "pdf":
-                $report = new PDFReport();
-                break;
-                
-            case "html":
-                $report = new HTMLReport();
-                $report->htmlHeaders = true;
-                break;
-                
-            case "csv":
-                if($params[1]=="")
-                {
-                    $report = new CSVReport();
-                    $report->setDownloadFileName("{$this->model->name}.csv");
-                    $this->model->datastore->dateFormat = 2;
-                }
-                else if($params[1]=="template")
-                {
-                    $report = new CSVReport();
-                    $report->setDownloadFileName("{$this->model->name}_template.csv");
-                    $table = new TableContent($headers, array());
-                    $report->add($table);
-                    $report->output();
-                    die();
-                }
-                break;
-                
-            case "xls":
-                $report = new XLSReport();
-                break;
-        }*/
         
         $reportClass = strtoupper($params[0]) . 'Report';
         $report = new $reportClass();
@@ -715,33 +680,39 @@ class ModelController extends Controller
      * @param $params
      * @return unknown_type
      */
-    public function import($params)
+    public function import()
     {
-        if($params[0] == 'execute') 
-        {
-            $this->doImport();
-            die();
-        }           
-        
-        $data = array();
+        $this->label = "Import " . $this->label;
         $form = new Form();
-        $form->
-        add(
-            Element::create("FileUploadField","File","file","Select the file you want to upload.")->
-                setScript($this->urlPath . "/import/execute")->
-                setJsExpression("wyf.showUploadedData(callback_data)"),
+        $form->add(
+            Element::create("UploadField","File","file","Select the file you want to upload."),
             Element::create("Checkbox","Break on errors","break_on_errors","","1")->setValue("1")
         );
-        $form->setRenderer("default");
-        $form->addAttribute("style","width:400px");
-        $form->setShowSubmit(false);
+        $form->addAttribute("style","width:50%");
+        $form->setCallback($this->getClassName() . '::importCallback', $this);
+        $form->setSubmitValue('Import Data');
 
-        $data["form"] = $form->render();
-        return array
-        (
-            "template"=>"file:".getcwd()."/lib/controllers/import.tpl",
-            "data"=>$data
-        );
+        return $form->render();
+    }
+    
+    public function importSuccess($params)
+    {
+        
+    }
+    
+    public static function importCallback($data, $form, $instace)
+    {
+        $id = uniqid();
+        $uploadfile = "app/temp/{$id}_data";
+        if(move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile))
+        {
+            $importer = new MCDataImporterJob();
+            $importer->run();
+        }
+        else
+        {
+            $form->addError('Failed to upload file');
+        }
     }
 
     /**
