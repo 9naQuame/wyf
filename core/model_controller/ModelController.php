@@ -501,6 +501,12 @@ class ModelController extends Controller
         
     }
     
+    public function bulkdelete()
+    {
+        $this->model->delete("{$this->model->getKeyField('primary')} in (" . implode(",", json_decode($_GET['ids'])) . ")");
+        Application::redirect($this->urlPath);
+    }
+    
     public function notes($params)
     {
         $this->label = "Notes on item";        

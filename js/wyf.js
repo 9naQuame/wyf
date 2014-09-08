@@ -2,8 +2,7 @@
  * Main package for the entire WYF javascript file.
  */
 
-var wyf =
-{
+var wyf = {
     getMulti : function(params, callback)
     {
         $.getJSON('/system/api/get_multi?params=' + escape(JSON.stringify(params)),
@@ -81,6 +80,7 @@ var wyf =
     {	
         tables: new Object(),
         tableIds: new Array(),
+        checkedRows: new Array(),
         activity : null,
 		
         addTable: function(id,obj)
@@ -100,7 +100,7 @@ var wyf =
             }
         },
 		
-        render:function(table,action,params)
+        render:function(table)
         {
             var urlParams = "params=" + escape(JSON.stringify(table));
             
@@ -122,13 +122,27 @@ var wyf =
                     $("#"+table.id+">tbody").html(r.tbody);
                     $("#"+table.id+"Footer").html(r.footer);
                     $('#'+table.id+"-operations").html(r.operations);
+                    $('.table-checkbox').change(function(event){
+                        if(event.target.checked)
+                        {
+                            wyf.tapi.checkedRows.push(event.target.value);
+                        }
+                        else
+                        {
+                            var index = wyf.tapi.checkedRows.indexOf(event.target.value);
+                            wyf.tapi.checkedRows.splice(index, 1);
+                        }
+                        console.log(wyf.tapi.checkedRows);
+                    }).each(function(){
+                        if(wyf.tapi.checkedRows.indexOf(this.value) >= 0) this.checked = true;
+                    });
                 }
             });
         },
 		
         sort:function(id,field)
         {
-            if(wyf.tapi.tables[id].sort == "ASC")
+            if(wyf.tapi.tables[id].sort === "ASC")
             {
                 wyf.tapi.tables[id].sort = "DESC";
             }
@@ -160,24 +174,26 @@ var wyf =
 		
         checkToggle:function(id,checkbox)
         {
-            $("."+id+"-checkbox").prop('checked', checkbox.checked);
+            $("."+id+"-checkbox").prop('checked', checkbox.checked).each(function(){
+                var index = wyf.tapi.checkedRows.indexOf(this.value);
+                if(index >= 0) wyf.tapi.checkedRows.splice(index, 1);
+                wyf.tapi.checkedRows.push(this.value);
+            });
         },
 		
-        remove:function(id)
+        confirmBulkOperation:function(message, path)
         {
-            var ids = new Array();
-            if(confirm("Are you sure you want to delete the selected elements?"))
+            var count = wyf.tapi.checkedRows.length;
+            if(count === 0)
             {
-                $("."+id+"-checkbox").each(
-                    function()
-                    {
-                        if(this.checked)
-                        {
-                            ids.push(this.value);
-                        }
-                    }
-                    );
-                wyf.tapi.render(wyf.tapi.tables[id],"delete",JSON.stringify(ids));
+                alert('Please select some items');
+            }
+            else
+            {
+                if(confirm(message + ' ' + count + ' selected item(s)'))
+                {
+                    document.location = path + '?ids=' + escape(JSON.stringify(wyf.tapi.checkedRows));
+                }
             }
         },
 		

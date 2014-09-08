@@ -41,6 +41,16 @@ class MCListView
         $this->table->addOperation($link, $label, $action);
     }
     
+    public function addBulkOperation($link, $label, $confirm = false)
+    {
+        $this->toolbar->addLinkButton(
+            $label,
+            $confirm === false ?
+                "{$this->urlPath}/{$link}" :
+                "javascript:wyf.tapi.confirmBulkOperation(\"$confirm\",\"{$this->urlPath}/{$link}\")"
+        );
+    }
+    
     public function setModel($model)
     {
         $this->model = $model;
@@ -59,6 +69,7 @@ class MCListView
         if($this->hasDeleteOperation && (User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation))
         {
             $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
+            $this->addBulkOperation("bulkdelete", "Delete Selected", "Are you sure you want to delete ");
         }        
     }
 

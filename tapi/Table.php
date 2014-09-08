@@ -90,7 +90,7 @@ class Table
                 {
                     $params = "align='right'";
                 }
-                $table .= "<td $params >" . ($name == $firstColumnKey ? "<input type='checkbox' class='{$this->name}-checkbox' value='$key' > " : '') . strip_tags($value) . "</td>";
+                $table .= "<td $params >" . ($name == $firstColumnKey ? "<input type='checkbox' class='table-checkbox {$this->name}-checkbox' value='$key' > " : '') . strip_tags($value) . "</td>";
             }
             
             if($this->operations!=null)
