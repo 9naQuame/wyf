@@ -155,6 +155,12 @@ class ModelController extends Controller
     protected $historyModels = array();
     
     /**
+     *
+     * @var MCListView
+     */
+    protected $listView;
+    
+    /**
      * Constructor for the ModelController.
      * @param $model An instance of the Model class which represents the model
      *               to be used.
@@ -180,7 +186,7 @@ class ModelController extends Controller
      * 
      * @param MCListView $listView
      */
-    protected function setupListView($listView)
+    protected function setupListView()
     {
         
     }
@@ -188,11 +194,12 @@ class ModelController extends Controller
     /**
      * Default controller action. This is the default action which is executed
      * when no action is specified for a given call.
+     * 
      * @see lib/controllers/Controller::getContents()
      */
     public function getContents()
     {
-        $listView = new MCListView(
+        $this->listView = new MCListView(
             array(
                 'model' => $this->model, 
                 'url_path' => $this->urlPath, 
@@ -201,8 +208,8 @@ class ModelController extends Controller
             )
         );
         
-        $this->setupListView($listView);
-        return '<div id="table-wrapper">' . $listView->render() . '</div>';
+        $this->setupListView();
+        return '<div id="table-wrapper">' . $this->listView->render() . '</div>';
     }
 
     /**
@@ -549,5 +556,27 @@ class ModelController extends Controller
             array("label"=>"Can create notes", "name"=> $this->permissionPrefix . "_can_create_notes"),
         );
     }
+    
+    public function nest(NestedModelController $controller, $args)
+    {
+        $controller->setParent($this);
+        $id = array_shift($args);
+        $controller->setParentItemId($id);
+        $methodName = array_shift($args);
+        $controller->setUrlPath("{$this->urlPath}/{$this->actionMethod}/$id");
+        if($methodName == '') $methodName = 'getContents';
+        $method = new ReflectionMethod($controller, $methodName);
+        return $method->invoke($controller, $args);
+    }
+    
+    public function getUrlPath()
+    {
+        return $this->urlPath;
+    }
+    
+    public function setUrlPath($urlPath)
+    {
+        $this->urlPath = $urlPath;
+    }    
 }
 

@@ -88,6 +88,7 @@ var wyf = {
             wyf.tapi.tableIds.push(id);
             wyf.tapi.tables[id] = obj;
             wyf.tapi.tables[id].prevPage = 0;
+            console.log(obj);
         },
 		
         init:function()

@@ -12,11 +12,11 @@ class SystemRolesController extends ModelController
     private $id = 0;
     private $save;
     private $permissions;
-
-    public function __construct()
+    public $modelName = '.roles';
+    
+    public function setupListView($listView)
     {
-        parent::__construct(".roles");
-        $this->table->addOperation("permissions", "Permissions");
+        $listView->addOperation("permissions", "Permissions");
     }
     
     public function flatenMenu($menu)

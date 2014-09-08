@@ -422,7 +422,7 @@ abstract class Model implements ArrayAccess
         if($this->validationPassed === false)
         {
             $validated = $this->validate();
-        if($validated !== true) throw new ModelException("Failed to validate the model [{$this->package}] " . json_encode($validated), $validated);
+            if($validated !== true) throw new ModelException("Failed to validate the model [{$this->package}] " . json_encode($validated), $validated);
         }
         
         $this->datastore->beginTransaction();
@@ -432,6 +432,8 @@ abstract class Model implements ArrayAccess
         {
             $this->datastore->data["entry_date"] = time();
         }
+        
+        print "Logging ...";
         
         $this->datastore->setData($this->datastore->data, $this->fields);
         $id = $this->saveImplementation();

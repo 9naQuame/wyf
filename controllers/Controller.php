@@ -139,6 +139,8 @@ class Controller
     
     private static $templateEngine;
     
+    protected $actionMethod;
+    
     /**
      * A utility method to load a controller. This method loads the controller
      * and fetches the contents of the controller into the Controller::$contents
@@ -312,15 +314,16 @@ class Controller
             }
             else
             {
-                if(method_exists($controller,$path[$i+1]))
+                $controller->actionMethod = $path[$i+1];
+                if(method_exists($controller, $controller->actionMethod))
                 {
                     $controller_class = new ReflectionClass($controller_name);
-                    $method = $controller_class->GetMethod($path[$i+1]);
+                    $method = $controller_class->GetMethod($controller->actionMethod);
                     $ret = $method->invoke($controller,array_slice($path,$i+2));
                 }
                 else
                 {
-                    $ret = "<h2>Error</h2> Method does not exist. [" . $path[$i+1] . "]";
+                    $ret = "<h2>Error</h2> Method does not exist. [" . $controller->actionMethod . "]";
                 }
             }
             
@@ -331,7 +334,7 @@ class Controller
                 $t->assign('controller_path', $controller_path);
                 $t->assign($ret["data"]);
                 $controller->content = $t->fetch(
-                    isset($ret["template"]) ? $ret["template"] : $path[$i+1] . ".tpl"
+                    isset($ret["template"]) ? $ret["template"] : $this->actionMethod . ".tpl"
                 );
             }
             else if(is_string($ret))

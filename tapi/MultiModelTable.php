@@ -191,9 +191,9 @@ class MultiModelTable extends Table
                 var externalConditions = [];
                 function {$this->name}Search()
                 {
-                    var conditions = '';
+                    //var conditions = '';
                     {$this->searchScript}
-                    wyf.tapi.tables['$this->name'].conditions = conditions;
+                    wyf.tapi.tables['$this->name'].conditions += conditions;
                     if(externalConditions['$this->name'])
                     {
                         wyf.tapi.tables['$this->name'].conditions += ((conditions != '' ?' AND ':'') + externalConditions['$this->name']);

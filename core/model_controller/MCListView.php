@@ -4,7 +4,7 @@ class MCListView
     /**
      * An instance of the Table class that is stored in here for the purpose
      * of displaying and also manipulating the model's data.
-     * @var Table
+     * @var MultiModelTable
      */
     private $table;
 
@@ -23,7 +23,9 @@ class MCListView
     private $hasEditOperation = true;
     private $urlPath;
     private $permissionPrefix;
-    
+    private $listConditions;
+    private $newLabel;
+
     public function __construct($params)
     {
         $this->toolbar = new Toolbar();
@@ -35,6 +37,20 @@ class MCListView
         $this->permissionPrefix = $params['permission_prefix'];
     }
     
+    public function setNewLabel($newLabel)
+    {
+        $this->newLabel = $newLabel;
+    }
+    
+    public function setListFields($listFields)
+    {
+        $this->listFields = $listFields;
+    }
+    
+    public function setListConditions($listConditions)
+    {
+        $this->listConditions = $listConditions;
+    }
     
     public function addOperation($link, $label, $action = null)
     {
@@ -43,7 +59,7 @@ class MCListView
     
     public function addConfirmableOperation($link, $label, $message)
     {
-        $this->table->addOperation($link, $label, "javascript:wyf.confirmRedirect('{$message}', '{$this->urlPath}/{$link}')");
+        $this->table->addOperation($link, $label, "javascript:wyf.confirmRedirect('{$message}', '{$this->urlPath}/%path%/%key%')");
     }
     
     public function addBulkOperation($link, $label, $confirm = false)
@@ -175,7 +191,28 @@ class MCListView
                 "type"  =>  "DESC"
             )
         );
+        
+        if($this->listConditions != '')
+        {
+            $params['conditions'] = $this->listConditions;
+        }
+        
         $this->table->setParams($params);
         return $this->toolbar->render().$this->table->render();
+    }
+    
+    public function setHasAddOperation($hasAddOperation)
+    {
+        $this->hasAddOperation = $hasAddOperation;
+    }
+    
+    public function setHasEditOperation($hasEditOperation)
+    {
+        $this->hasEditOperation = $hasEditOperation;
+    }
+    
+    public function setHasDeleteOperation($hasDeleteOperation)
+    {
+        $this->hasDeleteOperation = $hasDeleteOperation;
     }
 }
