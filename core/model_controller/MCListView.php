@@ -41,6 +41,11 @@ class MCListView
         $this->table->addOperation($link, $label, $action);
     }
     
+    public function addConfirmableOperation($link, $label, $message)
+    {
+        $this->table->addOperation($link, $label, "javascript:wyf.confirmRedirect('{$message}', '{$this->urlPath}/{$link}')");
+    }
+    
     public function addBulkOperation($link, $label, $confirm = false)
     {
         $this->toolbar->addLinkButton(
@@ -60,7 +65,7 @@ class MCListView
     {
         if($this->hasAddOperation && (User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation))
         {
-            $this->toolbar->addLinkButton("New",$this->name . "/add");
+            $this->toolbar->addLinkButton("New",$this->urlPath . "/add");
         }  
         if($this->hasEditOperation && (User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation))
         {

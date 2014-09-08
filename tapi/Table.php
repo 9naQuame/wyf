@@ -47,7 +47,6 @@ class Table
          
         //Render Headers
         $table .= "<thead><tr>";
-        //$table .= "<td><input type='checkbox' onchange=\"wyf.tapi.notify('$this->name','0',this)\"></td><td>";
         $table .= implode("</td><td>",$this->headers);
         
         if($this->useInlineOperations)
@@ -73,9 +72,12 @@ class Table
             $table = $this->renderHeader();
         }
         
-        reset($this->data[0]);
-        next($this->data[0]);
-        $firstColumnKey = key($this->data[0]);
+        if(isset($this->data[0]))
+        {
+            reset($this->data[0]);
+            next($this->data[0]);
+            $firstColumnKey = key($this->data[0]);
+        }
         
         foreach($this->data as $i => $row)
         {
@@ -90,7 +92,9 @@ class Table
                 {
                     $params = "align='right'";
                 }
-                $table .= "<td $params >" . ($name == $firstColumnKey ? "<input type='checkbox' class='table-checkbox {$this->name}-checkbox' value='$key' > " : '') . strip_tags($value) . "</td>";
+                $table .= "<td $params >" . 
+                    ($name == $firstColumnKey ? "<input type='checkbox' class='table-checkbox {$this->name}-checkbox' value='$key' > " : '') . 
+                    strip_tags($value) . "</td>";
             }
             
             if($this->operations!=null)

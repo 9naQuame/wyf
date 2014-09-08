@@ -176,6 +176,10 @@ class ModelController extends Controller
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
     }
     
+    /**
+     * 
+     * @param MCListView $listView
+     */
     protected function setupListView($listView)
     {
         
