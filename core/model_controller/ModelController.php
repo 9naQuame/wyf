@@ -565,6 +565,7 @@ class ModelController extends Controller
         $methodName = array_shift($args);
         $controller->setUrlPath("{$this->urlPath}/{$this->actionMethod}/$id");
         if($methodName == '') $methodName = 'getContents';
+        $this->label = $controller->getLabel();
         $method = new ReflectionMethod($controller, $methodName);
         return $method->invoke($controller, $args);
     }

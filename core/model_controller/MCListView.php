@@ -24,7 +24,7 @@ class MCListView
     private $urlPath;
     private $permissionPrefix;
     private $listConditions;
-    private $newLabel;
+    private $newLabel = 'New';
 
     public function __construct($params)
     {
@@ -81,7 +81,7 @@ class MCListView
     {
         if($this->hasAddOperation && (User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation))
         {
-            $this->toolbar->addLinkButton("New",$this->urlPath . "/add");
+            $this->toolbar->addLinkButton($this->newLabel, $this->urlPath . "/add");
         }  
         if($this->hasEditOperation && (User::getPermission($this->permissionPrefix."_can_edit") || $this->forceEditOperation))
         {
@@ -191,11 +191,7 @@ class MCListView
                 "type"  =>  "DESC"
             )
         );
-        
-        if($this->listConditions != '')
-        {
-            $params['conditions'] = $this->listConditions;
-        }
+        $params['hardConditions'] = $this->listConditions;
         
         $this->table->setParams($params);
         return $this->toolbar->render().$this->table->render();
