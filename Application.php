@@ -335,7 +335,7 @@ class Application
      */
     public static function redirect($url, $notification = false)
     {
-        if(isset($_GET["redirect"]))
+        if($_GET["redirect"] != '')
         {
             header("Location: {$_GET["redirect"]}" . ($notification === false ? '' : "?notification={$notification}"));
         }
