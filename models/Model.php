@@ -433,8 +433,6 @@ abstract class Model implements ArrayAccess
             $this->datastore->data["entry_date"] = time();
         }
         
-        print "Logging ...";
-        
         $this->datastore->setData($this->datastore->data, $this->fields);
         $id = $this->saveImplementation();
         $this->postAddHook($id, $this->getData());

@@ -105,7 +105,7 @@ class MCListView
             $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
             $this->toolbar->add($exportButton);
         }    
-        if(User::getPermission($this->permissionPrefix."_can_import"))
+        if($this->hasAddOperation && User::getPermission($this->permissionPrefix."_can_import"))
         {
             $this->toolbar->addLinkButton("Import",$this->urlPath."/import");
         }          
