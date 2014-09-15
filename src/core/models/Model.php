@@ -1,4 +1,7 @@
 <?php
+
+add_include_path(Application::getWyfHome('modules/system/audit_trail'));
+
 /**
  * A model represents an abstract data storing entity. Models are used to access
  * data.
@@ -424,27 +427,8 @@ abstract class Model implements ArrayAccess
         $this->datastore->setData($this->datastore->data, $this->fields);
         $id = $this->saveImplementation();
         $this->postAddHook($id, $this->getData());
-        
-        if($this->package != 'system.audit_trail' && $this->package != 'system.audit_trail_data')
-        {
-            if($id === null)
-            {
-                $id = $this->datastore->data[$this->getKeyField()];
-            }
 
-            if(ENABLE_AUDIT_TRAILS === true && $this->disableAuditTrails === false)
-            {
-                @SystemAuditTrailModel::log(
-                    array(
-                        'item_id' => $id,
-                        'item_type' => $this->package,
-                        'description' => 'Added item',
-                        'type' => SystemAuditTrailModel::AUDIT_TYPE_ADDED_DATA,
-                        'data' => json_encode($this->datastore->data)
-                    )
-                );
-            }
-        }
+        SystemAuditTrailModel::logAdd($this, $id);
         
         $this->datastore->endTransaction();
         $this->postCommitHook($id, $this->getData());
@@ -502,10 +486,7 @@ abstract class Model implements ArrayAccess
         $this->queryResolve = false;
         $this->queryExplicitRelations = false;
         
-        if(ENABLE_AUDIT_TRAILS === true && $this->disableAuditTrails === false)
-        {
-            $before = reset($this->getWithField2($field, $value));
-        }
+        $before = SystemAuditTrailModel::getPreUpdateData($this, $field, $value);
         
         $this->queryResolve = $resolve;
         $this->queryExplicitRelations = $explicitRelations;
@@ -513,36 +494,9 @@ abstract class Model implements ArrayAccess
         $this->preUpdateHook($field, $value);
         $this->datastore->setData($this->datastore->data, $this->fields);
         $this->updateImplementation($field, $value);
-        $this->postUpdateHook();
+        $this->postUpdateHook();        
         
-        if(ENABLE_AUDIT_TRAILS === true && $this->disableAuditTrails === false)
-        {
-            $data = json_encode(
-                array(
-                    "after"=>$this->datastore->data ,
-                    "before"=>$before
-                )
-            );
-                        
-            if($this->datastore->tempData[0][$this->getKeyField()] == null)
-            {
-                $id = $before[$this->getKeyField()];
-            }
-            else
-            {
-                $id = $this->datastore->tempData[0][$this->getKeyField()];
-            }
-            
-            SystemAuditTrailModel::log(
-                array(
-                    'item_id' => $id,
-                    'item_type' => $this->package,
-                    'description' => 'Updated item',
-                    'type' => SystemAuditTrailModel::AUDIT_TYPE_UPDATED_DATA,
-                    'data' => $data
-                )
-            );
-        }
+        SystemAuditTrailModel::logUpdate($this, $before);
         
         $this->datastore->endTransaction();
     }
@@ -559,35 +513,9 @@ abstract class Model implements ArrayAccess
         $explicitRelations = $this->queryExplicitRelations;
         $this->queryResolve = false;
         $this->queryExplicitRelations = true;
+
+        SystemAuditTrailModel::logDelete($this, $key_field, $key_value);
         
-        if($key_value === null)
-        {
-            $data = reset($this->get(array('conditions' => $key_field)));
-        }
-        else
-        {
-            $data = reset($this->getWithField2($key_field, $key_value));
-        }
-        
-        if($data === false)
-        {
-            //trigger_error("Trying to delete an item which does not exist from [{$this->package}] ", E_USER_NOTICE);
-        }
-        else
-        {
-            if(ENABLE_AUDIT_TRAILS === true  && $this->disableAuditTrails === false)
-            {
-                SystemAuditTrailModel::log(
-                    array(
-                        'item_id' => $data[$this->getKeyField()],
-                        'item_type' => $this->package,
-                        'description' => 'Deleted item',
-                        'type' => SystemAuditTrailModel::AUDIT_TYPE_DELETED_DATA,
-                        'data' => json_encode($data)
-                    )
-                );
-            }
-        }
         $this->queryResolve = $resolve;
         $this->queryExplicitRelations = $explicitRelations;
         
