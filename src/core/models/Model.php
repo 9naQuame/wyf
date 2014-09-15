@@ -75,87 +75,80 @@ abstract class Model implements ArrayAccess
      * @param $serviceClass
      * @return Model
      */
-    public static function load($model, $path=null, $cached=true)
+    public static function load($model, $path=null)
     {	
         global $redirectedPackage;
         $modelName = (substr($model,0,1)=="." ? $redirectedPackage:"") . $model;
         
         if(!isset(Model::$instances[$modelName]))
         {
-
-            if($cached && CACHE_MODELS)
+            if(!Cache::exists("model_$modelName"))
             {
-                if(!Cache::exists("model_$modelName"))
-                {
-                    Model::$instances[$modelName] = Cache::add("model_$modelName", Model::_load($model, $path));
-                }
-                else
-                {
-                    add_include_path(Cache::get("model_path_$modelName"), false);
-                    Model::$instances[$modelName] = Cache::get("model_$modelName");
-                }
+                Model::$instances[$modelName] = Cache::add("model_$modelName", Model::loadModelClass($model, $path));
             }
             else
             {
-                Model::$instances[$modelName] = Model::_load($model, $path);
+                add_include_path(Cache::get("model_path_$modelName"), false);
+                Model::$instances[$modelName] = Cache::get("model_$modelName");
             }
         }
         
         return Model::$instances[$modelName];
     }
     
-    private static function _load($model, $path)
+    private static function loadModelClass($model, $path)
     {        
-        global $packageSchema;
         global $redirectedPackage;
         
         $model = (substr($model,0,1)=="." ? $redirectedPackage:"") . $model;
-        $model_path = SOFTWARE_HOME . ($path==null?Application::$packagesPath:$path)."app/modules/".str_replace(".","/",$model)."/";
+        $modelPath = SOFTWARE_HOME . ($path==null?Application::$packagesPath:$path)."app/modules/".str_replace(".","/",$model)."/";
         $modelClassName = Application::camelize($model) . "Model";
-        add_include_path($model_path, false);
+        add_include_path($modelPath, false);
         $array = explode(".", $model);
-        $model_name = array_pop($array);
+        $modelName = array_pop($array);
 
-        if(file_exists("$model_path/model.xml"))
+        if(file_exists("$modelPath/$modelClassName.php"))
         {
-            if(CACHE_MODELS) Cache::add("model_path_$model", $model_path);
-            $instance = XMLDefinedSQLDatabaseModel::create($model_path,$model_name,$model,$path);
-            $instance->postInitHook();
-        }
-        else if(file_exists("$model_path/$modelClassName.php"))
-        {
-            if(CACHE_MODELS) Cache::add("model_path_$model", $model_path);
-            $instance = new $modelClassName($model, $model_name);
+            Cache::add("model_path_$model", $modelPath);
+            $instance = new $modelClassName($model, $modelName);
             $instance->postInitHook();
         }
         else
         {
-            $modelPathArray = explode(".", $model);
-            $baseModelPath = SOFTWARE_HOME . ($path==null?Application::$packagesPath:$path)."app/modules/"; 
-            foreach($modelPathArray as $index => $path)
-            {
-                $baseModelPath = $baseModelPath . "$path/";
-                if(file_exists($baseModelPath . "package_redirect.php"))
-                {
-                    include $baseModelPath . "package_redirect.php";
-                    $modelPathArray = array_slice($modelPathArray, $index + 1);
-                    $modelClassName = $package_name . Application::camelize(implode(".", $modelPathArray)) . "Model";
-                    $modelIncludePath = SOFTWARE_HOME . $redirect_path . "/" . implode("/" , $modelPathArray);
-                    $packageSchema = $package_schema;
-                    $redirectedPackage = $redirectedPackage == "" ? $package_path : $redirectedPackage;
-                    add_include_path($modelIncludePath, false);
-                    $instance = new $modelClassName($model, $model_name);
-                    $instance->postInitHook();
-                    if(CACHE_MODELS) Cache::add("model_path_$model", $modelIncludePath);
-                }
-            }
-            if($instance == null)
-            {
-                throw new ModelException("Failed to load Model [$model] with [$modelClassName]");
-            }
+            $instance = self::getNestedModelInstance($model, $path);
         }
         return $instance;
     } 
+    
+    private static function getNestedModelInstance($model, $path)
+    {
+        global $packageSchema;
+        
+        $modelPathArray = explode(".", $model);
+        $baseModelPath = SOFTWARE_HOME . ($path==null?Application::$packagesPath:$path)."app/modules/"; 
+        foreach($modelPathArray as $index => $path)
+        {
+            $baseModelPath = $baseModelPath . "$path/";
+            if(file_exists($baseModelPath . "package_redirect.php"))
+            {
+                include $baseModelPath . "package_redirect.php";
+                $modelPathArray = array_slice($modelPathArray, $index + 1);
+                $modelClassName = $package_name . Application::camelize(implode(".", $modelPathArray)) . "Model";
+                $modelIncludePath = SOFTWARE_HOME . $redirect_path . "/" . implode("/" , $modelPathArray);
+                $packageSchema = $package_schema;
+                $redirectedPackage = $redirectedPackage == "" ? $package_path : $redirectedPackage;
+                add_include_path($modelIncludePath, false);
+                $instance = new $modelClassName($model, $modelName);
+                $instance->postInitHook();
+                Cache::add("model_path_$model", $modelIncludePath);
+            }
+        }
+        if($instance == null)
+        {
+            throw new ModelException("Failed to load Model [$model] with [$modelClassName]");
+        }  
+        return $instance;
+    }
     
     public function escape($text)
     {

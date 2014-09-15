@@ -122,7 +122,7 @@ else if ($_SESSION["logged_in"] === true )
         header("Location: " . Application::getLink("system/login/change_password"));
     }
 
-    Application::addJavaScript(Application::getLink(Application::getWyfHome("js/wyf.js")));
+    Application::addJavaScript(Application::getLink(Application::getWyfHome("assets/js/wyf.js")));
 
     $t->assign('username', $_SESSION["user_name"]);
     $t->assign('firstname', $_SESSION['user_firstname']);
@@ -203,12 +203,12 @@ else
     Application::preAddStylesheet($fapiStyleSheet);
 }
 
-Application::preAddStylesheet("kalendae/kalendae.css", Application::getWyfHome('js/'));
+Application::preAddStylesheet("kalendae/kalendae.css", Application::getWyfHome('assets/js/'));
 Application::preAddStylesheet("css/main.css");
 
 Application::addJavaScript(Application::getLink(Application::getWyfHome("fapi/js/fapi.js")));
-Application::addJavaScript(Application::getLink(Application::getWyfHome("js/jquery.js")));
-Application::addJavaScript(Application::getLink(Application::getWyfHome("js/kalendae/kalendae.js")));
+Application::addJavaScript(Application::getLink(Application::getWyfHome("assets/js/jquery.js")));
+Application::addJavaScript(Application::getLink(Application::getWyfHome("assets/js/kalendae/kalendae.js")));
 //Application::addJavaScript(Application::getLink(Application::getWyfHome("js/json2.js")));
 
 // Blast the HTML code to the browser!

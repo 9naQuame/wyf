@@ -14,9 +14,9 @@ class SystemRolesController extends ModelController
     private $permissions;
     public $modelName = '.roles';
     
-    public function setupListView($listView)
+    public function setupListView()
     {
-        $listView->addOperation("permissions", "Permissions");
+        $this->listView->addOperation("permissions", "Permissions");
     }
     
     public function flatenMenu($menu)
