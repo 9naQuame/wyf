@@ -10,17 +10,18 @@
     },
     "include-path" : [
         "./",
-        "core/model_controller",
-        "core/model_controller/jobs",
-        "controllers",
-        "fapi/Forms",
-        "toolbar",
-        "tapi",
-        "rapi",
-        "user",
-        "models",
-        "models/datastores",
-        "models/datastores/databases/postgresql",
-        "cache/"    
+        "src",
+        "src/utils/model_controller",
+        "src/utils/model_controller/jobs",
+        "src/core/controllers",
+        "src/fapi/Forms",
+        "src/toolbar",
+        "src/tapi",
+        "src/rapi",
+        "src/user",
+        "src/core/models",
+        "src/core/models/datastores",
+        "src/core/models/datastores/databases/postgresql",
+        "src/core/cache/"    
     ]
 }
