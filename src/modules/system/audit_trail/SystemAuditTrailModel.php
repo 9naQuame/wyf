@@ -33,7 +33,7 @@ class SystemAuditTrailModel extends ORMSQLDatabaseModel
         return self::$instance;
     }
     
-    public static function log($params)
+    public static function log($params, $localDisable)
     {
         $model = self::getInstance();
         $params['user_id'] = $_SESSION['user_id'];
@@ -44,7 +44,7 @@ class SystemAuditTrailModel extends ORMSQLDatabaseModel
     
     public function preAddHook()
     {
-        $this->auditTrailData = /*gzcompress(*/$this->datastore->data['data']/*)*/;
+        $this->auditTrailData = $this->datastore->data['data'];
         unset($this->datastore->data['data']);
     }
     

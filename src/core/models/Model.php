@@ -115,12 +115,12 @@ abstract class Model implements ArrayAccess
         }
         else
         {
-            $instance = self::getNestedModelInstance($model, $path);
+            $instance = self::getNestedModelInstance($model, $path, $modelName);
         }
         return $instance;
     } 
     
-    private static function getNestedModelInstance($model, $path)
+    private static function getNestedModelInstance($model, $path, $modelName)
     {
         global $packageSchema;
         
@@ -421,11 +421,6 @@ abstract class Model implements ArrayAccess
         $this->datastore->beginTransaction();
         $this->preAddHook();
         
-        if(array_search("entry_date", array_keys($this->fields)) && $this->datastore->data["entry_date"] == "")
-        {
-            $this->datastore->data["entry_date"] = time();
-        }
-        
         $this->datastore->setData($this->datastore->data, $this->fields);
         $id = $this->saveImplementation();
         $this->postAddHook($id, $this->getData());
@@ -436,7 +431,7 @@ abstract class Model implements ArrayAccess
             {
                 $id = $this->datastore->data[$this->getKeyField()];
             }
-            
+
             if(ENABLE_AUDIT_TRAILS === true && $this->disableAuditTrails === false)
             {
                 @SystemAuditTrailModel::log(
@@ -508,7 +503,9 @@ abstract class Model implements ArrayAccess
         $this->queryExplicitRelations = false;
         
         if(ENABLE_AUDIT_TRAILS === true && $this->disableAuditTrails === false)
+        {
             $before = reset($this->getWithField2($field, $value));
+        }
         
         $this->queryResolve = $resolve;
         $this->queryExplicitRelations = $explicitRelations;
@@ -854,13 +851,5 @@ abstract class Model implements ArrayAccess
     }
 }
 
-class ModelException extends Exception{
-    public $object;
-    
-    public function __construct($message, $object)
-    {
-        parent::__construct($message);
-        $this->object = $object;
-    }
-}
+
 
