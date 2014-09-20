@@ -312,7 +312,7 @@ class ModelController extends Controller
      */
     public static function callback($data, $form, $c)
     {
-        $return = $c["instance"]->model->setData($data);
+        $return = $c["instance"]->model->setData($data, $c['key_field'], $c['key_value']);
         if($return===true)
         {
             if($c['action'] == 'add')
@@ -354,7 +354,7 @@ class ModelController extends Controller
     {
     	if(!User::getPermission($this->permissionPrefix."_can_edit")) return;
         $form = $this->getForm();
-        $form->setData($this->getModelData($params[0]), $this->model->getKeyField(), $params[0]);
+        $form->setData($this->getModelData($params[0]));
         $this->label = "Edit ".$this->label;
         $form->setCallback(
             $this->callbackMethod,
