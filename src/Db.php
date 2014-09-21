@@ -149,23 +149,20 @@ class Db
      */
     public static function get($db = null, $atAllCost = false)
     {
-        if(class_exists('Application'))
+        if(!is_array(Application::$config))
         {
-            if(!isset(Application::$config))
-            {
-                require "app/config.php";
-                if($db == null) $db = $selected;
-            }
-            else 
-            {
-                $database = Application::$config['db'];
-                if($db == null) $db = self::$defaultDatabase;
-            }
+            require "app/config.php";
+            if($db == null) $db = $selected;
+        }
+        else if(is_array(Application::$config))
+        {
+            $database = Application::$config['db'];
+            if($db == null) $db = self::$defaultDatabase;
         }
         else if(is_array($db))
         {
             // When connecting from outside the framework
-            $index = json_encode($db);
+            $index = uniqid();
             $database[$index] = $db;
             $db = $index;
         }
