@@ -149,26 +149,16 @@ class Db
      */
     public static function get($db = null, $atAllCost = false)
     {
-        if(!is_array(Application::$config))
-        {
-            require "app/config.php";
-            if($db == null) $db = $selected;
-        }
-        else if(is_array(Application::$config))
+        if(is_array(Application::$config))
         {
             $database = Application::$config['db'];
             if($db == null) $db = self::$defaultDatabase;
         }
-        else if(is_array($db))
-        {
-            // When connecting from outside the framework
-            $index = uniqid();
-            $database[$index] = $db;
-            $db = $index;
-        }
         else
         {
-            throw new Exception('Invalid configuration parameters passed');
+            require "app/config.php";
+            if($db == null) $db = $selected;
+            $database = $config['db'];            
         }
         
         unset(Db::$instances[$db]);
