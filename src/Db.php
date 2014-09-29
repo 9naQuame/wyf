@@ -64,41 +64,25 @@ class Db
         }
     }
     
-    public static function rawQuery($query, $instance = null)
-    {
-        if($instance === null) $instance = Db::$lastInstance;
-        $instance = Db::getCachedInstance($instance);
-        $result = pg_query($instance, $query);
-        return $result;
-    }
-    
     public static function query($query, $instance = null, $mode = null)
     {
-        if($instance === null) $instance = Db::$lastInstance;
+        if($instance === null) 
+        {
+            $instance = Db::$lastInstance;
+        }
         $instance = Db::getCachedInstance($instance);
-        $result = pg_query($instance, $query);
+        $result = $instance->query($query);
         self::$lastQuery = $query;
                 
-        if($result === false)
-        {
-
-            Db::$error = pg_errormessage($instance);
-            return false;
-        }        
-        else if(pg_num_rows($result) > 0)
+        if($result->rowCount() > 0)
         {
             if($mode == Db::MODE_ARRAY)
             {
-                $rows = array();
-                while($row = pg_fetch_array($result, null, PGSQL_NUM))
-                {
-                    $rows[] = $row;
-                }
-                return $rows;
+                return $result->fetchAll(PDO::FETCH_NUM);
             }
             else
             {
-                return pg_fetch_all($result);
+                return $result->fetchAll(PDO::FETCH_ASSOC);
             }
         }
         else
@@ -110,9 +94,9 @@ class Db
     public static function close($db = null)
     {
         $db = $db == null ? Db::$defaultDatabase : $db;
-        if(is_resource(Db::$instances[$db])) 
+        if(is_object(Db::$instances[$db])) 
         {
-            pg_close(Db::$instances[$db]);
+            Db::$instances[$db] = null;
             unset(Db::$instances[$db]);
         }
         else
@@ -163,7 +147,7 @@ class Db
         
         unset(Db::$instances[$db]);
         
-        while(!is_resource(Db::$instances[$db]))
+        while(!is_object(Db::$instances[$db]))
         {
             $db_host = $database[$db]["host"];
             $db_port = $database[$db]["port"];
@@ -171,8 +155,8 @@ class Db
             $db_user = $database[$db]["user"];
             $db_password = $database[$db]["password"];
             
-            Db::$instances[$db] = pg_connect("host=$db_host port=$db_port dbname=$db_name user=$db_user password=$db_password");
-            
+            Db::$instances[$db] = new PDO("pgsql:host=$db_host;port=$db_port;dbname=$db_name;user=$db_user;password=$db_password");
+            Db::$instances[$db]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             if(!Db::$instances[$db]) 
             {
                 if($atAllCost)
