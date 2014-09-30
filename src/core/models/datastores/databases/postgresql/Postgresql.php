@@ -8,25 +8,8 @@
  */
 class Postgresql extends SQLDBDataStore
 {
-    protected static $_conn = null;
     private static $namesSeen = array();
     private static $nesting = 0;
-
-    public function __construct()
-    {
-        if(!is_resource(self::$_conn))
-        {
-            self::$_conn = Db::get();
-        }
-    }
-    
-    public function __wakeup()
-    {
-        if(!is_resource(self::$_conn))
-        {
-            self::$_conn = Db::get();
-        }
-    }
 
     public function beginTransaction()
     {
@@ -153,7 +136,6 @@ class Postgresql extends SQLDBDataStore
     public function getSearch($searchValue,$field)
     {
         return sprintf("lower(%s::varchar) LIKE '%%%s%%'", $field, strtolower($searchValue));
-        //return "position (lower('".$this->escape($searchValue)."'::varchar) in lower($field::varchar))>0";
     }
 
     public function concatenate($fields)

@@ -49,28 +49,30 @@ class Db
      * The last instance of the database
      * @var type 
      */
-    private static $lastInstance;
+    private static $lastConnection;
     
-    public static function escape($string, $instance = null)
+    private static function resolveConnection($requested, $default = false)
     {
-        if($instance === null) $instance = Db::$lastInstance;
-        if($instance == null)
+        if($requested == null)
         {
-            return pg_escape_string($string);
+            return $default === false ? Db::$lastConnection : $default;
         }
         else
         {
-            return pg_escape_string(Db::$instances[$instance], $string);
+            return $requested;
         }
     }
     
-    public static function query($query, $instance = null, $mode = null)
+    public static function escape($string, $connection = null)
     {
-        if($instance === null) 
-        {
-            $instance = Db::$lastInstance;
-        }
-        $instance = Db::getCachedInstance($instance);
+        $quoted = self::getCachedInstance(self::resolveConnection($connection))->quote($string);
+        return substr($quoted, 1, strlen($quoted) - 2);
+    }
+    
+    public static function query($query, $connection = null, $mode = null)
+    {
+        $connection = self::resolveConnection($connection);
+        $instance = Db::getCachedInstance($connection);
         $result = $instance->query($query);
         self::$lastQuery = $query;
                 
@@ -91,13 +93,13 @@ class Db
         }
     }
     
-    public static function close($db = null)
+    public static function close($connection = null)
     {
-        $db = $db == null ? Db::$defaultDatabase : $db;
-        if(is_object(Db::$instances[$db])) 
+        $connection = self::resolveConnection($connection);
+        if(is_object(Db::$instances[$connection])) 
         {
-            Db::$instances[$db] = null;
-            unset(Db::$instances[$db]);
+            Db::$instances[$connection] = null;
+            unset(Db::$instances[$connection]);
         }
         else
         {
@@ -112,15 +114,15 @@ class Db
         Db::get($db, $atAllCost);
     }
     
-    public static function getCachedInstance($db)
+    public static function getCachedInstance($connection = null)
     {
-        if(isset(Db::$instances[$db]))
+        if(isset(Db::$instances[$connection]))
         {
-            return Db::$instances[$db];
+            return Db::$instances[$connection];
         }
         else
         {
-            return Db::get($db, false);
+            return Db::get($connection, false);
         }
     }
     
@@ -131,46 +133,37 @@ class Db
      * @param boolean $atAllCost When set to true this function will block till a valid db is found.
      * @return resource
      */
-    public static function get($db = null, $atAllCost = false)
+    public static function get($connection = null, $atAllCost = false)
     {
         if(is_array(Application::$config))
         {
             $database = Application::$config['db'];
-            if($db == null) $db = self::$defaultDatabase;
+            $connection = self::resolveConnection($connection, self::$defaultDatabase);
         }
         else
         {
             require "app/config.php";
-            if($db == null) $db = $selected;
+            $connection = self::resolveConnection($connection, $selected);
             $database = $config['db'];            
         }
         
-        unset(Db::$instances[$db]);
+        unset(Db::$instances[$connection]);
         
-        while(!is_object(Db::$instances[$db]))
+        while(!is_object(Db::$instances[$connection]))
         {
-            $db_host = $database[$db]["host"];
-            $db_port = $database[$db]["port"];
-            $db_name = $database[$db]["name"];
-            $db_user = $database[$db]["user"];
-            $db_password = $database[$db]["password"];
+            $connection_host = $database[$connection]["host"];
+            $connection_port = $database[$connection]["port"];
+            $connection_name = $database[$connection]["name"];
+            $connection_user = $database[$connection]["user"];
+            $connection_password = $database[$connection]["password"];
             
-            Db::$instances[$db] = new PDO("pgsql:host=$db_host;port=$db_port;dbname=$db_name;user=$db_user;password=$db_password");
-            Db::$instances[$db]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            if(!Db::$instances[$db]) 
-            {
-                if($atAllCost)
-                {
-                    sleep(10);
-                }
-                else
-                {
-                    throw new Exception("Could not connect to $db database");
-                }
-            }
+            Db::$instances[$connection] = new PDO(
+                "pgsql:host=$connection_host;port=$connection_port;dbname=$connection_name;user=$connection_user;password=$connection_password"
+            );
+            Db::$instances[$connection]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
-        Db::$lastInstance = $db;
-        return Db::$instances[$db];
+        Db::$lastConnection = $connection;
+        return Db::$instances[$connection];
     }
     
     public function getLastQuery()
