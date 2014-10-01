@@ -65,7 +65,6 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     
     private function updateData()
     {
-        $this->secondaryKey = $
         $tempData = reset(
             $this->modelInstance->getWithField(
                 $this->secondaryKey,
@@ -77,21 +76,22 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         {
             if($this->tertiaryKey != "")
             {
-                $this->modelData[$this->primaryKey] = $tempData[0][$this->primaryKey];
-                $this->modelData[$this->tertiaryKey] = $tempData[0][$this->tertiaryKey];
+                $this->modelData[$this->primaryKey] = $tempData[$this->primaryKey];
+                $this->modelData[$this->tertiaryKey] = $tempData[$this->tertiaryKey];
             }
+            
 
             $validated = $this->modelInstance->setData(
                 $this->modelData,
                 $this->primaryKey,
-                $this->tempData[0][$this->primaryKey]
+                $tempData[$this->primaryKey]
             );
             
             if($validated===true) 
             {
                 $this->modelInstance->update(
                     $this->primaryKey,
-                    $tempData[0][$this->primaryKey]
+                    $tempData[$this->primaryKey]
                 );
                 return 'Updated';
             }
@@ -151,8 +151,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
             {
                 continue;
             }
-            
-            if($this->secondaryKey!=null && $$this->modelData[$this->secondaryKey] != '')
+            if($this->secondaryKey!=null && $this->modelData[$this->secondaryKey] != '')
             {
                 $validated = $this->updateData();
             }

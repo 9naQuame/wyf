@@ -427,7 +427,7 @@ class ModelController extends Controller
         $form->setSubmitValue('Import Data');
 
         return $this->arbitraryTemplate(
-            Application::getWyfHome('core/model_controller/templates/import.tpl'), 
+            Application::getWyfHome('utils/model_controller/templates/import.tpl'), 
             array(
                 'form' => $form->render()
             )

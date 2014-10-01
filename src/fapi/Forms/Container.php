@@ -389,6 +389,10 @@ abstract class Container extends Element
                     $fields[] = $field;
                 }
             }
+            else if($element->getType() == "HiddenField" && $element->getLabel() != '')
+            {
+                $fields[] = $element;
+            }
         }
         return $fields;
     }
