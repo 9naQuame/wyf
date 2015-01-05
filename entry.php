@@ -43,6 +43,7 @@ if(isset($_REQUEST["__api_session_id"]))
  * Initialize the session handler
  */
 require "vendor/autoload.php";
+session_start();
 
 // Load the applications configuration file and define the home
 require "wyf_bootstrap.php";
@@ -50,8 +51,6 @@ require "wyf_bootstrap.php";
 // Setup the global variables needed by the redirected packages
 global $redirectedPackage;
 global $packageSchema;
-
-session_start();
 
 $authExcludedPaths = array(
     "system/login",
