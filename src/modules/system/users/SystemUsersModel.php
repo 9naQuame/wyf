@@ -3,13 +3,6 @@ class SystemUsersModel extends ORMSQLDatabaseModel
 {
     public $database = '.users';
     
-    public $references = array(
-        "role_id" => array(
-            "reference"         =>  ".roles.role_id",
-            "referenceValue"    =>  "role_name"
-        )
-    );
-    
     public function preValidateHook()
     {
         if($this->datastore->data["password"]=="")

@@ -154,7 +154,7 @@ class Controller
      *                        controller should be displayed.
      * @return Controller
      */
-    public static function load($path,$get_contents=true)
+    public static function load($path,$get_contents=true, $actionMethod = null)
     {
         global $redirectedPackage;
         global $redirectPath;
@@ -342,6 +342,10 @@ class Controller
                 $controller->content = $ret;
             }
         }
+        else if($actionMethod !== null)
+        {
+            $controller->actionMethod = $actionMethod;
+        }
         
         return $controller;
     }
@@ -480,4 +484,18 @@ class Controller
         return $objectInfo->getName();
     }
     
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+    
+    public function getLabel()
+    {
+        return $this->label;
+    }
+    
+    public function setActionMethod($actionMethod)
+    {
+        $this->actionMethod = $actionMethod;
+    }
 }

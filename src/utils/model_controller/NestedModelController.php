@@ -17,7 +17,12 @@ class NestedModelController extends ModelController
     public function getLabel()
     {
         $entity = reset($this->parentController->model[$this->parentItemId]);
-        return $this->entity . ($this->entity == '' ? '' : ' of ') .  "{$this->label} ({$entity[$this->parentNameField]})";
+        return $this->entity . ($this->entity == '' ? '' : ' of ') .  "{$this->parentController->label} ({$entity[$this->parentNameField]})";
+    }
+    
+    public function setLabel($label)
+    {
+        $this->parentController->setLabel($label);
     }
     
     public function setupListView()
@@ -50,6 +55,16 @@ class NestedModelController extends ModelController
     public function setEntity($entity)
     {
         $this->entity = $entity;
+    }
+    
+    public function getParentItemId()
+    {
+        return $this->parentItemId;
+    }
+    
+    public function getParentController()
+    {
+        return $this->parentController;
     }
 }
 

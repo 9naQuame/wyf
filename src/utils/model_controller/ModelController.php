@@ -557,17 +557,45 @@ class ModelController extends Controller
         );
     }
     
-    public function nest(NestedModelController $controller, $args)
+    private function useNestedController(NestedModelController $controller, $args)
     {
         $controller->setParent($this);
         $id = array_shift($args);
         $controller->setParentItemId($id);
         $methodName = array_shift($args);
         $controller->setUrlPath("{$this->urlPath}/{$this->actionMethod}/$id");
-        if($methodName == '') $methodName = 'getContents';
-        $this->label = $controller->getLabel();
+        if($methodName == '') 
+        {
+            $methodName = 'getContents';
+        }
+        else
+        {
+            $controller->setActionMethod($methodName);
+        }
+        $this->setLabel($controller->getLabel());
         $method = new ReflectionMethod($controller, $methodName);
         return $method->invoke($controller, $args);
+    }
+    
+    public function nest($controller, $args, $parameters = null)
+    {        
+        if(is_string($controller))
+        {
+            global $redirectedPackage;            
+            
+            $path = explode(".", $controller);
+            $path[0] = $path[0] == '' ? $redirectedPackage : $path[0];
+            $controller = Controller::load($path, false, $args[1]);
+        }
+        
+        if(is_array($parameters))
+        {
+            $controller->setParentNameField($parameters['parent_name_field']);
+            $controller->setParentItemId($parameters['parent_item_id']);
+            $controller->setEntity($parameters['entity']);
+        }
+        
+        return $this->useNestedController($controller, $args);
     }
     
     public function getUrlPath()
