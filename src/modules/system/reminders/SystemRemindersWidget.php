@@ -25,7 +25,7 @@ class SystemRemindersWidget extends Widget
                 
                 if(isset($reminder['timestamp']))
                 {
-                    $time = ucfirst(Common::sentenceTime($reminder['timestamp'], array('elaborate_with'=>'ago')));
+                    $time = ucfirst(Utils::sentenceTime($reminder['timestamp'], array('elaborate_with'=>'ago')));
                     $time .= " - " . date("jS F, Y g:i A", $reminder['timestamp']);
                     $time = "<div style='color:#707070; margin-bottom:10px'>$time</div>";
                 }

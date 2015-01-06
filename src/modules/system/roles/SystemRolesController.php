@@ -332,7 +332,7 @@ class SystemRolesController extends ModelController
                     );
                     
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"roles.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(array("conditions"=>"role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
                     $children = $this->generateMenus($roleId, "$originalPath/$entry");
                 }
                 else
@@ -342,7 +342,7 @@ class SystemRolesController extends ModelController
                     );
                         
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"roles.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(array("conditions"=>"role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
                     $children = $this->generateMenus($roleId, "$path/$entry");
                 }
                 
