@@ -19,6 +19,8 @@ define('ENABLE_AUDIT_TRAILS', $config['audit_trails']);
 Application::$config = $config;
 Application::$prefix = $config['prefix'];
 
+Application::$templateEngine = new TemplateEngine();
+
 if(Application::$config['custom_sessions'])
 {
     $handler = Sessions::getHandler();

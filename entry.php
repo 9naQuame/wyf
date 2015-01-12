@@ -39,6 +39,10 @@ if(isset($_REQUEST["__api_session_id"]))
     unset($_GET["__api_session_id"]);
 }
 
+global $redirectedPackage;
+global $packageSchema;
+
+
 /**
  * Initialize the session handler
  */
@@ -49,19 +53,10 @@ session_start();
 require "wyf_bootstrap.php";
 
 // Setup the global variables needed by the redirected packages
-global $redirectedPackage;
-global $packageSchema;
 
 $authExcludedPaths = array(
     "system/login",
 );
-
-// Can be overridden in the app bootstrap
-$fapiStyleSheet = false;
-
-$t = new TemplateEngine();
-Application::$templateEngine = $t;
-
 
 // Authentication ... check if someone is already logged in if not force 
 // a login
@@ -85,24 +80,14 @@ else if ($_SESSION["logged_in"] === true )
 
     Application::addJavaScript(Application::getLink(Application::getWyfHome("assets/js/wyf.js")));
 
-    $t->assign('username', $_SESSION["user_name"]);
-    $t->assign('firstname', $_SESSION['user_firstname']);
-    $t->assign('lastname', $_SESSION['user_lastname']);
+    Application::$templateEngine->assign('username', $_SESSION["user_name"]);
+    Application::$templateEngine->assign('firstname', $_SESSION['user_firstname']);
+    Application::$templateEngine->assign('lastname', $_SESSION['user_lastname']);
     //var_dump($_SESSION);
 
     if (isset($_GET["notification"]))
     {
-        $t->assign('notification', "<div id='notification'>" . $_GET["notification"] . "</div>");
-    }
-
-    // Load the side menus
-    $menuFile = SOFTWARE_HOME . "app/cache/menus/side_menu_{$_SESSION["role_id"]}.html";
-    if(file_exists($menuFile))
-    {
-        $t->assign(
-            'side_menu', 
-            file_get_contents($menuFile)
-        );
+        Application::$templateEngine->assign('notification', "<div id='notification'>" . $_GET["notification"] . "</div>");
     }
 
     $top_menu_items = explode("/", $_GET["q"]);
@@ -121,7 +106,7 @@ else if ($_SESSION["logged_in"] === true )
             $item = ucwords($item);
             $top_menu .= "<a href='".Application::getLink($link)."'><span>$item</span></a>";
         }
-        $t->assign('top_menu', $top_menu);
+        Application::$templateEngine->assign('top_menu', $top_menu);
     }
 }
 
@@ -152,13 +137,13 @@ if($_SESSION['logged_in'] == true && ($_GET['q']!='system/api/table') && ENABLE_
 }
 
 // Load the styleseets and the javascripts
-if($fapiStyleSheet === false)
+if($GLOBALS['fapi_stylesheet'] === false)
 {
     Application::preAddStylesheet("css/fapi.css", Application::getWyfHome("fapi/"));
 }
 else
 {
-    Application::preAddStylesheet($fapiStyleSheet);
+    Application::preAddStylesheet($GLOBALS['fapi_stylesheet']);
 }
 
 Application::preAddStylesheet("kalendae/kalendae.css", Application::getWyfHome('assets/js/'));

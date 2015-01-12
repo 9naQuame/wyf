@@ -79,6 +79,11 @@ class SystemRolesController extends ModelController
                 "app/cache/menus/menu_{$params[0]}.object",
                 serialize($flatened)     
             );
+                
+            file_put_contents(
+                "app/cache/menus/menu_tree_{$params[0]}.object", 
+                serialize($menu)
+            );
             
             User::log("Set permissions");//, $permissions);
         }
@@ -332,7 +337,7 @@ class SystemRolesController extends ModelController
                     );
                     
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(array("conditions"=>"roles.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
                     $children = $this->generateMenus($roleId, "$originalPath/$entry");
                 }
                 else
@@ -342,7 +347,7 @@ class SystemRolesController extends ModelController
                     );
                         
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(array("conditions"=>"roles.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
                     $children = $this->generateMenus($roleId, "$path/$entry");
                 }
                 
