@@ -71,12 +71,14 @@ abstract class Field extends Element
      */
     public function setValue($value)
     {
-        if($unset)
+        if(is_bool($value))
         {
-            if($this->getMethod()=="GET") unset($_GET[$this->getName()]);
-            if($this->getMethod()=="POST") unset($_POST[$this->getName()]);
+            $this->value = $value ? 1 : 0;
         }
-        $this->value = $value;
+        else
+        {
+            $this->value = $value;
+        }
         return $this;
     }
 
