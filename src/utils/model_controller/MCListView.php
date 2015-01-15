@@ -90,7 +90,7 @@ class MCListView
         if($this->hasDeleteOperation && (User::getPermission($this->permissionPrefix."_can_delete") || $this->forceDeleteOperation))
         {
             $this->table->addOperation("delete","Delete","javascript:wyf.confirmRedirect('Are you sure you want to delete','{$this->urlPath}/%path%/%key%')");
-            $this->addBulkOperation("bulkdelete", "Delete Selected", "Are you sure you want to delete ");
+            $this->addBulkOperation("bulkdelete", "Delete", "Are you sure you want to delete ");
         }        
     }
 

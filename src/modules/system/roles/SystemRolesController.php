@@ -337,7 +337,7 @@ class SystemRolesController extends ModelController
                     );
                     
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"roles.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(array("conditions"=>"permissions.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
                     $children = $this->generateMenus($roleId, "$originalPath/$entry");
                 }
                 else
@@ -347,7 +347,7 @@ class SystemRolesController extends ModelController
                     );
                         
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"roles.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(array("conditions"=>"permissions.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
                     $children = $this->generateMenus($roleId, "$path/$entry");
                 }
                 
@@ -363,7 +363,7 @@ class SystemRolesController extends ModelController
                     $icon = "";
                 }
                 
-                if(count($children)>0 || count($value)>0)
+                if(count($children) > 0 || count($value)>0)
                 {
                     $list[] = array(
                         "title"        => $label==''?ucwords(str_replace("_", " ", $entry)):$label,

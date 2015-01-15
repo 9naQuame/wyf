@@ -13,7 +13,15 @@ class Table
     
     public function __construct($prefix,$headers=null, $data=null, $operations=null,$headerParams=null)
     {
-        Application::addStyleSheet("css/tapi.css", Application::getWyfHome ("tapi/"));
+        if($GLOBALS['fapi_stylesheet'] === false)
+        {
+            Application::preAddStylesheet("css/tapi.css", Application::getWyfHome("tapi/"));
+        }
+        else
+        {
+            Application::preAddStylesheet($GLOBALS['tapi_stylesheet']);
+        }
+
         $this->prefix = $prefix;
         $this->headers = $headers;
         $this->data = $data;

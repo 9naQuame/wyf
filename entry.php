@@ -42,6 +42,9 @@ if(isset($_REQUEST["__api_session_id"]))
 global $redirectedPackage;
 global $packageSchema;
 
+$GLOBALS['fapi_stylesheet'] = false;
+$GLOBALS['tapi_stylesheet'] = false;
+$GLOBALS['toolbar_stylesheet'] = false;
 
 /**
  * Initialize the session handler

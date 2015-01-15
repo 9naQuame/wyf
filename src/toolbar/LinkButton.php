@@ -1,5 +1,5 @@
 <?php
-class LinkButton extends ToolbarButtonItem
+class LinkButton extends ToolbarItem
 {
     protected $label;
     protected $link;
@@ -12,9 +12,9 @@ class LinkButton extends ToolbarButtonItem
         $this->icon = $icon;
     }
 
-    protected function _render()
+    public function render()
     {
-        return "<div class='icon i".  strtolower($this->label)."'><a href='{$this->link}' $this->linkAttributes >{$this->label}</a></div>";
+        return "<a href='{$this->link}' $this->linkAttributes >{$this->label}</a>";
     }
 
     public function getCssClasses()

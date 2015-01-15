@@ -17,7 +17,7 @@ class MenuButton extends LinkButton
         $this->items[] = array("label"=>$item,"link"=>$link,"onclick"=>$onclick);
     }
 
-    protected function _render()
+    public function render()
     {
         $this->linkAttributes = "onclick=\"$('#$this->id').toggle('fast')\"";
         $menu = "<ul class='toolbar-menu' id='$this->id'>";
@@ -26,7 +26,7 @@ class MenuButton extends LinkButton
             $menu .= "<li><a class=' toolbar-toolitem' href='$item[link]' onclick=\"$item[onclick]\">$item[label]</a></li>";
         }
         $menu .= "</ul>";
-        return parent::_render().$menu;;
+        return parent::render().$menu;;
     }
 }
 ?>

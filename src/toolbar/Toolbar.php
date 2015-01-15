@@ -18,7 +18,15 @@ class Toolbar
 
     public function __construct($buttons=array())
     {
-        Application::addStyleSheet("css/toolbar.css", Application::getWyfHome ("toolbar/"));        
+        if($GLOBALS['toolbar_stylesheet'] === false)
+        {
+            Application::preAddStylesheet("css/toolbar.css", Application::getWyfHome("toolbar/"));
+        }
+        else
+        {
+            Application::preAddStylesheet($GLOBALS['toolbar_stylesheet']);
+        }
+
         $this->buttons = $buttons;
     }
 
@@ -41,7 +49,7 @@ class Toolbar
         {
             $ret .= "<li class='toolbar-toolitem ".implode(" ",$button->getCssClasses())."'>".$button->render()."</li>";
         }
-        $ret .= "<li style='clear:both'></li></ul>";
+        $ret .= "</ul>";
         return $ret;
     }
 }
