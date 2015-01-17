@@ -177,6 +177,8 @@ class Application
      */
     private static $sideMenuHidden = false;
     
+    private static $directoryHandler = "PackageController";
+    
     /**
      * Adds a stylesheet to the list of stylesheets. This method adds
      * the stylesheets at the bottom of the list.
@@ -408,6 +410,16 @@ class Application
     public static function getWyfHome($path = '')
     {
         return substr(__DIR__, strlen(getcwd()) + 1) . "/$path";
+    }
+    
+    public static function setDirectoryHandler($directoryHandler)
+    {
+        self::$directoryHandler = $directoryHandler;
+    }
+    
+    public static function getDirectoryHandler()
+    {
+        return self::$directoryHandler;
     }
 }
 

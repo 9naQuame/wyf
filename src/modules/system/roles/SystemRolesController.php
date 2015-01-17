@@ -256,9 +256,9 @@ class SystemRolesController extends ModelController
                 {
                     $permissions = $module->getPermissions();
                     $list[] = array(
-                        "title"          => ucwords(str_replace("_", " ", $entry)), 
-                        "path"          => $urlPath, 
-                        "children"      => $children, 
+                        "title" => ucwords(str_replace("_", " ", $entry)), 
+                        "path" => $urlPath, 
+                        "children" => $children, 
                         "permissions" => $permissions
                     );
                 }
@@ -274,17 +274,16 @@ class SystemRolesController extends ModelController
      * associated role id logs in. In the generation of the menu controllers
      * to which the user has no permissions are ignored.
      *
-     * @param $roleId     	string 		The id of the role for which the menu is being generated
-     * @param $path     	string 		The path of the modules for which the menus is to be
-     *	                     			generated.
-     *
-     * @return String
+     * @param $roleId string The id of the role for which the menu is being generated
+     * @param $path   string The path of the modules for which the menus is to be
+     *	                     generated.
+     * @return string
      */
     private function generateMenus($roleId, $path="app/modules")
     {
         $prefix = "app/modules";
-        //$d = dir($path);
         
+        // Deal with redirected packages
         if(file_exists($path . "/package_redirect.php"))
         {
             include $path . "/package_redirect.php";
@@ -337,7 +336,9 @@ class SystemRolesController extends ModelController
                     );
                     
                     $this->permissions->queryResolve = true;
-                    $value = $this->permissions->get(array("conditions"=>"permissions.role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
+                    $value = $this->permissions->get(
+                        array("conditions"=>"permissions.role_id='$roleId' AND module = '{$modulePath}' AND value='1'")
+                    );
                     $children = $this->generateMenus($roleId, "$originalPath/$entry");
                 }
                 else
@@ -351,22 +352,21 @@ class SystemRolesController extends ModelController
                     $children = $this->generateMenus($roleId, "$path/$entry");
                 }
                 
-                if(file_exists("app/modules/" . $modulePath . "/package.xml"))
+                $weight = 0;
+                
+                if(file_exists("app/modules/" . $modulePath . "/menu.json"))
                 {
-                    $xml = simplexml_load_file("app/modules/" . $modulePath . "/package.xml");
-                    $label = (string)reset($xml->xpath("/package:package/package:label"));
-                    $icon = (string)reset($xml->xpath("/package:package/package:icon"));
-                }
-                else
-                {
-                    $label = "";
-                    $icon = "";
+                    $menuOptions = json_decode(file_get_contents("app/modules/" . $modulePath . "/menu.json"));
+                    $label = $menuOptions->label;
+                    $icon = $menuOptions->icon;
+                    $weight = $menuOptions->weight;
                 }
                 
                 if(count($children) > 0 || count($value)>0)
                 {
                     $list[] = array(
-                        "title"        => $label==''?ucwords(str_replace("_", " ", $entry)):$label,
+                        "weight"    => $weight,
+                        "title"     => $label==''?ucwords(str_replace("_", " ", $entry)):$label,
                         "path"      => $urlPath,
                         "children"  => $children,
                         "icon"      => $icon
@@ -374,7 +374,7 @@ class SystemRolesController extends ModelController
                }
             }
         }
-        array_multisort($list,SORT_ASC);
+        array_multisort($list ,SORT_ASC);
         return $list;
     }
 }

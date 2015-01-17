@@ -150,11 +150,11 @@ class Controller
      * it is asumed to be a package and a package controller is loaded.
      *
      * @param $path         The path for the model to be loaded.
-     * @param $get_contents A flag which determines whether the contents of the
+     * @param $getContents A flag which determines whether the contents of the
      *                        controller should be displayed.
      * @return Controller
      */
-    public static function load($path,$get_contents=true, $actionMethod = null)
+    public static function load($path,$getContents=true, $actionMethod = null)
     {
         global $redirectedPackage;
         global $redirectPath;
@@ -280,25 +280,24 @@ class Controller
                 break;
 
             default:
-                // Load a package controller for this folder
+                // Load a directory handler class for directories
                 if(is_dir("app/modules$controller_path"))
                 {
-                    $controller = new PackageController($path);
-                    $controller_name = "PackageController";
-                    $get_contents = true;
-                    $force_output = true;
+                    $directoryHandlerClass = Application::getDirectoryHandler();
+                    $controller = new $directoryHandlerClass($path);
+                    $getContents = true;
+                    $forceOutput = true;
                 }
                 else if($redirected === true && is_dir(SOFTWARE_HOME . "$redirect_path/$controller_path"))
                 {
-                    $controller = new PackageController($path);
-                    $controller_name = "PackageController";
-                    $get_contents = true;
-                    $force_output = true;
+                    $directoryHandlerClass = Application::getDirectoryHandler();                    
+                    $controller = new $directoryHandlerClass($path);
+                    $getContents = true;
+                    $forceOutput = true;
                 }
                 else
                 {
                     $controller = new ErrorController();
-                    $controller_name = "ErrorController";
                 }
         }
 
@@ -306,9 +305,9 @@ class Controller
         // controller.
         $controller->path = $previousControllerPath . $controller_path;
         
-        if($get_contents)
+        if($getContents)
         {
-            if($i == count($path)-1 || $force_output)
+            if($i == count($path)-1 || $forceOutput)
             {
                 $ret = $controller->getContents();
             }
@@ -317,7 +316,7 @@ class Controller
                 $controller->actionMethod = $path[$i+1];
                 if(method_exists($controller, $controller->actionMethod))
                 {
-                    $controller_class = new ReflectionClass($controller_name);
+                    $controller_class = new ReflectionClass($controller->getClassName());
                     $method = $controller_class->GetMethod($controller->actionMethod);
                     $ret = $method->invoke($controller,array_slice($path,$i+2));
                 }
