@@ -285,20 +285,17 @@ class Controller
                 {
                     $directoryHandlerClass = Application::getDirectoryHandler();
                     $controller = new $directoryHandlerClass($path);
-                    $getContents = true;
-                    $forceOutput = true;
                 }
                 else if($redirected === true && is_dir(SOFTWARE_HOME . "$redirect_path/$controller_path"))
                 {
                     $directoryHandlerClass = Application::getDirectoryHandler();                    
                     $controller = new $directoryHandlerClass($path);
-                    $getContents = true;
-                    $forceOutput = true;
                 }
                 else
                 {
                     $controller = new ErrorController();
                 }
+                $controller->actionMethod = 'getContents';
         }
 
         // If the get contents flag has been set return all the contents of this
@@ -307,23 +304,24 @@ class Controller
         
         if($getContents)
         {
-            if($i == count($path)-1 || $forceOutput)
+            if($i == count($path)-1)
             {
-                $ret = $controller->getContents();
+                $controller->actionMethod = 'getContents';
+            }
+            else if($controller->actionMethod === null)
+            {
+                $controller->actionMethod = $path[$i+1];
+            }
+            
+            if(method_exists($controller, $controller->actionMethod))
+            {
+                $controller_class = new ReflectionClass($controller->getClassName());
+                $method = $controller_class->GetMethod($controller->actionMethod);
+                $ret = $method->invoke($controller,array_slice($path,$i+2));
             }
             else
             {
-                $controller->actionMethod = $path[$i+1];
-                if(method_exists($controller, $controller->actionMethod))
-                {
-                    $controller_class = new ReflectionClass($controller->getClassName());
-                    $method = $controller_class->GetMethod($controller->actionMethod);
-                    $ret = $method->invoke($controller,array_slice($path,$i+2));
-                }
-                else
-                {
-                    $ret = "<h2>Error</h2> Method does not exist. [" . $controller->actionMethod . "]";
-                }
+                $ret = "<h2>Error</h2> Method does not exist. [" . $controller->actionMethod . "]";
             }
             
             
@@ -374,17 +372,14 @@ class Controller
      * Getter for the Controller::_showInMenu method
      * @return boolean
      */
-    public function showInMenu($value = '')
+    public function setShowInMenu($value)
     {
-        if($value === '') 
-        {
-            return $this->_showInMenu;
-        }
-        else
-        {
-            $this->_showInMenu = $value;
-            return $this;
-        }
+        return $this->_showInMenu = $value;
+    }
+    
+    public function getShowInMenu()
+    {
+        return $this->_showInMenu;
     }
     
     /**

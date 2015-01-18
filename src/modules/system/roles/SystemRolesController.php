@@ -102,8 +102,8 @@ class SystemRolesController extends ModelController
         
         $ret .= "<form class='fapi-form' method='post'>" . $menu . "<br/><hr/>"
              . $this->drawPermissions(
-                      $this->getPermissionList("app/modules/$path","app/modules"),
-                      $params[0]
+                    $this->getPermissionList("app/modules/$path","app/modules"),
+                    $params[0]
                )
              . "<input type='hidden' name='is_sent' value='yes'/>"
              . $this->save
@@ -252,13 +252,12 @@ class SystemRolesController extends ModelController
                     $module = Controller::load($modulePath, false);
                 }
                 
-                if($module->showInMenu())
+                if($module->getshowInMenu())
                 {
                     $permissions = $module->getPermissions();
                     $list[] = array(
                         "title" => ucwords(str_replace("_", " ", $entry)), 
                         "path" => $urlPath, 
-                        "children" => $children, 
                         "permissions" => $permissions
                     );
                 }

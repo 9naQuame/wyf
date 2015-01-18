@@ -39,7 +39,7 @@ class PackageController extends Controller
     public function __construct($path)
     {
         $this->displayPath = $path;
-        $this->_showInMenu = true;
+        $this->setShowInMenu(true);
     }
     
     /**
