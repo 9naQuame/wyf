@@ -259,11 +259,19 @@ class Controller
                 {
                     $controller_name = $controller_class_name;
                     $controller = new $controller_class_name();
-                    $controller->redirected = $redirected;
+                    /*$controller->redirected = $redirected;
                     $controller->redirectPath = $redirect_path;
                     $controller->redirectedPackage = $package_path;
                     $controller->mainRedirectedPackage = $package_main;
-                    $controller->redirectedPackageName = $package_name;
+                    $controller->redirectedPackageName = $package_name;*/
+                    $controller->setRedirectParameters(
+                        array(
+                            'redirect_path' => $redirect_path,
+                            'package_path' => $package_path,
+                            'package_main' => $package_main,
+                            'package_name' => $package_name
+                        )
+                    );
                 }
                 break;
 
@@ -348,6 +356,15 @@ class Controller
         }
         
         return $controller;
+    }
+    
+    public function setRedirectParameters($redirect)
+    {
+        $this->redirectPath = $redirect['redirect_path'];
+        $this->redirectedPackage = $redirect['package_path'];
+        $this->mainRedirectedPackage = $redirect['package_main'];
+        $this->redirectedPackageName = $redirect['package_name'];
+        $this->redirected = true;
     }
     
     public static function getTemplateEngine()

@@ -167,19 +167,25 @@ class ModelController extends Controller
      */
     public function __construct($model = "")
     {
-        global $redirectedPackage;
         $this->modelName = ($this->modelName == "" ? $model : $this->modelName);
         $this->model = Model::load($this->modelName);
         $this->name = $this->model->name;
-        $urlBase = ($redirectedPackage != '' ? "$redirectedPackage" : '') . $this->modelName;
-        $this->urlPath = Application::$prefix."/".str_replace(".","/",$urlBase);
-        $this->permissionPrefix = str_replace(".", "_", $redirectedPackage) . str_replace(".", "_", $this->modelName);
+        $this->urlPath = Application::$prefix."/".str_replace(".","/",$this->modelName);
+        $this->permissionPrefix = str_replace(".", "_", $this->modelName);
         $this->localPath = "app/modules/".str_replace(".","/",$urlBase);
         $this->label = $this->model->label;
         $this->description = $this->model->description;
         Application::setTitle($this->label);
         
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
+    }
+    
+    public function setRedirectParameters($redirect) 
+    {
+        parent::setRedirectParameters($redirect);
+        $this->permissionPrefix = str_replace(".", "_", $redirect['package_path']) . str_replace(".", "_", $this->modelName);
+        $urlBase = ($redirect['package_path'] != '' ? $redirect['package_path'] : '') . $this->modelName;
+        $this->urlPath = Application::$prefix."/".str_replace(".","/",$urlBase);
     }
     
     /**
