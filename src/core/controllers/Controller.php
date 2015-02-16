@@ -259,13 +259,9 @@ class Controller
                 {
                     $controller_name = $controller_class_name;
                     $controller = new $controller_class_name();
-                    /*$controller->redirected = $redirected;
-                    $controller->redirectPath = $redirect_path;
-                    $controller->redirectedPackage = $package_path;
-                    $controller->mainRedirectedPackage = $package_main;
-                    $controller->redirectedPackageName = $package_name;*/
                     $controller->setRedirectParameters(
                         array(
+                            'redirected' => $redirected,
                             'redirect_path' => $redirect_path,
                             'package_path' => $package_path,
                             'package_main' => $package_main,
@@ -364,7 +360,7 @@ class Controller
         $this->redirectedPackage = $redirect['package_path'];
         $this->mainRedirectedPackage = $redirect['package_main'];
         $this->redirectedPackageName = $redirect['package_name'];
-        $this->redirected = true;
+        $this->redirected = $redirect['redirected'];
     }
     
     public static function getTemplateEngine()
