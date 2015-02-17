@@ -73,7 +73,15 @@ class Db
     {
         $connection = self::resolveConnection($connection);
         $instance = Db::getCachedInstance($connection);
-        $result = $instance->query($query);
+        
+        try{
+            $result = $instance->query($query);
+        }
+        catch(PDOException $e)
+        {
+            throw new Exception($e->getMessage() . " Query [ $query ]");
+        }
+        
         self::$lastQuery = $query;
                 
         if($result->rowCount() > 0)

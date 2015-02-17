@@ -174,7 +174,7 @@ var wyf = {
 		
         showSearchArea:function(id)
         {
-            $("#tapi-"+id+"-search").toggle();
+            $("#tapi-"+id+"-search").slideToggle();
         },
 		
         checkToggle:function(id,checkbox)

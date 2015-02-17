@@ -15,7 +15,8 @@ class HiddenField extends Field
 
     public function render()
     {
-        return "<input type='hidden'  name='".$this->getName()."' value='".$this->getValue()."' {$this->getAttributes()} />";
+        $value = $this->getValue();
+        return "<input type='hidden'  name='".$this->getName()."' value='$value' {$this->getAttributes()} />";
     }
 
     public function getType()

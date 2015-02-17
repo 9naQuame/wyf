@@ -370,7 +370,7 @@ class SystemRolesController extends ModelController
                         "children"  => $children,
                         "icon"      => $icon
                     );
-               }
+                }
             }
         }
         array_multisort($list ,SORT_ASC);

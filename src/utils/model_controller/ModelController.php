@@ -323,8 +323,7 @@ class ModelController extends Controller
             {
                 $id = $c["instance"]->model->update($c["key_field"],$c["key_value"]);
             }
-            User::log($c["success_message"]);
-            Application::redirect($c["instance"]->urlPath."?notification=".urlencode($c["success_message"]));
+            Application::redirect($c["instance"]->urlPath);
         }
         else
         {
