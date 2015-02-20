@@ -363,9 +363,9 @@ class Controller
      *
      * @return string
      */
-    protected function getContents()
+    public function getContents()
     {
-        return "<h1>Ooops! No Content</h1><p>Create a <b><code>" . $this->getClassName() . ".getContents()</code></b> method to provide default content for this controller.";
+        return "<h2>Ooops! No Content</h2><p>Create a <b><code>" . $this->getClassName() . ".getContents()</code></b> method to provide default content for this controller.";
     }
 
     /**

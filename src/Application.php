@@ -49,6 +49,13 @@ class Application
      */
     const TYPE_MODEL = "type_model";
     
+    const NOTIFICATION_TYPE_INFO = 'info';
+    const NOTIFICATION_TYPE_WARNING = 'warning';
+    const NOTIFICATION_TYPE_ERROR = 'error';
+    
+    const NOTIFICATION_POPUP = 'popup';
+    const NOTIFICATION_STATIC = 'static';
+    
     /**
      * The notes that are currently displayed on the top of the rendered page.
      * @var Array
@@ -177,6 +184,10 @@ class Application
      */
     private static $sideMenuHidden = false;
     
+    /**
+     * 
+     * @var string
+     */
     private static $directoryHandler = "PackageController";
     
     /**
@@ -420,6 +431,15 @@ class Application
     public static function getDirectoryHandler()
     {
         return self::$directoryHandler;
+    }
+    
+    public static function queueNotification($message, $type = self::NOTIFICATION_TYPE_INFO, $presentation = self::NOTIFICATION_POPUP)
+    {
+        $_SESSION['notifications'][] = array(
+            'message' => $message,
+            'type' => $type,
+            'presentation' => $presentation
+        );
     }
 }
 

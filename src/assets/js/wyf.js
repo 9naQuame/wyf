@@ -5,75 +5,90 @@
 var wyf = {
     getMulti : function(params, callback)
     {
-        $.getJSON('/system/api/get_multi?params=' + escape(JSON.stringify(params)),
-            function(response){
-                if(typeof callback === 'function') callback(response);
-            }
-        );
+      $.getJSON('/system/api/get_multi?params=' + escape(JSON.stringify(params)),
+        function(response){
+          if(typeof callback === 'function') callback(response);
+        }
+      );
     },
     
     openWindow : function(location)
     {
-        window.open(location);
+      window.open(location);
     },
 
     showUploadedData : function(data)
     {
-        $("#import-preview").html(data);
+      $("#import-preview").html(data);
     },
     
     updateFilter: function(table, model, value)
     {
         if(value == 0)
         {
-            externalConditions[table] = "";
+          externalConditions[table] = "";
         }
         else
         {
-            externalConditions[table] = model + "=" + value;
+          externalConditions[table] = model + "=" + value;
         }
         window[table + 'Search']();
     },
 
     confirmRedirect:function(message,path)
     {
-        if(confirm(message))
-        {
-            document.location=path;
-        }
+      if(confirm(message))
+      {
+        document.location=path;
+      }
     },
 	
     init:function()
     {
-        wyf.menus.init();
-        wyf.tapi.init();
+      wyf.menus.init();
+      wyf.tapi.init();
+      setTimeout(
+        function(){
+          $.getJSON(
+            '/system/notifications',
+            function(response)
+            {
+              if (response !== false)
+              {
+                if (response.notification !== false) wyf.notifications.queue(response.notifications);
+              }
+            }
+          );        
+        },
+        2000
+      );
     },
 
     menus: 
     {
-        expand:function(id)
+      expand:function(id)
+      {
+        $("#"+id).slideToggle("fast",
+          function()
+          {
+            document.cookie = id+"="+$("#"+id).css("display");
+          }
+        );
+      },
+
+      init:function()
+      {
+        raw_cookies = document.cookie.split(";");
+        for(var i = 0; i < raw_cookies.length; i++)
         {
-            $("#"+id).slideToggle("fast",
-                function()
-                {
-                    document.cookie = id+"="+$("#"+id).css("display");
-                }
-                );
-        },
-		
-        init:function()
-        {
-            raw_cookies = document.cookie.split(";");
-            for(var i = 0; i < raw_cookies.length; i++)
-            {
-                nv_pair = raw_cookies[i].split("=");
-                if(nv_pair[0].match("menu-"))
-                {
-                    nv_pair[0]=nv_pair[0].replace(/^\s+|\s+$/g, '');
-                    $("#"+nv_pair[0]).attr("style","display:"+nv_pair[1]);
-                }
-            }				
-        }
+          nv_pair = raw_cookies[i].split("=");
+          if(nv_pair[0].match("menu-"))
+          {
+            nv_pair[0]=nv_pair[0].replace(/^\s+|\s+$/g, '');
+            $("#"+nv_pair[0]).attr("style","display:"+nv_pair[1]);
+          }
+        }				
+      }
     },
 
     tapi:
@@ -85,24 +100,24 @@ var wyf = {
 		
         addTable: function(id,obj)
         {
-            if(obj.hardConditions)
-            {
-                obj.conditions = obj.hardConditions;
-            }
-            
-            wyf.tapi.tableIds.push(id);
-            wyf.tapi.tables[id] = obj;
-            wyf.tapi.tables[id].prevPage = 0;
+          if(obj.hardConditions)
+          {
+              obj.conditions = obj.hardConditions;
+          }
+
+          wyf.tapi.tableIds.push(id);
+          wyf.tapi.tables[id] = obj;
+          wyf.tapi.tables[id].prevPage = 0;
         },
 		
         init:function()
         {
-            for(var i=0; i < wyf.tapi.tableIds.length; i++)
-            {
-                var id = wyf.tapi.tableIds[i];  
-                //$("#"+id+">tbody").load(wyf.tapi.tables[id].path);
-                wyf.tapi.render(wyf.tapi.tables[id]);
-            }
+          for(var i=0; i < wyf.tapi.tableIds.length; i++)
+          {
+            var id = wyf.tapi.tableIds[i];  
+            //$("#"+id+">tbody").load(wyf.tapi.tables[id].path);
+            wyf.tapi.render(wyf.tapi.tables[id]);
+          }
         },
 		
         render:function(table)
@@ -215,6 +230,45 @@ var wyf = {
                 }
             ).show();
 			
+        }
+    },
+    
+    notifications : {
+        queue : function(notification, type)
+        {
+          if (typeof type === "undefined")
+          {
+            type = "info";
+          }
+
+          $('#notification').addClass('notification-' + type);
+
+          $('#notification').html(notification);
+          var originalTop = 50 - ($('#notification').height() + 40);
+          $('#notification').css({top: originalTop + 'px'});
+          setTimeout(
+            function() 
+            {
+              $('#notification').show();
+              $('#notification').animate({top: '45px'}, 'slow',
+                function() {
+                    setTimeout(function() {
+                      $('#notification').animate(
+                        {
+                          top: originalTop + 'px'
+                        },
+                        function() {
+                          $('#notification').removeClass('notification-' + type);
+                        }
+                      );
+                    },
+                    6000
+                  );
+                }
+              );
+            },
+            1000
+          );            
         }
     }
 };
