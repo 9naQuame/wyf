@@ -54,7 +54,7 @@ class Application
     const NOTIFICATION_TYPE_ERROR = 'error';
     
     const NOTIFICATION_POPUP = 'popup';
-    const NOTIFICATION_STATIC = 'static';
+    const NOTIFICATION_HEADER = 'header';
     
     /**
      * The notes that are currently displayed on the top of the rendered page.
@@ -442,4 +442,3 @@ class Application
         );
     }
 }
-

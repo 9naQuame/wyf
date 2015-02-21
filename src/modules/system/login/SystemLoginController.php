@@ -22,11 +22,9 @@ class SystemLoginController extends Controller
         $form = new Form();
         $form->setRenderer("default");
         $password = new PasswordField("Password", "password");
-        $password->setEncrypted(false);
         $form->add($password);
 
         $passwordRetype = new PasswordField("Retype Password", "password2");
-        $passwordRetype->setEncrypted(false);
         $form->add($passwordRetype);
         $form->setValidatorCallback($this->getClassName() . "::change_password_callback");
         $form->setShowClear(false);
@@ -56,7 +54,6 @@ class SystemLoginController extends Controller
         $username = new TextField("Username","username");
         $form->add($username);
         $password = new PasswordField("Password","password");
-        $password->setEncrypted(false);
         $form->add($password);
         $form->setSubmitValue("Login");
         $form->setValidatorCallback("{$this->getClassName()}::callback");

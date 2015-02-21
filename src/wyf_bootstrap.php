@@ -37,8 +37,7 @@ if(Application::$config['custom_sessions'])
 }
 
 Application::setSiteName(Application::$config['name']);
-ntentan\logger\Logger::init('logs/application.log');
-ntentan\logger\Logger::info('Hello');
+ntentan\logger\Logger::init('app/logs/application.log');
 
 // Add the script which contains the third party libraries
 require "app/includes.php";

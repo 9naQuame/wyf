@@ -45,50 +45,22 @@ var wyf = {
 	
     init:function()
     {
-      wyf.menus.init();
       wyf.tapi.init();
       setTimeout(
         function(){
           $.getJSON(
-            '/system/notifications',
+            '/system/notifications/get/' + Math.floor(Math.random() * 100000),
             function(response)
             {
-              if (response !== false)
+              for(var i in response)
               {
-                if (response.notification !== false) wyf.notifications.queue(response.notifications);
+                wyf.notifications.show(response[i]);
               }
             }
           );        
         },
-        2000
+        1000
       );
-    },
-
-    menus: 
-    {
-      expand:function(id)
-      {
-        $("#"+id).slideToggle("fast",
-          function()
-          {
-            document.cookie = id+"="+$("#"+id).css("display");
-          }
-        );
-      },
-
-      init:function()
-      {
-        raw_cookies = document.cookie.split(";");
-        for(var i = 0; i < raw_cookies.length; i++)
-        {
-          nv_pair = raw_cookies[i].split("=");
-          if(nv_pair[0].match("menu-"))
-          {
-            nv_pair[0]=nv_pair[0].replace(/^\s+|\s+$/g, '');
-            $("#"+nv_pair[0]).attr("style","display:"+nv_pair[1]);
-          }
-        }				
-      }
     },
 
     tapi:
@@ -115,7 +87,6 @@ var wyf = {
           for(var i=0; i < wyf.tapi.tableIds.length; i++)
           {
             var id = wyf.tapi.tableIds[i];  
-            //$("#"+id+">tbody").load(wyf.tapi.tables[id].path);
             wyf.tapi.render(wyf.tapi.tables[id]);
           }
         },
@@ -234,42 +205,56 @@ var wyf = {
     },
     
     notifications : {
-        queue : function(notification, type)
-        {
-          if (typeof type === "undefined")
+      show : function(notification)
+      {
+        var object = document.createElement('div');
+        object.innerHTML = notification.message;
+        $(object).addClass('notification-' + notification.type).addClass('header-notification');
+        
+        if(notification.presentation == 'header')
+          this.showHeader(object);
+        else
+          this.showPopup(object);
+      },
+      showHeader : function(notification)
+      {
+        $('#header-notifications').append(notification);
+        $(notification).slideDown();
+        setTimeout(
+          function(){
+            $(notification).slideUp();
+          },
+          15000
+        );
+      },
+      showPopup : function(notification)
+      {
+        var originalTop = 50 - ($('#notification').height() + 40);
+        $('#notification').css({top: originalTop + 'px'});
+        setTimeout(
+          function() 
           {
-            type = "info";
-          }
-
-          $('#notification').addClass('notification-' + type);
-
-          $('#notification').html(notification);
-          var originalTop = 50 - ($('#notification').height() + 40);
-          $('#notification').css({top: originalTop + 'px'});
-          setTimeout(
-            function() 
-            {
-              $('#notification').show();
-              $('#notification').animate({top: '45px'}, 'slow',
-                function() {
-                    setTimeout(function() {
-                      $('#notification').animate(
-                        {
-                          top: originalTop + 'px'
-                        },
-                        function() {
-                          $('#notification').removeClass('notification-' + type);
-                        }
-                      );
-                    },
-                    6000
-                  );
-                }
-              );
-            },
-            1000
-          );            
-        }
+            $('#notification').show();
+            $('#notification').animate({top: '45px'}, 'slow',
+              function() {
+                  setTimeout(function() {
+                    $('#notification').animate(
+                      {
+                        top: originalTop + 'px'
+                      },
+                      function() {
+                        $('#notification').removeClass('notification-' + type);
+                      }
+                    );
+                  },
+                  6000
+                );
+              }
+            );
+          },
+          1000
+        );
+      }
     }
 };
 
