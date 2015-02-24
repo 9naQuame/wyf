@@ -56,7 +56,7 @@ class Controller
      * for the webpage.
      * @var string
      */
-    public $label;
+    private $_label;
 
     /**
      * A piece of text which briefly describes this controller. These 
@@ -480,6 +480,7 @@ class Controller
     
     public function setLabel($label)
     {
+        Application::setTitle($label);
         $this->label = $label;
     }
     
@@ -491,5 +492,21 @@ class Controller
     public function setActionMethod($actionMethod)
     {
         $this->actionMethod = $actionMethod;
+    }
+    
+    public function __get($name) 
+    {
+        switch($name)
+        {
+            case 'label': return $this->getLabel();
+        }
+    }
+    
+    public function __set($name, $value)
+    {
+        switch($name)
+        {
+            case 'label': $this->setLabel($value); return;
+        }
     }
 }

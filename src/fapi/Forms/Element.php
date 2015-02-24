@@ -408,12 +408,9 @@ abstract class Element
     {
         return false;
     }
-    
 
     public function isFormSent()
     {
-        if($this->getMethod()=="POST") $sent=$_POST['is_form_sent'];
-        if($this->getMethod()=="GET") $sent=$_GET['is_form_sent'];
-        if($sent=="yes") return true; else return false;
+        return isset($_REQUEST['is_form_sent']);
     }    
 }

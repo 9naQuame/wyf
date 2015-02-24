@@ -572,4 +572,19 @@ abstract class Container extends Element
             $element->clearErrors();
         }
     }
+    
+    public function validate()
+    {
+        $retval = true;
+        
+        foreach($this->elements as $element)
+        {
+            if($element->validate()===false)
+            {
+                $retval=false;
+            }
+        }
+        
+        return $retval;
+    }    
 }
