@@ -777,6 +777,16 @@ abstract class Model implements ArrayAccess
         
         return $compiled;
     }
+    
+    public function getEntity()
+    {
+        return $this->name;
+    }
+    
+    public function __toString()
+    {
+        return 'Item';
+    }
 }
 
 

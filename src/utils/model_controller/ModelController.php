@@ -77,12 +77,6 @@ class ModelController extends Controller
     protected $localPath;
     
     /**
-     * The controller action to be performed.
-     * @var string
-     */
-    protected $action;
-    
-    /**
      * Conditions which should be applied to the query used in generating the
      * list of items in the model.
      * @var string
@@ -159,6 +153,8 @@ class ModelController extends Controller
      * @var MCListView
      */
     protected $listView;
+    
+    private $currentItemId;
     
     /**
      * Constructor for the ModelController.
@@ -258,21 +254,31 @@ class ModelController extends Controller
      */
     public function add()
     {
-    	if(!User::getPermission($this->permissionPrefix."_can_add")) return;
+    	if(!User::getPermission($this->permissionPrefix."_can_add")) 
+        {
+            return;
+        }
 
         $form = $this->getForm();
         $this->label = "New ".$this->label;
         $form->setCallback(
             $this->callbackMethod,
-            array(
-                "action"=>"add",
-                "instance"=>$this,
-                "success_message"=>"Added new ".$this->model->name,
-                "form"=>$form
-            )
+            $this
         );
         
         return $form->render();
+    }
+    
+    private function getFormElementForField($form, $field)
+    {
+        try{
+            $element = $form->getElementByName($field);
+        }
+        catch(Exception $e)
+        {
+            $element = $form->getElementById(str_replace(".", "_", $field));
+        }
+        return $element;
     }
     
     private function setFormErrors($form, $errors)
@@ -282,13 +288,7 @@ class ModelController extends Controller
         {
             foreach($errors[$field] as $error)
             {
-                try{
-                    $element = $form->getElementByName($field);
-                }
-                catch(Exception $e)
-                {
-                    $element = $form->getElementById(str_replace(".", "_", $field));
-                }
+                $element = $this->getFormElementForField($form, $field);
                 $element->addError($error);
             }
         }
@@ -305,26 +305,29 @@ class ModelController extends Controller
      * 
      * @param array $data The data from the form
      * @param Form $form an instance of the form
-     * @param mixed $c Specific data from the form, this normally includes an instance of the controller
+     * @param \ModelController $instance Specific data from the form, this normally includes an instance of the controller
      * 
      * @see ModelController::$callbackFunction
      * @return boolean
      */
-    public static function callback($data, $form, $c)
+    public static function callback($data, $form, $instance)
     {
-        $return = $c["instance"]->model->setData($data, $c['key_field'], $c['key_value']);
+        $key = $instance->model->getKeyField();
+        $return = $instance->model->setData($data, $key, $instance->currentItemId);
+        $entity = $instance->model->getEntity();
         if($return===true)
         {
-            if($c['action'] == 'add')
+            if($instance->actionMethod === 'add')
             {
-                $id = $c["instance"]->model->save();
+                $id = $instance->model->save();
+                Application::queueNotification("Added new $entity <b>" . $instance->model . "</b>");
             }
             else
             {
-                $id = $c["instance"]->model->update($c["key_field"],$c["key_value"]);
+                $id = $instance->model->update($key, $instance->currentItemId);
+                Application::queueNotification("Updated $entity <b>" . $instance->model . "</b>");
             }
-            Application::queueNotification($c['success_message']);
-            Application::redirect($c["instance"]->urlPath);
+            Application::redirect($instance->urlPath);
         }
         else
         {
@@ -354,18 +357,13 @@ class ModelController extends Controller
     {
     	if(!User::getPermission($this->permissionPrefix."_can_edit")) return;
         $form = $this->getForm();
-        $form->setData($this->getModelData($params[0]));
+        $data = $this->getModelData($params[0]);
+        $form->setData($data);
         $this->label = "Edit ".$this->label;
+        $this->currentItemId = $params[0];
         $form->setCallback(
             $this->callbackMethod,
-            array(
-                "action"=>"edit",
-                "instance"=>$this,
-                "success_message"=>"Edited ".$this->model->name,
-                "key_field"=>$this->model->getKeyField(),
-                "key_value"=>$params[0],
-                "form"=>$form
-            )
+            $this
         );
         return $form->render();
     }
