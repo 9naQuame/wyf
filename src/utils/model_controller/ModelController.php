@@ -323,6 +323,7 @@ class ModelController extends Controller
             {
                 $id = $c["instance"]->model->update($c["key_field"],$c["key_value"]);
             }
+            Application::queueNotification($c['success_message']);
             Application::redirect($c["instance"]->urlPath);
         }
         else

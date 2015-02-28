@@ -47,8 +47,8 @@ class SystemLoginController extends Controller
         
         if ($_SESSION["logged_in"])
         {
-        	Application::redirect(Application::getLink("/"));
-        };
+            Application::redirect(Application::getLink("/"));
+        }
         $form = new Form();
         $form->setRenderer("default");
         $username = new TextField("Username","username");
@@ -56,8 +56,7 @@ class SystemLoginController extends Controller
         $password = new PasswordField("Password","password");
         $form->add($password);
         $form->setSubmitValue("Login");
-        $form->setValidatorCallback("{$this->getClassName()}::callback");
-        $form->setShowClear(false);
+        $form->setCallback("{$this->getClassName()}::callback", $this);
         
         return $form->render();
     }

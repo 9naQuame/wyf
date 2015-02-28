@@ -59,7 +59,7 @@ var wyf = {
             }
           );        
         },
-        1000
+        1500
       );
     },
 
@@ -209,50 +209,15 @@ var wyf = {
       {
         var object = document.createElement('div');
         object.innerHTML = notification.message;
-        $(object).addClass('notification-' + notification.type).addClass('header-notification');
+        $(object).addClass('notification-' + notification.type).addClass(notification.presentation + '-notification');
         
-        if(notification.presentation == 'header')
-          this.showHeader(object);
-        else
-          this.showPopup(object);
-      },
-      showHeader : function(notification)
-      {
-        $('#header-notifications').append(notification);
-        $(notification).slideDown();
+        $('#' + notification.presentation + '-notifications').append(object);
+        $(object).slideDown();
         setTimeout(
           function(){
-            $(notification).slideUp();
+            $(object).slideUp();
           },
-          15000
-        );
-      },
-      showPopup : function(notification)
-      {
-        var originalTop = 50 - ($('#notification').height() + 40);
-        $('#notification').css({top: originalTop + 'px'});
-        setTimeout(
-          function() 
-          {
-            $('#notification').show();
-            $('#notification').animate({top: '45px'}, 'slow',
-              function() {
-                  setTimeout(function() {
-                    $('#notification').animate(
-                      {
-                        top: originalTop + 'px'
-                      },
-                      function() {
-                        $('#notification').removeClass('notification-' + type);
-                      }
-                    );
-                  },
-                  6000
-                );
-              }
-            );
-          },
-          1000
+          5000
         );
       }
     }
