@@ -269,7 +269,7 @@ class ModelController extends Controller
         return $form->render();
     }
     
-    private function getFormElementForField($form, $field)
+    private static function getFormElementForField($form, $field)
     {
         try{
             $element = $form->getElementByName($field);
@@ -281,14 +281,14 @@ class ModelController extends Controller
         return $element;
     }
     
-    private function setFormErrors($form, $errors)
+    private static function setFormErrors($form, $errors)
     {
         $fields = array_keys($errors);
         foreach($fields as $field)
         {
             foreach($errors[$field] as $error)
             {
-                $element = $this->getFormElementForField($form, $field);
+                $element = self::getFormElementForField($form, $field);
                 $element->addError($error);
             }
         }
