@@ -15,28 +15,25 @@ class RadioGroup extends Field
         $this->setName($name);
         $this->setDescription($description);
     }
+    
+    public function addOption($label, $value, $description = '')
+    {
+        $button = new RadioButton($label, $this->getName(), $description);
+        $button->setValue($value);
+        $this->add($button);
+        return $this;
+    }
 
     //! Adds a radio button to the radio group.
-    public function add($button)
+    public function add(RadioButton $button)
     {
-        if($button->getType()=="RadioButton")
-        {
-            $button->setName($this->getName(false));
-            $button->setId($this->getId());
-            $this->buttons[] = $button;
-        }
-        else
-        {
-            throw new Exception("Object added to radio group is not of type RadioButton");
-        }
+        $button->setName($this->getName());
+        $button->setId($this->getId());
+        $this->buttons[] = $button;
+        return $this;
     }
 
-    public function removeRadioButton($index)
-    {
-
-    }
-
-    //! Render the form.
+    //! Render the radio group
     public function render()
     {
         $ret = "";

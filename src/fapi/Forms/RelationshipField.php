@@ -40,7 +40,6 @@ class RelationshipField extends Field
         $this->mainModelField = $mainModelPath;
         $this->subModelField = $subModelPath;
 
-        //$subSelectionList = new SelectionList();
         $mainModelPathInfo = Model::resolvePath($mainModelPath);
         $this->subModelPathInfo = Model::resolvePath($subModelPath);
         $this->mainModel = Model::load($mainModelPathInfo["model"]);
@@ -50,6 +49,11 @@ class RelationshipField extends Field
         {
             $this->mainSelectionList->addOption($inf[0], $inf[1]);
         }
+        
+        $this->mainSelectionList->addCSSClass('fapi-relationship-field')
+            ->addCSSClass('fapi-relationship-field-main');
+        $this->subSelectionList->addCSSClass('fapi-relationship-field')
+            ->addCSSClass('fapi-relationship-field-sub');         
     }
 
     public function setValue($value)
@@ -138,7 +142,6 @@ class RelationshipField extends Field
         $params .= "conditions=".urlencode("{$this->subModel->getDatabase()}.{$this->mainModel->getKeyField()}==");
         
         return $this->mainSelectionList->render().
-               "<br/>".
                 $this->subSelectionList->render()
                 ."<script type='text/javascript'>
                     function fapi_change_{$this->name}()
