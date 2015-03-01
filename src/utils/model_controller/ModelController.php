@@ -245,6 +245,7 @@ class ModelController extends Controller
         {
             $form = new MCDefaultForm($this->model);
         }
+        $form->setRunValidations(false);
         return $form;
     }
     

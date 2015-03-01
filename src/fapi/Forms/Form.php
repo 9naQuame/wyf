@@ -176,6 +176,8 @@ class Form extends Container
 
     public $successUrl;
     
+    protected $runValidations = true;
+    
     /**
      * A constructor for initializing the form. This constructor should always
      * be called even when the form class is being extended.
@@ -292,8 +294,14 @@ class Form extends Container
         if($this->isFormSent())
         {
             $data = $this->getData();
-            $validated = $this->validate();
-            if($validated==1)
+            $validated = true;
+            
+            if($this->runValidations)
+            {
+                $validated = $this->validate();
+            }
+            
+            if($validated)
             {
                 $this->executeCallback($this->callback,$data,$this,$this->callbackData);
             }
@@ -355,5 +363,10 @@ class Form extends Container
     {
         $this->ajax = $validation;
         $this->ajaxSubmit = $submit;
+    }
+    
+    public function setRunValidations($runValidations)
+    {
+        $this->runValidations = $runValidations;
     }
 }
