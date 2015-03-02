@@ -182,13 +182,6 @@ class Controller
                 add_include_path("app/modules/$controller_path/");
                 break;
             }
-            else if(file_exists(SOFTWARE_HOME . "app/modules/$controller_path/$p/$p.php"))
-            {
-                $controller_name = $p;
-                $controller_path .= "/$p";
-                $controller_type = Controller::TYPE_MODULE;
-                break;
-            }
             else if(file_exists(SOFTWARE_HOME . "app/modules/$controller_path/$p/{$baseClassName}Model.php"))
             {
                 $controller_name = $p;
@@ -240,7 +233,10 @@ class Controller
             else
             {
                 $controller_path .= "/$p";
-                if($redirected) $package_main .= "$p."; 
+                if($redirected) 
+                {
+                    $package_main .= "$p."; 
+                }
             }
         }
 
@@ -250,21 +246,13 @@ class Controller
             case Controller::TYPE_MODULE:
                 // Load a module controller which would be a subclass of this
                 // class
-                if($controller_class_name=="")
-                {
-                    require_once SOFTWARE_HOME . "app/modules$controller_path/$controller_name.php";
-                    $controller = new $controller_name();
-                }
-                else
-                {
-                    $controller_name = $controller_class_name;
-                    $controller = new $controller_class_name();
-                    $controller->redirected = $redirected;
-                    $controller->redirectPath = $redirect_path;
-                    $controller->redirectedPackage = $package_path;
-                    $controller->mainRedirectedPackage = $package_main;
-                    $controller->redirectedPackageName = $package_name;
-                }
+                $controller_name = $controller_class_name;
+                $controller = new $controller_class_name();
+                $controller->redirected = $redirected;
+                $controller->redirectPath = $redirect_path;
+                $controller->redirectedPackage = $package_path;
+                $controller->mainRedirectedPackage = $package_main;
+                $controller->redirectedPackageName = $package_name;
                 break;
 
             case Controller::TYPE_MODEL;

@@ -174,7 +174,6 @@ class ModelController extends Controller
         $this->label = $this->model->label;
         $this->description = $this->model->description;
         Application::setTitle($this->label);
-        
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
     }
     
@@ -593,7 +592,6 @@ class ModelController extends Controller
             $controller->setParentItemId($parameters['parent_item_id']);
             $controller->setEntity($parameters['entity']);
         }
-        
         return $this->useNestedController($controller, $args);
     }
     
