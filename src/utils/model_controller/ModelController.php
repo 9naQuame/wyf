@@ -171,9 +171,8 @@ class ModelController extends Controller
         $this->urlPath = Application::$prefix."/".str_replace(".","/",$urlBase);
         $this->permissionPrefix = str_replace(".", "_", $redirectedPackage) . str_replace(".", "_", $this->modelName);
         $this->localPath = "app/modules/".str_replace(".","/",$urlBase);
-        $this->label = $this->model->label;
+        $this->label = $this->model->getEntity();
         $this->description = $this->model->description;
-        Application::setTitle($this->label);
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
     }
     
@@ -260,7 +259,7 @@ class ModelController extends Controller
         }
 
         $form = $this->getForm();
-        $this->label = "New ".$this->label;
+        $this->label = "New " . Utils::singular($this->label);
         $form->setCallback(
             $this->callbackMethod,
             $this
@@ -320,12 +319,12 @@ class ModelController extends Controller
             if($instance->actionMethod === 'add')
             {
                 $id = $instance->model->save();
-                Application::queueNotification("Added new $entity <b>" . $instance->model . "</b>");
+                Application::queueNotification("Added new " . Utils::singular($instance->model->getEntity()) .", <b>" . $instance->model . "</b>");
             }
             else
             {
                 $id = $instance->model->update($key, $instance->currentItemId);
-                Application::queueNotification("Updated $entity <b>" . $instance->model . "</b>");
+                Application::queueNotification("Updated " . Utils::singular($instance->model->getEntity()) . ", <b>" . $instance->model . "</b>");
             }
             Application::redirect($instance->urlPath);
         }
@@ -359,7 +358,8 @@ class ModelController extends Controller
         $form = $this->getForm();
         $data = $this->getModelData($params[0]);
         $form->setData($data);
-        $this->label = "Edit ".$this->label;
+        $this->model->setData($data);
+        $this->label = "Edit " . Utils::singular($this->label) . " - " . $this->model;
         $this->currentItemId = $params[0];
         $form->setCallback(
             $this->callbackMethod,
@@ -386,7 +386,8 @@ class ModelController extends Controller
             false
         );
         $form->setData($data[0]);
-        $this->label = "View ".$this->label;
+        $this->model->setData($data[0]);
+        $this->label = "View ". Utils::singular($this->label) . " - " . $this->model;
         return $form->render(); //ModelController::frameText(400,$form->render());
     }
 
@@ -473,8 +474,9 @@ class ModelController extends Controller
     	{
             $data = $this->model->getWithField($this->model->getKeyField(),$params[0]);
             $this->model->delete($this->model->getKeyField(),$params[0]);
-            User::log("Deleted " . $this->model->name, $data[0]);
-            Application::redirect("{$this->urlPath}?notification=Successfully+deleted+".strtolower($this->label));
+            $this->model->setData($data[0]);
+            Application::queueNotification("Deleted <b>" . Utils::singular($this->model->getEntity()) . "</b>, <b>" . $this->model . "</b>");
+            Application::redirect($this->urlPath);
     	}
     }
 

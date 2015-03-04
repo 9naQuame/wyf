@@ -283,17 +283,7 @@ abstract class SQLDBDataStore extends DataStore
     
     public static function log($query)
     {
-    	switch (SQLDBDataStore::$logMode)
-    	{
-    		case "print":
-    			print $query . "\n";
-    			break;
-    		case "file":
-    		    Logger::setPath("app/logs/sql.log");
-    			Logger::log($query);
-    			break;
-    		
-    	}
+        ntentan\logger\Logger::debug($query);
     }
     
     public abstract function createSequence($name);

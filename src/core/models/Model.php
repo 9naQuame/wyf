@@ -780,7 +780,7 @@ abstract class Model implements ArrayAccess
     
     public function getEntity()
     {
-        return $this->name;
+        return $this->label;
     }
     
     public function __toString()
