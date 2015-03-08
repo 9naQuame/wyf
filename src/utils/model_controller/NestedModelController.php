@@ -6,10 +6,9 @@ class NestedModelController extends ModelController
     protected $parentItemId;
     private $methodName;
     private $parentNameField;
-    private $entity;
 
     /**
-     *
+     * 
      * @var ModelController
      */
     protected $parentController;
@@ -18,8 +17,11 @@ class NestedModelController extends ModelController
     {
         if($this->parentController)
         {
-            $entity = reset($this->parentController->model[$this->parentItemId]);
-            return $this->entity . ($this->entity == '' ? '' : ' of ') .  "{$this->parentController->label} ({$entity[$this->parentNameField]})";
+            $parentEntity = Utils::singular($this->parentController->model->getEntity());
+            $entity = $this->model->getEntity();
+            $data = reset($this->parentController->model[$this->parentItemId]);
+            $this->parentController->model->setData($data);
+            return $entity . ($entity == '' ? '' : ' of ') .  "$parentEntity ({$this->parentController->model})";
         }
         else
         {
@@ -66,11 +68,6 @@ class NestedModelController extends ModelController
         $this->parentNameField = $parentNameField;
     }
     
-    public function setEntity($entity)
-    {
-        $this->entity = $entity;
-    }
-    
     public function getParentItemId()
     {
         return $this->parentItemId;
@@ -93,4 +90,3 @@ class NestedModelController extends ModelController
         return $form;
     }
 }
-

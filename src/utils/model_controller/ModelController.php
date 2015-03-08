@@ -313,18 +313,18 @@ class ModelController extends Controller
     {
         $key = $instance->model->getKeyField();
         $return = $instance->model->setData($data, $key, $instance->currentItemId);
-        $entity = $instance->model->getEntity();
+        $entity = Utils::singular($instance->model->getEntity());
         if($return===true)
         {
             if($instance->actionMethod === 'add')
             {
                 $id = $instance->model->save();
-                Application::queueNotification("Added new " . Utils::singular($instance->model->getEntity()) .", <b>" . $instance->model . "</b>");
+                Application::queueNotification("Added new $entity, <b>{$instance->model}</b>");
             }
             else
             {
                 $id = $instance->model->update($key, $instance->currentItemId);
-                Application::queueNotification("Updated " . Utils::singular($instance->model->getEntity()) . ", <b>" . $instance->model . "</b>");
+                Application::queueNotification("Updated $entity, <b>{$instance->model}</b>");
             }
             Application::redirect($instance->urlPath);
         }
@@ -590,9 +590,9 @@ class ModelController extends Controller
         
         if(is_array($parameters))
         {
-            $controller->setParentNameField($parameters['parent_name_field']);
+            //$controller->setParentNameField($parameters['parent_name_field']);
             $controller->setParentItemId($parameters['parent_item_id']);
-            $controller->setEntity($parameters['entity']);
+            //$controller->setEntity($parameters['entity']);
         }
         return $this->useNestedController($controller, $args);
     }

@@ -13,6 +13,7 @@
         "src",
         "src/utils/model_controller",
         "src/utils/model_controller/jobs",
+        "src/utils/report_controllers",
         "src/core/controllers",
         "src/fapi/Forms",
         "src/toolbar",
