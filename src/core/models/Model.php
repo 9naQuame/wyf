@@ -229,7 +229,7 @@ abstract class Model implements ArrayAccess
             case "date":
                 if($value != "")
                 {
-                    $data[$key] = Model::stringToTime($value);
+                    $data[$key] = Utils::stringToTime($value);
                     if($data[$key]===false) $errors[$key][] = "Invalid Date Format. Use yy/mm/dddd.";
                 }
                 break;
@@ -237,7 +237,7 @@ abstract class Model implements ArrayAccess
             case "datetime":
                 if($value != "")
                 {
-                    $data[$key] = Model::stringToTime($value, true);
+                    $data[$key] = Utils::stringToTime($value, true);
                     if($data[$key]===false) $errors[$key][] = "Invalid Date Format. Use yy/mm/dddd.";
                 }
                 break;
@@ -284,24 +284,6 @@ abstract class Model implements ArrayAccess
         {
             return array("errors"=>$errors);
         }
-    }
-    
-    public static function stringToTime($string, $hasTime = false)
-    {
-        if(preg_match("/(\d{2})\/(\d{2})\/(\d{4})(\w\d{2}:\d{2}:\d{2})?/", $string) == 0) return false;
-        $dateComponents = explode(" ", $string);
-
-        $decomposeDate = explode("/", $dateComponents[0]);
-        $decomposeTime = array();
-
-        if($hasTime === true)
-        {
-            $decomposeTime = explode(":", $dateComponents[1]);
-        }
-
-        return
-        strtotime("{$decomposeDate[2]}-{$decomposeDate[1]}-{$decomposeDate[0]}") +
-        ($hasTime === true ? ($decomposeTime[0] * 3600 + $decomposeTime[1] * 60 + $decomposeTime[2]) : 0);
     }
 
     public function validate()
