@@ -87,4 +87,46 @@ class Utils
         }
         return $plural;
     }    
+    
+    /**
+     * Converts a string time representation of the format DD/MM/YYY [HH:MI:SS]
+     * into a unix timestamp. The conversion is done with the strtotime()
+     * function which comes as part of the php standard library.
+     *
+     * @param string $string The date
+     * @param boolean $hasTime When specified, the time components are also added
+     * @return int
+     */
+    public static function stringToTime($string, $hasTime = false)
+    {
+        if(preg_match("/(\d{2})\/(\d{2})\/(\d{4})(\w\d{2}:\d{2}:\d{2})?/", $string) == 0) return false;
+        $dateComponents = explode(" ", $string);
+
+        $decomposeDate = explode("/", $dateComponents[0]);
+        $decomposeTime = array();
+
+        if($hasTime === true)
+        {
+            $decomposeTime = explode(":", $dateComponents[1]);
+        }
+
+        return
+        strtotime("{$decomposeDate[2]}-{$decomposeDate[1]}-{$decomposeDate[0]}") +
+        ($hasTime === true ? ($decomposeTime[0] * 3600 + $decomposeTime[1] * 60 + $decomposeTime[2]) : 0);
+    }
+
+    /**
+     * Converts a string time representation of the format DD/MM/YYY [HH:MI:SS]
+     * into an oracle date format DD-MON-YY.
+     *
+     * @param string $string The date
+     * @param boolean $hasTime When specified, the time components are also added
+     * @todo Allow the returning of the time values too.
+     * @return string
+     */
+    public static function stringToDatabaseDate($string, $hasTime = false)
+    {
+        $timestamp = Common::stringToTime($string, $hasTime);
+        return date("Y-m-d", $timestamp);
+    }    
 }

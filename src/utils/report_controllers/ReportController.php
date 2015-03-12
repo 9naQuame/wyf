@@ -1,27 +1,27 @@
 <?php
 /*
  * Copyright (c) 2011 James Ekow Abaka Ainooson
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-    * "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-*/
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
 
 /**
  * A special controller class for generating reports. The report controller
@@ -50,14 +50,12 @@ abstract class ReportController extends Controller
      */
     protected $widths;
     public $referencedFields;
-    protected $form;
     protected $filters;
     protected $numFilters = 0;
     protected $reportData = array();
     protected $reportDataIndex = 0;
     protected $drawTotals = true;
     protected $dataParams;
-    protected $script;
 
     public function __construct()
     {
@@ -73,15 +71,15 @@ abstract class ReportController extends Controller
      */
     public function getReport()
     {
-        switch(isset($_POST["report_format"])?$_POST["report_format"]:"pdf")
+        switch(isset($_REQUEST["report_format"])?$_REQUEST["report_format"]:"pdf")
         {
             case "pdf":
                 $report = new PDFReport(
-                    isset($_POST["page_orientation"]) ? 
-                        $_POST["page_orientation"] : 
+                    isset($_REQUEST["page_orientation"]) ? 
+                        $_REQUEST["page_orientation"] : 
                         PDFReport::ORIENTATION_LANDSCAPE,
-                    isset($_POST["paper_size"]) ? 
-                        $_POST["paper_size"] :
+                    isset($_REQUEST["paper_size"]) ? 
+                        $_REQUEST["paper_size"] :
                         PDFReport::PAPER_A4
                 );
                 break;
@@ -342,9 +340,9 @@ abstract class ReportController extends Controller
         
         do
         {
-            if($_POST["grouping_".($params["grouping_level"]+1)."_newpage"] == "1")
+            if($_REQUEST["grouping_".($params["grouping_level"]+1)."_newpage"] == "1")
             {
-                $params["report"]->addPage($_POST["grouping_".($params["grouping_level"]+1)."_newpage"]);
+                $params["report"]->addPage($_REQUEST["grouping_".($params["grouping_level"]+1)."_newpage"]);
             }
 
             $headingValue = $this->reportData[$this->reportDataIndex][$groupingField];
@@ -427,44 +425,12 @@ abstract class ReportController extends Controller
     public function getContents()
     {
         $form = $this->getForm();
-        $data = array
-            (
-            "script"=>$this->script,
-            "filters"=>$form->render()
+      
+        $data = array(
+            "filters" => $form->render(),
+            "path" => $this->path
         );
         return $this->arbitraryTemplate(__DIR__ . "/reports.tpl", $data, true);
-    }
-
-    /**
-     * Initializes a form for reports. The form generate already contains options
-     * which are standard to all reports. The initialized form is accessible
-     * through the ReportController::form variable.
-     */
-    protected function initializeForm()
-    {
-        $this->form = new Form();
-        $this->form->add(Element::create("FieldSet","Report Format")->add
-            (
-                Element::create("SelectionList", "File Format", "report_format")
-                    ->addOption("Hypertext Markup Language (HTML)","html")
-                    ->addOption("Portable Document Format (PDF)","pdf")
-                    ->addOption("Microsoft Excel (XLS)","xls")
-                    ->addOption("Microsoft Word (DOC)","doc")
-                    ->setRequired(true)
-                    ->setValue("pdf"),
-                Element::create("SelectionList", "Page Orientation", "page_orientation")
-                    ->addOption("Landscape", "L")
-                    ->addOption("Portrait", "P")
-                    ->setValue("L"),
-                Element::create("SelectionList", "Paper Size", "paper_size")
-                    ->addOption("A4", "A4")
-                    ->addOption("A3", "A3")
-                    ->setValue("A4")
-            )->setId("report_formats")->addAttribute("style","width:50%")
-        );
-        $this->form->setSubmitValue("Generate");
-        $this->form->addAttribute("action",Application::getLink($this->path."/generate"));
-        $this->form->addAttribute("target","blank");
     }
 
     /**

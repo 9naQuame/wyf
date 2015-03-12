@@ -99,10 +99,10 @@ class MCListView
         if(User::getPermission($this->permissionPrefix."_can_export"))
         {
             $exportButton = new MenuButton("Export");
-            $exportButton->addMenuItem("PDF", "#","wyf.openWindow('".$this->urlPath."/export/pdf')");
-            $exportButton->addMenuItem("CSV Data", "#","wyf.openWindow('".$this->urlPath."/export/csv')");
-            $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
-            $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
+            $exportButton->addMenuItem("Portable Document Format (PDF)", "#", "wyf.openWindow('".$this->urlPath."/export/pdf')");
+            $exportButton->addMenuItem("Raw Data (CSV)", "#", "wyf.openWindow('".$this->urlPath."/export/csv')");
+            $exportButton->addMenuItem("Hyper Text Markup Language (HTML)", "#", "wyf.openWindow('".$this->urlPath."/export/html')");
+            $exportButton->addMenuItem("Microsoft Excel (XLS)", "#", "wyf.openWindow('".$this->urlPath."/export/xls')");
             $this->toolbar->add($exportButton);
         }    
         if($this->hasAddOperation && User::getPermission($this->permissionPrefix."_can_import"))

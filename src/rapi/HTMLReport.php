@@ -3,8 +3,6 @@ class HTMLReport extends Report
 {
     public $htmlHeaders;
     private $numColumns;
-    private $widthsSet;
-    //private $widths = array();
 
     public function setOptions($options)
     {
@@ -142,7 +140,7 @@ class HTMLReport extends Report
                             }
                             else
                             {
-                                print "<td style='padding:3px;border:1px solid rgb(180,200,180);font-size:8pt;font-family:helvetica;' align='right'><b>" . (is_numeric($totals[$index]) ? Common::currency($totals[$index]) : "") . "</b></td>";
+                                print "<td style='padding:3px;border:1px solid rgb(180,200,180);font-size:8pt;font-family:helvetica;' align='right'><b>" . (is_numeric($totals[$index]) ? number_format($totals[$index], 2) : "") . "</b></td>";
                             }
                         }
                         print "</tr>";
