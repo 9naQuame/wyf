@@ -1,6 +1,7 @@
 .rapi-table{
     width:100%;
     border-collapse: collapse;
+    font-size: smaller;
 }
 
 .rapi-table > thead > tr

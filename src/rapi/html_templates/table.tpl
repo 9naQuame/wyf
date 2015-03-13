@@ -3,7 +3,7 @@
 {else}
     <table class="rapi-table">
         <thead>
-            <tr>{foreach from=$headers item=header key=i}<th class='{if $types[$i] neq ''}rapi-column-{$types[$i]}{/if}'>{$header}</th>{/foreach}</tr>
+            <tr>{foreach from=$headers item=header key=i}<th class='{if $types[$i] neq ''}rapi-column-{$types[$i]}{/if}'>{$header|replace:"\\n":"<br/>"}</th>{/foreach}</tr>
         </thead>
         <tbody>
             {foreach from=$data item=row}
