@@ -8,6 +8,6 @@
 </div>
 <script type="text/javascript">
     $(function(){
-        $('#report-body').load("{$path}/generate/?report_format=html");
+        $('#report-body').load("{$path}/generate/?report_format=html&title=no&logo=no");
     });
 </script>

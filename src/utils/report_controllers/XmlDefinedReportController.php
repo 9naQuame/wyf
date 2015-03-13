@@ -82,22 +82,11 @@ class XmlDefinedReportController extends ReportController {
     
     private function generateTextSection($reader, $report)
     {
-        $text = new TextContent();
         $reader->moveToAttribute("style");
-        switch ($reader->value) {
-            case "heading":
-                $text->setStyle("size", 16);
-                $text->setStyle("bold", true);
-                $report->label = $text;
-                break;
-
-            default:
-                $text->style["size"] = $reader->moveToAttribute("size") ? $reader->value : 12;
-                break;
-        }
+        $style = $reader->value;
         $reader->read();
-        $text->text = $reader->value;
-        $report->add($text);        
+        $text = $reader->value;
+        $report->add(new TextContent($text, $style));        
     }
     
     private function generateTableSection($reader, $report)

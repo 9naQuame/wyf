@@ -25,3 +25,9 @@
     border-top:2px solid #d0d0d0;
     border-bottom:4px solid #d0d0d0;
 }
+
+.rapi-text-title{
+    font-weight: bold;
+    font-size: x-large;
+    margin-bottom: 5px;
+}

@@ -288,8 +288,6 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
             $params["widths"] = $widths;
         }
 
-        //array($widths);
-
         $max = array_sum($params["widths"]);
         foreach ($params["widths"] as $i => $width)
         {

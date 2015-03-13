@@ -21,6 +21,7 @@ class Report
     {
         foreach($this->contents as $content)
         {
+            if($this->filterContent($content)) continue;
             $contentType = $content->getType();
             $method = "render{$contentType}";
             //if(method_exists($this->generator, $method))
@@ -32,28 +33,20 @@ class Report
         echo $this->generator->output();
         die();
     }
-
-    /*public function addPage($repeatLogos = false, $forced = false)
+    
+    private function filterContent($content)
     {
-        if(!$this->pageInitialized || $forced)
+        $filter = false;
+        if($_REQUEST['logo'] === 'no' && $content->getType() === 'logo')
         {
-            $this->contents[] = "NEW_PAGE";
-            if($repeatLogos)
-            {
-                if($this->logo != null) $this->add($this->logo);
-                if($this->label != null) $this->add($this->label);
-                if($this->filterSummary != null) $this->add($this->filterSummary);
-            }
+            $filter = true;
         }
-        else
+        else if($_REQUEST['title'] === 'no' && $content->getType() === 'text' && $content->getStyle() === 'title')
         {
-            $this->pageInitialized = false;
+            $filter = true;
         }
+        
+        return $filter;
     }
-
-    public function resetPageNumbers()
-    {
-        $this->contents[] = "RESET_PAGE_NUMBERS";
-    }*/
 }
 

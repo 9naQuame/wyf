@@ -4,16 +4,27 @@
  */
 class TextContent extends ReportContent
 {
-    public $text;
+    protected $text;
+    protected $style = 'normal';
     
     public function __construct($text=null, $style=null)
     {
-        $this->setStyle($style);
+        $this->style = $style;
         $this->text = $text;
     }
     
     public function getType()
     {
         return "text";
+    }
+    
+    public function getText()
+    {
+        return $this->text;
+    }
+    
+    public function getStyle()
+    {
+        return $this->style;
     }
 }
