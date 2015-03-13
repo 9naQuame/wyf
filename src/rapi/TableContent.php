@@ -3,83 +3,58 @@ class TableContent extends ReportContent
 {
     protected $headers;
     protected $data;
-    public $style;
-    
-    public $data_params = null;
+    protected $dataParams = null;
+    protected $autoTotals;
     private $totals = array();
+    protected $totalsBox;
+    protected $numColumns;
     
-    public function __construct($headers, $data, $data_params=null)
-    {
-        // Define the default style for the tables
-        if(defined('DEFAULT_TABLE_STYLE'))
-        {
-            $this->style = json_decode(DEFAULT_TABLE_STYLE, true);
-        }
-        else 
-        {
-            $this->style = array(
-                'header:border' => array(200,200,200),
-                'header:background' => array(200,200,200),
-                'header:text' => array(255,255,255),
-                'body:background' => array(255,255,255),
-                'body:stripe' => array(250, 250, 250),
-                'body:border' => array(200, 200, 200),
-                'body:text' => array(0,0,0)
-            );                        
-        }
-        
+    public function __construct($headers, $data)
+    {   
         $this->headers = $headers;
-        if(isset($data_params["ignore"]))
-        {
-            foreach($data_params["ignore"] as $ignore)
-            {
-                array_splice($this->headers,$ignore,1);
-                array_splice($data_params["type"],$ignore,1);
-                array_splice($data_params["total"],$ignore,1);
-            }
-        }
-        $this->style["decoration"] = true;
-        $this->data_params = $data_params;
-        $this->setData($data);
-        if(is_array($data_params["widths"]))
-        {
-            if(count($data_params["widths"])==0)
-            {
-                $this->data_params["widths"] = $this->getTableWidths();
-            }
-        }
-        else
-        {
-            $this->data_params["widths"] = $this->getTableWidths();
-        }
+        $this->data = $data;
+        $this->numColumns = count($headers);
+    }
+    
+    public function setAsTotalsBox($totalsBox)
+    {
+        $this->totalsBox = $totalsBox;
+    }
+    
+    public function getAsTotalsBox()
+    {
+        return $this->totalsBox;
+    }
+    
+    public function setAutoTotals($autoTotals)
+    {
+        $this->autoTotals = $autoTotals;
+    }
+    
+    public function getAutoTotals()
+    {
+        return $this->autoTotals;
     }
 
     public function getTableWidths()
     {
         $widths = array();
-        if($this->headers != null)
+        foreach($this->headers as $i=>$header)
         {
-            foreach($this->headers as $i=>$header)
+            $lines = explode("\n",$header);
+            foreach($lines as $line)
             {
-                $lines = explode("\n",$header);
-                foreach($lines as $line)
-                {
-                    $widths[$i] = strlen($line) > $widths[$i] ? strlen($line) : $widths[$i];
-                }
+                $widths[$i] = strlen($line) > $widths[$i] ? strlen($line) : $widths[$i];
             }
         }
         
-        if($this->data != null)
+        foreach($this->data as $row)
         {
-            foreach($this->data as $row)
+            $i = 0;
+            foreach($row as $column)
             {
-                $i = 0;
-                if(!is_array($row)) continue;
-                foreach($row as $column)
-                {
-                    $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
-                    $i++;
-                }
+                $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
+                $i++;
             }
         }
         
@@ -102,43 +77,44 @@ class TableContent extends ReportContent
     }
     
     public function getTotals()
-    {
-        if(count($this->totals) > 0)
+    {   
+        for($i = 0; $i < $this->numColumns; $i++)
         {
-            return $this->totals;
-        }
-        $totals = array();
-        if(!is_array($this->data)) return $totals;
+            $totals[$i] = null;
+        }    
+        
         foreach($this->data as $fields)
         {
             $i = 0;
-            if(!is_array($fields)) continue; //return $totals;
             foreach($fields as $field)
             {
-                if($this->data_params["total"][$i])
+                if($this->dataParams["total"][$i])
                 {
-                    $field = str_replace(array(",", ' '),"",$field);
-                    
-                    switch($this->data_params['type'][$i])
-                    {
-                        case 'double':
-                            $field = round($field, 2);
-                            break;
-                        case 'number':
-                            $field = round($field, 0);
-                            break;
-                    }
-                    
-                    $totals[$i] += $field;
+                    $totals[$i] += $this->getFieldValue($field, $this->dataParams['type'][$i]);
                 }
                 $i++;
             }
         }
-        for($i = 0; $i < count($fields); $i++)
-        {
-            $totals[$i] = is_numeric($totals[$i]) ? $totals[$i] : null;
-        }
+
         return $totals;
+    }
+    
+    private function getFieldValue($value, $type)
+    {
+
+        $field = str_replace(array(",", ' '), "", $value);
+
+        switch($type)
+        {
+            case 'double':
+                $field = round($field, 2);
+                break;
+            case 'number':
+                $field = round($field, 0);
+                break;
+        }
+        
+        return $field;
     }
     
     public function getHeaders()
@@ -148,34 +124,28 @@ class TableContent extends ReportContent
     
     public function setDataTypes($types)
     {
-    	$this->data_params['type'] = $types;
+    	$this->dataParams['type'] = $types;
+    }
+    
+    public function getDataTypes()
+    {
+        return $this->dataParams['type'];
     }
     
     public function setTotalsFields($total)
     {
-    	$this->data_params['total'] = $total;
-    	$this->style['autoTotalsBox'] = true;
+    	$this->dataParams['total'] = $total;
+    	$this->setAutoTotals(true);
+    }
+    
+    public function setIgnoredFields($ignore)
+    {
+        $this->dataParams['ignore'] = $ignore;
     }
     
     public function setWidths($widths)
     {
-        $this->data_params['widths'] = $widths;
-    }
-    
-    public function setData($data)
-    {
-        if(isset($this->data_params["ignore"]))
-        {
-            foreach($data as $key=>$row)
-            {
-                foreach($this->data_params["ignore"] as $ignore)
-                {
-                    array_splice($row, $ignore, 1);
-                }
-                $data[$key]=$row;
-            }
-        }
-        $this->data = $data;
+        $this->dataParams['widths'] = $widths;
     }
     
     public function getData()
@@ -186,5 +156,15 @@ class TableContent extends ReportContent
     public function getType()
     {
         return "table";
+    }
+    
+    public function getNumColumns()
+    {
+        return $this->numColumns;
+    }
+    
+    public function setDataParams($dataParams)
+    {
+        $this->dataParams = $dataParams;
     }
 }

@@ -5,11 +5,23 @@ class LogoContent extends ReportContent
     public $address = array();
     public $title;
     
-    public function setAddress($address)
+    private function setAddress($address)
     {
         if(is_array($address))
         {
             $this->address = $address;
+        }
+        else
+        {
+            $this->address = explode("\n", $address);
+        }
+    }
+    
+    public function __set($name, $value)
+    {
+        switch($name)
+        {
+            case 'address': $this->setAddress($address);
         }
     }
     

@@ -71,32 +71,7 @@ abstract class ReportController extends Controller
      */
     public function getReport()
     {
-        switch(isset($_REQUEST["report_format"])?$_REQUEST["report_format"]:"pdf")
-        {
-            case "pdf":
-                $report = new PDFReport(
-                    isset($_REQUEST["page_orientation"]) ? 
-                        $_REQUEST["page_orientation"] : 
-                        PDFReport::ORIENTATION_LANDSCAPE,
-                    isset($_REQUEST["paper_size"]) ? 
-                        $_REQUEST["paper_size"] :
-                        PDFReport::PAPER_A4
-                );
-                break;
-            case "html":
-                $report = new HTMLReport();
-                $report->htmlHeaders = true;
-                break;
-            case "html-no-headers":
-                $report = new HTMLReport();
-                break;
-            case "xls":
-                $report = new XLSReport();
-                break;
-            case "doc":
-                $report = new MSWordReport();
-                break;
-        }
+        $report = new Report($_REQUEST['report_format']);
         return $report;
     }
 
@@ -201,10 +176,10 @@ abstract class ReportController extends Controller
      * @param string $heading A special heading for the table if it is a nested table
      * @return array
      */
-    protected function drawTable($data, $params, &$dataParams, $totalTable, $heading)
+    protected function drawTable($report, $table)
     {
-        $paramsCopy = $params;
-        if(is_array($params["ignored_fields"]))
+        //$paramsCopy = $params;
+        /*if(is_array($params["ignored_fields"]))
         {
             foreach($params["ignored_fields"] as $ignored)
             {
@@ -229,19 +204,19 @@ abstract class ReportController extends Controller
                     //$data[$key] = array_values($row);
                 }
             }
-        }
-
-        $table = new TableContent($paramsCopy["headers"],$data,$paramsCopy["data_params"]);
-        if($totalTable == true)
-        {
-            $table->style["autoTotalsBox"] = true;
-        }
-
+        }*/
         
-        if($this->widths == null) $this->widths = $table->getTableWidths();
+        $tableContent = new TableContent($table["headers"], $table['data']);
+        $tableContent->setDataParams($table['params']);
+        $tableContent->setAutoTotals($table['totals']);
+        
+        if($this->widths == null) 
+        {
+            $this->widths = $table->getTableWidths();
+        }
 
-        $params["report"]->add($table);
-        $total = $table->getTotals();
+        $report->add($tableContent);
+        $total = $tableContent->getTotals();
         
         return $total;
     }
@@ -319,7 +294,7 @@ abstract class ReportController extends Controller
             $i--;
     	}
         $table = new TableContent($newHeaders, $summarizedData, $newParams);
-        $table->style["autoTotalsBox"] = true;
+        $table->setAutoTotals(true);
         $params["report"]->add($table);
     }
 

@@ -29,10 +29,12 @@
  */
 class TemplateEngine extends Smarty
 {
+    private static $instance;
+    
     /**
      * Sets up the smarty engine
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->template_dir = SOFTWARE_HOME . 'app/themes/' . Application::$config['theme'] . '/templates';
@@ -43,6 +45,15 @@ class TemplateEngine extends Smarty
         $this->assign('host',$_SERVER["HTTP_HOST"]);
     }
     
+    private static function getInstance()
+    {
+        if(self::$instance == null)
+        {
+            self::$instance = new TemplateEngine();
+        }
+        return self::$instance;
+    }
+
     /**
      * A static function for invoking the smarty template engine given the 
      * template and the data variables.
@@ -52,17 +63,8 @@ class TemplateEngine extends Smarty
      */
     public static function render($template, $data)
     {
-        $t = new TemplateEngine();
+        $t = self::getInstance();
         $t->assign($data);
-        return $t->fetch("file:/" . getcwd() . "/$template");
+        return $t->fetch("file:/" . $template);
     }
-    
-    public static function renderString($template, $data)
-    {
-        $file = "app/temp/" . uniqid() . ".tpl";
-        file_put_contents($file, $template);
-        $rendered = self::render($file, $data);
-        unlink($file);
-        return $rendered; 
-   }
 }

@@ -6,7 +6,7 @@ require_once "PDFDocument.php";
  * 
  * @author james
  */
-class PDFReport extends Report
+class PDFReport extends ReportRenderer
 {   
     public $header;
     public $footer;

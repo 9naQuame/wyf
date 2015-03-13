@@ -86,25 +86,22 @@ class XmlDefinedReportController extends ReportController {
         $reader->moveToAttribute("style");
         switch ($reader->value) {
             case "heading":
-                $text->style["size"] = 16;
-                $text->style["font"] = "Helvetica";
-                $text->style["bold"] = true;
+                $text->setStyle("size", 16);
+                $text->setStyle("bold", true);
                 $report->label = $text;
                 break;
 
             default:
                 $text->style["size"] = $reader->moveToAttribute("size") ? $reader->value : 12;
-                $text->style["font"] = $reader->value ? $reader->moveToAttribute("font") : "Helvetica";
                 break;
         }
         $reader->read();
-        $text->setText($reader->value);
+        $text->text = $reader->value;
         $report->add($text);        
     }
     
     private function generateTableSection($reader, $report)
     {
-        $numConcatFields = 0;
         $reader->moveToAttribute("name");
         $name = $reader->value;
 
@@ -134,7 +131,8 @@ class XmlDefinedReportController extends ReportController {
         $filters = array();
         $filterSummaries = array();
         $keyOffset = 0;
-        foreach ($fields as $key => $field) {
+        foreach ($fields as $key => $field) 
+        {
             // Load the model for this field if it hasn't been
             // loaded already. I have a hunch that this check
             // is really not necessary since the model loader
@@ -145,58 +143,42 @@ class XmlDefinedReportController extends ReportController {
             }
 
             $model = $models[$modelInfo["model"]];
-            $fieldInfo = $model->getFields(array($modelInfo["field"]));
-            $fieldInfo = $fieldInfo[0];
+            $fieldInfo = reset($model->getFields(array($modelInfo["field"])));
             $fieldInfos[(string) $field] = $fieldInfo;
 
             //Ignore fields which are not needed.
-            if (isset($_REQUEST[$name . "_" . $fieldInfo["name"] . "_ignore"])) {
+            if (isset($_REQUEST[$name . "_" . $fieldInfo["name"] . "_ignore"])) 
+            {
                 $ignoredFields[] = $key;
             }
 
-            if (isset($field["sort"])) {
+            if (isset($field["sort"])) 
+            {
                 $sortField = "{$model->database}.{$fieldInfo["name"]}";
                 $hardCodedSorting[] = array("field" => $sortField, "type" => $field["sort"]);
             }
 
-            if (isset($field["labelsField"])) {
-                $dynamicFields[] = (string) $field;
-                $dynamicHeaders[] = (string) $field["labelsField"];
-                $labelModelInfo = Model::resolvePath($field["labelsField"]);
-                $headersModel = Model::load($labelModelInfo["model"]);
-                $dynamicHeaderValues = $headersModel->get(array("fields" => array($labelModelInfo["field"])), SQLDataBaseModel::MODE_ARRAY);
-
-                foreach ($dynamicHeaderValues as $headerValue) {
-                    $tableHeaders[] = $headerValue[0];
-                    if ($field["total"] == "true") {
-                        $dataParams["total"][] = true; //$key + $keyOffset;
-                        $dataParams["type"][] = "double";
-                    }
-                    $keyOffset++;
-                }
-
-                $keyOffset--;
-            } else {
-                $tableHeaders[] = (string) $field["label"];
-                switch ($fieldInfo["type"]) {
-                    case "integer":
-                        $dataParams["type"][] = "number";
-                        break;
-                    case "double":
-                        $dataParams["type"][] = "double";
-                        break;
-                    default:
-                        $dataParams["type"][] = "";
-                }
-                $dataParams["total"][] = $field["total"] == "true" ? true : false;
+            $tableHeaders[] = (string) $field["label"];
+            switch ($fieldInfo["type"]) {
+                case "integer":
+                    $dataParams["type"][] = "number";
+                    break;
+                case "double":
+                    $dataParams["type"][] = "double";
+                    break;
+                default:
+                    $dataParams["type"][] = "";
             }
+            $dataParams["total"][] = $field["total"] == "true" ? true : false;
 
             $fields[$key] = (string) $field;
             $value = $field["value"];
             $field = (string) $field;
 
-            if (array_search($model->getKeyField(), $this->referencedFields) === false || $fieldInfo["type"] == "double" || $fieldInfo["type"] == "date") {
-                if ($value != null) {
+            if (array_search($model->getKeyField(), $this->referencedFields) === false || $fieldInfo["type"] == "double" || $fieldInfo["type"] == "date") 
+            {
+                if ($value != null) 
+                {
                     $filters[] = "{$models[$modelInfo["model"]]->getDatabase()}.{$fieldInfo["name"]}='$value'";
                     continue;
                 }
@@ -325,8 +307,6 @@ class XmlDefinedReportController extends ReportController {
             }
         }
 
-        $this->updateFilterSummaries($filterSummaries);
-
         // Generate the various tables taking into consideration grouping
         if (count($filterSummaries) > 0) {
             $report->filterSummary = new TextContent(str_replace("\\n", " ", /* strtolower( */ implode("\n", $filterSummaries))/* ) */, array("size" => 8, "bottom_margin" => 3));
@@ -335,12 +315,9 @@ class XmlDefinedReportController extends ReportController {
         }
 
         $params = array
-            (
+        (
             "fields" => $fields,
-            "dynamicFields" => $dynamicFields,
-            "dynamicHeaders" => $dynamicHeaders,
             "conditions" => implode(" AND ", $filters),
-            "report" => $report,
             "headers" => $tableHeaders,
             "dont_join" => array()
         );
@@ -356,11 +333,11 @@ class XmlDefinedReportController extends ReportController {
 
         if ($_REQUEST[$name . "_sorting"] != "") {
             array_unshift(
-                    $hardCodedSorting, array
+                $hardCodedSorting, array
                 (
-                "field" => $_REQUEST[$name . "_sorting"],
-                "type" => $_REQUEST[$name . "_sorting_direction"]
-                    )
+                    "field" => $_REQUEST[$name . "_sorting"],
+                    "type" => $_REQUEST[$name . "_sorting_direction"]
+                )
             );
         }
 
@@ -380,7 +357,6 @@ class XmlDefinedReportController extends ReportController {
                     );
                 }
             }
-            //$reportGroupingFields = array_reverse($reportGroupingFields);
             $hardCodedSorting = array_merge($reportGroupingFields, $hardCodedSorting);
         }
 
@@ -389,16 +365,14 @@ class XmlDefinedReportController extends ReportController {
             $params['limit'] = $_REQUEST[$name . "_limit"];
         }
         $params["no_num_formatting"] = true;
-        $params = $this->paramsCallback($params);
         $this->reportData = ReportController::getReportData($params, SQLDatabaseModel::MODE_ARRAY);
 
         unset($params["sort_field"]);
         $wparams = $params;
         $wparams["global_functions"] = array("LENGTH", "MAX");
         $wparams["global_functions_set"] = true;
-        $this->widths = ReportController::getReportData($wparams, SQLDatabaseModel::MODE_ARRAY); //SQLDBDataStore::getMulti($wparams,SQLDatabaseModel::MODE_ARRAY);
-        $this->widths = $this->widths[0];
-
+        $this->widths = reset(ReportController::getReportData($wparams, SQLDatabaseModel::MODE_ARRAY));
+        
         foreach ($tableHeaders as $i => $header) {
             foreach (explode("\\n", $header) as $line) {
                 if (strlen($line) / 2 > $this->widths[$i]) {
@@ -406,11 +380,11 @@ class XmlDefinedReportController extends ReportController {
                 }
             }
         }
+        
+        //$dataParams["widths"] = $this->widths;
+        //$params["data_params"] = $dataParams;
 
-        $dataParams["widths"] = $this->widths;
-        $params["data_params"] = $dataParams;
-
-        if (count($ignoredFields) > 0) {
+        /*if (count($ignoredFields) > 0) {
             foreach ($this->reportData as $key => $row) {
                 foreach ($ignoredFields as $ignored) {
                     unset($this->reportData[$key][$ignored]);
@@ -429,17 +403,30 @@ class XmlDefinedReportController extends ReportController {
             $params["data_params"]["total"] = array_values($params["data_params"]["total"]);
             $params["data_params"]["widths"] = array_values($params["data_params"]["widths"]);
             $this->widths = array_values($this->widths);
-        }
+        }*/
 
-        if ($_REQUEST[$name . "_grouping"][0] == "") {
-            $total = $this->drawTable($this->reportData, $params, $params["data_params"], true, $heading);
-        } else if ($_REQUEST[$name . "_grouping"][0] != "" && $_REQUEST["grouping_1_summary"] == '1') {
+        if ($_REQUEST[$name . "_grouping"][0] == "") 
+        {
+            $total = $this->drawTable(
+                $report, 
+                array(
+                    'headers' => $headers,
+                    'data' => $this->reportData, 
+                    'params' => $dataParams, 
+                    'totals' =>true
+                )
+            );
+        } 
+        else if ($_REQUEST[$name . "_grouping"][0] != "" && $_REQUEST["grouping_1_summary"] == '1') 
+        {
             $params["grouping_fields"] = $_REQUEST[$name . "_grouping"];
             $params["grouping_level"] = 0;
             $params["previous_headings"] = array();
             $params["ignored_fields"] = array();
             $total = $this->generateSummaryTable($params);
-        } else {
+        } 
+        else 
+        {
             $params["grouping_fields"] = $_REQUEST[$name . "_grouping"];
             $params["grouping_level"] = 0;
             $params["previous_headings"] = array();
@@ -461,7 +448,6 @@ class XmlDefinedReportController extends ReportController {
             }
         }
     }
-        
     
     private function generateSection($section, $reader, $report)
     {
@@ -491,10 +477,6 @@ class XmlDefinedReportController extends ReportController {
             $this->generateSection($reader->name, $reader, $report);
         }
         $report->output();
-    }
-
-    protected function paramsCallback($params) {
-        return $params;
     }
 
     protected function describeQuery($query) {
@@ -698,9 +680,5 @@ class XmlDefinedReportController extends ReportController {
         $form->addAttribute("target", "blank");
 
         return $form;
-    }
-
-    public function updateFilterSummaries(&$filterSummaries) {
-        
     }
 }

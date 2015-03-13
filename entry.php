@@ -151,6 +151,7 @@ else
 
 Application::preAddStylesheet("kalendae/kalendae.css", Application::getWyfHome('assets/js/'));
 Application::preAddStylesheet("css/main.css");
+Application::addStylesheet('css/rapi.css', Application::getWyfHome('rapi/'));
 
 Application::addJavaScript(Application::getLink(Application::getWyfHome("fapi/js/fapi.js")));
 Application::addJavaScript(Application::getLink(Application::getWyfHome("assets/js/jquery.js")));

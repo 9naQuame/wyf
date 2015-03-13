@@ -1,31 +1,39 @@
 <?php
-abstract class Report
+class Report
 {
-    const CONTENT_TEXT = "text";
-    const CONTENT_TABLE = "table";
-    const ORIENTATION_PORTRAIT = "P";
-    const ORIENTATION_LANDSCAPE = "L";
-    const PAPER_A4 = "A4";
-    const PAPER_A5 = "A5";
-    const PAPER_LETTER = "letter";
-    
-    protected $contents = array();
-    public $title;
-    public $description;
-    private $pageInitialized = true;
-    public $logo;
-    public $label;
-    public $filterSummary;
-    
-    public abstract function output($file = null);
-    
+    private $contents = array();
+    private $generator;
+
+    public function __construct($format, $parameters = array())
+    {
+        $generatorClass = ucfirst($format) . 'Renderer';
+        $this->generator = new $generatorClass();
+        $this->generator->setParameters($parameters);
+    }
+        
     public function add()
     {
         $this->contents = array_merge($this->contents,func_get_args());
         return $this;
     }
+    
+    public function output()
+    {
+        foreach($this->contents as $content)
+        {
+            $contentType = $content->getType();
+            $method = "render{$contentType}";
+            //if(method_exists($this->generator, $method))
+            //{
+                $this->generator->$method($content);
+            //}
+        }
+        
+        echo $this->generator->output();
+        die();
+    }
 
-    public function addPage($repeatLogos = false, $forced = false)
+    /*public function addPage($repeatLogos = false, $forced = false)
     {
         if(!$this->pageInitialized || $forced)
         {
@@ -46,6 +54,6 @@ abstract class Report
     public function resetPageNumbers()
     {
         $this->contents[] = "RESET_PAGE_NUMBERS";
-    }
+    }*/
 }
 
