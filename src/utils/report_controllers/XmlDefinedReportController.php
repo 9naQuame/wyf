@@ -480,22 +480,16 @@ class XmlDefinedReportController extends ReportController {
      * gives you options to sort and group the reports.
      * @return Form
      */
-    public function getForm() {
-        //$this->initializeForm();
-
+    public function getForm() 
+    {
         $form = new Form();
         $filters = array();
-        $fieldInfos = array();
-
-        $queries = $this->xml->xpath("/rapi:report/rapi:query");
-
         $tables = $this->xml->xpath("/rapi:report/rapi:table");
 
         /// Filters and sorting.
         foreach ($tables as $table) {
             $numConcatFields = 0;
             $fields = $table->xpath("/rapi:report/rapi:table[@name='{$table["name"]}']/rapi:fields/rapi:field");
-            $labels = $table->xpath("/rapi:report/rapi:table[@name='{$table["name"]}']/rapi:fields/rapi:field/@label");
             $filters = new TableLayout(count($fields) + 1, 5);
 
             $filters
@@ -630,13 +624,9 @@ class XmlDefinedReportController extends ReportController {
 
             $grouping2 = clone $grouping1;
             $grouping2->setName("{$table["name"]}_grouping[]")->setLabel("Grouping Field 2");
-            $g2Paging = new Checkbox("Start on a new page", "grouping_2_newpage", "", "1");
-            $g2Logo = new Checkbox("Repeat Logos", "grouping_2_logo", "", "1");
 
             $grouping3 = clone $grouping1;
             $grouping3->setName("{$table["name"]}_grouping[]")->setLabel("Grouping Field 3");
-            $g3Paging = new Checkbox("Start on a new page", "grouping_3_newpage", "", "1");
-            $g3Logo = new Checkbox("Repeat Logos", "grouping_3_logo", "", "1");
 
             $sortingField->setLabel("Sorting Field");
             $sortingField->setName($table["name"] . "_sorting");
@@ -651,9 +641,7 @@ class XmlDefinedReportController extends ReportController {
             $groupingTable->add($grouping2, 1, 0);
             $groupingTable->add($grouping3, 2, 0);
 
-            $container = new FieldSet($table["name"]);
-            $container->setId("{$table["name"]}_options");
-            $container->add(
+            $form->add(
                     Element::create("FieldSet", "Filters")->add($filters)->setId("table_{$table['name']}"), Element::create("FieldSet", "Sorting & Limiting")->add(
                             $sortingField, Element::create("SelectionList", "Direction", "{$table["name"]}.sorting_direction")->addOption("Ascending", "ASC")->addOption("Descending", "DESC"), Element::create('TextField', 'Limit', "{$table['name']}.limit")->setAsNumeric()
                     )->setId("{$table['name']}_sorting_fs"), Element::create("FieldSet", "Grouping")->
@@ -661,13 +649,10 @@ class XmlDefinedReportController extends ReportController {
                             add($groupingTable)
             );
             $sortingField->setName($table["name"] . "_sorting");
-            $form->add($container);
         }
 
-        $form->setSubmitValue("Generate");
-        $form->addAttribute("action", Application::getLink($this->path . "/generate"));
-        $form->addAttribute("target", "blank");
-
+        $form->setShowSubmit(false);
+        
         return $form;
     }
 }
