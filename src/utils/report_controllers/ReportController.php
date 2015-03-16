@@ -367,7 +367,6 @@ abstract class ReportController extends Controller
 
             if($this->drawTotals && $totals != null)
             {
-                $totals[0] = "$headingValue";
                 $totalsBox = new TableContent($params["headers"], $totals);
                 $totalsBox->setAsTotalsBox(true);
                 $totalsBox->setDataParams($params);

@@ -63,31 +63,6 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
         $this->SetAutoPageBreak(true, 15);
     }
 
-    public function getTableWidths($headers = array(), $data = array())
-    {
-        $widths = array();
-        foreach ($headers as $i => $header)
-        {
-            $lines = explode("\n", $header);
-            foreach ($lines as $line)
-            {
-                $widths[$i] = strlen($line) / 4 > $widths[$i] ? strlen($line) / 4 : $widths[$i];
-            }
-            $widths[$i] = $widths[$i];
-        }
-        foreach ($data as $row)
-        {
-            $i = 0;
-            foreach ($row as $column)
-            {
-                $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
-                $i++;
-            }
-        }
-
-        return $widths;
-    }
-
     public function Header()
     {
         $this->SetFont('Helvetica', 'I', 8);
@@ -220,15 +195,9 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
 
         $arrayWidth = $this->twidth * (isset($this->style["width"]) ? $this->style["width"] : 1);
 
-        $max = array_sum($params["widths"]);
         foreach ($params["widths"] as $i => $width)
         {
-            $params["widths"][$i] = $params["widths"][$i] / $max;
-        }
-
-        foreach ($params["widths"] as $i => $width)
-        {
-            $params["widths"][$i] = $params["widths"][$i] * $arrayWidth;
+            $params["widths"][$i] = $width * $arrayWidth;
         }
 
         $this->SetDrawColor(204, 255, 204);
@@ -288,11 +257,6 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
             $params["widths"] = $widths;
         }
 
-        $max = array_sum($params["widths"]);
-        foreach ($params["widths"] as $i => $width)
-        {
-            $widths[$i] = $widths[$i] / $max;
-        }
         $arrayWidth = $this->twidth * (isset($this->style["width"]) ? $this->style["width"] : 1);
         $this->style["cell_height"] = isset($this->style["cell_height"]) ? $this->style["cell_height"] : $this->style["font_size"] * 0.353 + 1;
 

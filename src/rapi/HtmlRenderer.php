@@ -27,6 +27,7 @@ class HtmlRenderer extends ReportRenderer
     public function renderTable(TableContent $content) 
     {
         $templates = array(
+            'widths' => $content->getTableWidths(),
             'as_totals_box' => $content->getAsTotalsBox(),
             'num_columns' => $content->getNumColumns(),
             'data' => $content->getData(),
@@ -34,6 +35,11 @@ class HtmlRenderer extends ReportRenderer
             'auto_totals' => $content->getAutoTotals(),
             'types' => $content->getDataTypes()
         );
+        
+        if($templates['auto_totals'])
+        {
+            $templates['totals'] = $content->getTotals();
+        }
                 
         $this->markup .= TemplateEngine::render(__DIR__ . '/html_templates/table.tpl', $templates);
     }

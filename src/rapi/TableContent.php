@@ -47,39 +47,49 @@ class TableContent extends ReportContent
             return $this->computeTableWidths();
         }
     }
+    
+    private function adjustMaxStringLenght($strings, $widths)
+    {
+        $i = 0;
+        foreach($strings as $string)
+        {
+            $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
+            $i++;
+        }
+        return $widths;
+    }
 
-    protected function computeTableWidths()
+    private function computeTableWidths()
     {
         $widths = array();
-        foreach($this->headers as $i=>$header)
+        foreach($this->headers as $header)
         {
             $lines = explode("\n",$header);
-            foreach($lines as $line)
-            {
-                $widths[$i] = strlen($line) > $widths[$i] ? strlen($line) : $widths[$i];
-            }
+            $widths = $this->adjustMaxStringLenght($lines, $widths);
         }
         
         foreach($this->data as $row)
         {
-            $i = 0;
-            foreach($row as $column)
-            {
-                $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
-                $i++;
-            }
+            $widths = $this->adjustMaxStringLenght($row, $widths);
         }
         
         $totals = $this->getTotals();
         
         if(count($totals) > 0)
         {
-            foreach($totals as $i => $column)
-            {
-                $column = number_format($column, 2, '.', ',');
-                $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
-            }            
+            $widths = $this->adjustMaxStringLenght($totals, $widths);
         }
+        
+        return $this->normalizeWidths($widths);
+    }
+    
+    private function normalizeWidths($widths)
+    {
+        $max = array_sum($widths);
+        foreach($widths as $i => $width)
+        {
+            $widths[$i] = $width / $max;
+        } 
         return $widths;
     }
     
@@ -177,6 +187,10 @@ class TableContent extends ReportContent
     
     public function setDataParams($dataParams)
     {
+        if(isset($dataParams['widths']))
+        {
+            $dataParams['widths'] = $this->normalizeWidths($dataParams['widths']);
+        }
         $this->dataParams = $dataParams;
     }
     

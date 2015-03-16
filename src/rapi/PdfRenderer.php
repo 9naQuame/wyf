@@ -36,8 +36,6 @@ class PdfRenderer extends ReportRenderer
     {
         $params = $content->getDataParams();
         
-        //var_dump($params['widths'], $content->getData());
-        
         $style = array(
             'header:border' => array(200,200,200),
             'header:background' => array(200,200,200),
@@ -63,7 +61,7 @@ class PdfRenderer extends ReportRenderer
         else
         {
             $this->pdf->table($content->getHeaders(),$content->getData(), $style, $params);
-        }        
+        }             
     }
     
     public function renderText(\TextContent $content) 
@@ -76,6 +74,14 @@ class PdfRenderer extends ReportRenderer
                 $this->pdf->SetFontSize(16);
                 $this->pdf->Cell(0, 0, $content->getText());
                 $this->pdf->Ln(5);
+                break;
+            
+            case 'heading':
+                $this->pdf->Ln(8);                
+                $this->pdf->SetFont('Helvetica', 'B');
+                $this->pdf->SetFontSize(12);
+                $this->pdf->Cell(0, 0, $content->getText());
+                $this->pdf->Ln(3);
                 break;
             
             default :
