@@ -35,8 +35,20 @@ class TableContent extends ReportContent
     {
         return $this->autoTotals;
     }
-
+    
     public function getTableWidths()
+    {
+        if(isset($this->dataParams['widths']))
+        {
+            return $this->dataParams['widths'];
+        }
+        else
+        {
+            return $this->computeTableWidths();
+        }
+    }
+
+    protected function computeTableWidths()
     {
         $widths = array();
         foreach($this->headers as $i=>$header)
@@ -166,5 +178,10 @@ class TableContent extends ReportContent
     public function setDataParams($dataParams)
     {
         $this->dataParams = $dataParams;
+    }
+    
+    public function getDataParams()
+    {
+        return $this->dataParams;
     }
 }

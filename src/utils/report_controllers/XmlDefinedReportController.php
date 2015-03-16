@@ -276,16 +276,22 @@ class XmlDefinedReportController extends ReportController {
                         break;
                 }
             }
-            else {
-                if ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_value"] != "") {
-                    if ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_option"] == "IS_ANY_OF") {
-                        foreach ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_value"] as $value) {
+            else 
+            {
+                if ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_value"] != "") 
+                {
+                    if ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_option"] == "IS_ANY_OF") 
+                    {
+                        foreach ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_value"] as $value) 
+                        {
                             if ($value != "")
                                 $condition[] = "{$model->getDatabase()}.{$fieldInfo["name"]}='" . $model->escape($value) . "'";
                         }
                     }
-                    else if ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_option"] == "IS_NONE_OF") {
-                        foreach ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_value"] as $value) {
+                    else if ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_option"] == "IS_NONE_OF") 
+                    {
+                        foreach ($_REQUEST[$name . "_" . $fieldInfo["name"] . "_value"] as $value) 
+                        {
                             if ($value != "")
                                 $condition[] = "{$model->getDatabase()}.{$fieldInfo["name"]}<>'" . $model->escape($value) . "'";
                         }
@@ -297,9 +303,9 @@ class XmlDefinedReportController extends ReportController {
         }
 
         // Generate the various tables taking into consideration grouping
-        if (count($filterSummaries) > 0) {
-            $report->filterSummary = new TextContent(str_replace("\\n", " ", /* strtolower( */ implode("\n", $filterSummaries))/* ) */, array("size" => 8, "bottom_margin" => 3));
-            $report->filterSummary->style["flow"] = true;
+        if (count($filterSummaries) > 0) 
+        {
+            $report->filterSummary = new TextContent(str_replace("\\n", " ", implode("\n", $filterSummaries)), 'summary');
             $report->add($report->filterSummary);
         }
 
@@ -308,7 +314,9 @@ class XmlDefinedReportController extends ReportController {
             "fields" => $fields,
             "conditions" => implode(" AND ", $filters),
             "headers" => $tableHeaders,
-            "dont_join" => array()
+            "dont_join" => array(),
+            'total' => $dataParams['total'],
+            'type' => $dataParams['type']
         );
 
         foreach($dontJoins as $pair)
@@ -396,15 +404,14 @@ class XmlDefinedReportController extends ReportController {
 
         if ($_REQUEST[$name . "_grouping"][0] == "") 
         {
-            $total = $this->drawTable(
-                $report, 
-                array(
-                    'headers' => $headers,
-                    'data' => $this->reportData, 
-                    'params' => $dataParams, 
-                    'totals' =>true
-                )
+            $tableDetails = array(
+                'headers' => $headers,
+                'data' => $this->reportData, 
+                'params' => $dataParams, 
+                'totals' =>true
             );
+            
+            $total = $this->drawTable($report, $tableDetails);
         } 
         else if ($_REQUEST[$name . "_grouping"][0] != "" && $_REQUEST["grouping_1_summary"] == '1') 
         {
@@ -420,19 +427,15 @@ class XmlDefinedReportController extends ReportController {
             $params["grouping_level"] = 0;
             $params["previous_headings"] = array();
             $params["ignored_fields"] = array();
-            $total = $this->generateTable($params);
+            $total = $this->generateTable($report, $params);
 
-            if (is_array($total) && count($total) > 0) {
+            if (is_array($total) && count($total) > 0) 
+            {
                 $total[0] = $total[0] == "" ? "Overall Total" : $total[0];
                 $dataParams["widths"] = $this->widths;
-                $totalTable = new TableContent($tableHeaders, null);
-                $totalTable->data_params = $dataParams;
-                $totalTable->style["totalsBox"] = true;
-                foreach ($total as $key => $value) {
-                    if (is_numeric($value))
-                        $total[$key] = $value;
-                }
-                $totalTable->setData($total);
+                $totalTable = new TableContent($tableHeaders, $total);
+                $totalTable->setDataParams($dataParams);
+                $totalTable->setAsTotalsBox(true);
                 $report->add($totalTable);
             }
         }

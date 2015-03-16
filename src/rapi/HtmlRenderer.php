@@ -32,7 +32,6 @@ class HtmlRenderer extends ReportRenderer
             'data' => $content->getData(),
             'headers' => $content->getHeaders(),
             'auto_totals' => $content->getAutoTotals(),
-            'totals' => $content->getTotals(),
             'types' => $content->getDataTypes()
         );
                 

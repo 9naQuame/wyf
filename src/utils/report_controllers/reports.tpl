@@ -9,7 +9,7 @@
     <div id="report-filter">
         <div id='report-filter-form'>{$filters}</div>
         <div id='report-filter-actions'>
-            <input type='button' value='Update Report' class='fapi-submit' />
+            <input type='button' value='Update Report' class='fapi-submit' onclick="updateReports()" />
         </div>
     </div>
 </div>
@@ -17,7 +17,9 @@
     var reportParams = '';
     function updateReports()
     {
+        reportParams = $('#report-filter-form > form').serialize();
         $('#report-body').load("{$path}/generate/?report_format=html&title=no&logo=no&" + reportParams);
+        $('#report-filter').fadeOut();
     }
     function exportReport(format, newWindow)
     {

@@ -1,5 +1,7 @@
-{if $totals_box eq true}
-    <tr>{foreach from=$totals item=total}{$total}{/foreach}</tr>
+{if $as_totals_box eq true}
+    <table>
+    <tr>{foreach from=$data item=total key=i}<td>{$total}</td>{/foreach}</tr>
+    </table>
 {else}
     <table class="rapi-table">
         <thead>

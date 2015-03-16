@@ -34,10 +34,9 @@ class PdfRenderer extends ReportRenderer
 
     public function renderTable(\TableContent $content) 
     {
-        $params = array(
-            'type' => $content->getDataTypes(),
-            'widths' => $content->getTableWidths()
-        );
+        $params = $content->getDataParams();
+        
+        //var_dump($params['widths'], $content->getData());
         
         $style = array(
             'header:border' => array(200,200,200),
@@ -71,18 +70,19 @@ class PdfRenderer extends ReportRenderer
     {
         switch($content->getStyle())
         {
-            case 'normal':
-                $this->pdf->SetFont('Helvetica');
-                $this->pdf->SetFontSize(12);
-                $this->pdf->Cell(0, 0, $content->getText());
-                $this->pdf->Ln(12 * 0.353);
-                break;
             case 'title':
                 $this->pdf->Ln(5);
                 $this->pdf->SetFont('Helvetica', 'B');
                 $this->pdf->SetFontSize(16);
                 $this->pdf->Cell(0, 0, $content->getText());
                 $this->pdf->Ln(5);
+                break;
+            
+            default :
+                $this->pdf->SetFont('Helvetica');
+                $this->pdf->SetFontSize(12);
+                $this->pdf->Cell(0, 0, $content->getText());
+                $this->pdf->Ln(12 * 0.353);
                 break;
         }        
     }

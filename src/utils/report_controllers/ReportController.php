@@ -176,7 +176,7 @@ abstract class ReportController extends Controller
      * @param string $heading A special heading for the table if it is a nested table
      * @return array
      */
-    protected function drawTable($report, $table)
+    protected function drawTable($report, &$table)
     {
         //$paramsCopy = $params;
         /*if(is_array($params["ignored_fields"]))
@@ -207,14 +207,16 @@ abstract class ReportController extends Controller
         }*/
         
         $tableContent = new TableContent($table["headers"], $table['data']);
-        $tableContent->setDataParams($table['params']);
-        $tableContent->setAutoTotals($table['totals']);
         
         if($this->widths == null) 
         {
             $this->widths = $table->getTableWidths();
         }
-
+        $table['params']['widths'] = $this->widths;
+        
+        $tableContent->setDataParams($table['params']);
+        $tableContent->setAutoTotals($table['totals']);
+        
         $report->add($tableContent);
         $total = $tableContent->getTotals();
         
@@ -228,20 +230,16 @@ abstract class ReportController extends Controller
      * @param <type> $headingValue
      * @param <type> $params
      */
-    protected function drawHeading($headingValue, &$params)
+    protected function drawHeading($report, $headingValue)
     {
-        $heading = new TextContent();
-        $heading->style["size"] = 12 * (( 3 - $params["grouping_level"])/3*.5+.5);
-        $heading->style["bold"] = true;
-        $heading->style["top_margin"] = 5 * (( 3 - $params["grouping_level"])/3);
-        $heading->setText($headingValue);
-        $params["report"]->add($heading);
+        $heading = new TextContent($headingValue, 'heading');
+        $report->add($heading);
     }
     /**
      * Take an existing table and digest it into a summary table.
      * @param unknown_type $params
      */
-    protected function generateSummaryTable(&$params)
+    protected function generateSummaryTable($report, $params)
     {
     	$newFields = array($params["grouping_fields"][0]);
     	$newHeaders = array($params["headers"][array_search($params["grouping_fields"][0],$params["fields"])]);
@@ -249,27 +247,27 @@ abstract class ReportController extends Controller
     	$newParams = array("total"=>array(false), "type"=>array("string"));
     	foreach($params["data_params"]['total'] as $index => $value)
     	{
-    		if($value === true)
-    		{
-    			$tempField = $params["fields"][$index];
-    		    $newFields[] = $tempField;
-    		    $newHeaders[] = $params["headers"][array_search($tempField,$params["fields"])];
-    		    $indices[] = array_search($tempField,$params["fields"]);
-    		    $newParams["total"][] = true;
-    		    $newParams["type"][] = $params["data_params"]["type"][$index];
-    		}
+            if($value === true)
+            {
+                $tempField = $params["fields"][$index];
+                $newFields[] = $tempField;
+                $newHeaders[] = $params["headers"][array_search($tempField,$params["fields"])];
+                $indices[] = array_search($tempField,$params["fields"]);
+                $newParams["total"][] = true;
+                $newParams["type"][] = $params["data_params"]["type"][$index];
+            }
     	}
 
     	$filteredData = array();
     	
     	foreach($this->reportData as $data)
     	{
-    		$row = array();
-    		foreach($indices as $index)
-    		{
-    			$row[] = $data[$index];
-    		}
-    		$filteredData[] = $row;
+            $row = array();
+            foreach($indices as $index)
+            {
+                $row[] = $data[$index];
+            }
+            $filteredData[] = $row;
     	}
     	
     	$summarizedData = array();
@@ -277,25 +275,25 @@ abstract class ReportController extends Controller
     	
     	for($i = 0; $i < count($filteredData); $i++)
     	{
-    		$row = array();
-    		$row[0] = $currentRow;
-    		$add = false;
-    		while($filteredData[$i][0] == $currentRow)
-    		{
-    			for($j = 1; $j < count($indices); $j++)
-    			{
-    				$add = true;
-    				$row[$j] += str_replace(",", "", $filteredData[$i][$j]);
-    			}
-    			$i++;
-    		}
-    		if($add) $summarizedData[] = $row;
-    		$currentRow = $filteredData[$i][0];
+            $row = array();
+            $row[0] = $currentRow;
+            $add = false;
+            while($filteredData[$i][0] == $currentRow)
+            {
+                for($j = 1; $j < count($indices); $j++)
+                {
+                    $add = true;
+                    $row[$j] += str_replace(",", "", $filteredData[$i][$j]);
+                }
+                $i++;
+            }
+            if($add) $summarizedData[] = $row;
+            $currentRow = $filteredData[$i][0];
             $i--;
     	}
         $table = new TableContent($newHeaders, $summarizedData, $newParams);
         $table->setAutoTotals(true);
-        $params["report"]->add($table);
+        $report->add($table);
     }
 
     /**
@@ -305,7 +303,7 @@ abstract class ReportController extends Controller
      * @param Array $params
      * @return Array
      */
-    protected function generateTable(&$params)
+    protected function generateTable($report, $params)
     {
         $groupingField = array_search($params["grouping_fields"][$params["grouping_level"]],$params["fields"]);
         $groupingLevel = $params["grouping_level"];
@@ -317,14 +315,12 @@ abstract class ReportController extends Controller
         {
             if($_REQUEST["grouping_".($params["grouping_level"]+1)."_newpage"] == "1")
             {
-                $params["report"]->addPage($_REQUEST["grouping_".($params["grouping_level"]+1)."_newpage"]);
+                $report->addPage($_REQUEST["grouping_".($params["grouping_level"]+1)."_newpage"]);
             }
 
             $headingValue = $this->reportData[$this->reportDataIndex][$groupingField];
-            $this->drawHeading($headingValue, $params);
+            $this->drawHeading($report, $headingValue);
 
-            $totalsBox = new TableContent($params["headers"],null);
-            $totalsBox->style["totalsBox"] = true;
             array_unshift($params["previous_headings"], array($headingValue, $groupingField));
             $params["ignored_fields"][] = $groupingField;
 
@@ -333,10 +329,8 @@ abstract class ReportController extends Controller
                 $data = array();
                 do
                 {
-                    //if($t == 1000) die(); $t++;
                     $continue = true;
                     $row = $this->reportData[$this->reportDataIndex];
-                    //var_dump($row);
 
                     @$data[] = array_values($row);
 
@@ -351,15 +345,21 @@ abstract class ReportController extends Controller
                             break;
                         }
                     }
-                }while($continue);
-                
-                $totals = $this->drawTable($data, $params, $params["data_params"], null, $headingValue);
+                }
+                while($continue);
+                $tableDetails = array(
+                    'headers' => $params['headers'],
+                    'data' => $data,
+                    'params' => $params
+                );
+                $totals = $this->drawTable($report, $tableDetails);
+                $params = $tableDetails['params'];
                 array_pop($params["ignored_fields"]);
             }
             else
             {
                 $params["grouping_level"]++;
-                $totals = $this->generateTable($params);
+                $totals = $this->generateTable($report, $params);
                 array_shift($params["previous_headings"]);
                 $params["grouping_level"]--;
                 array_pop($params["ignored_fields"]);
@@ -367,11 +367,12 @@ abstract class ReportController extends Controller
 
             if($this->drawTotals && $totals != null)
             {
-                $totalsBox->data_params = $this->dataParams;
-                $totalsBox->data_params["widths"] = $this->widths;
                 $totals[0] = "$headingValue";
-                $totalsBox->setData($totals);
-                $params["report"]->add($totalsBox);
+                $totalsBox = new TableContent($params["headers"], $totals);
+                $totalsBox->setAsTotalsBox(true);
+                $totalsBox->setDataParams($params);
+                
+                $report->add($totalsBox);
                 foreach($totals as $i => $total)
                 {
                     if($total === null) continue;
