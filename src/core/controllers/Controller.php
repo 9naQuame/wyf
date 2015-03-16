@@ -51,14 +51,6 @@ class Controller
     protected $_showInMenu = false;
 
     /**
-     * A descriptive label for this controler. Labels are normally rendered
-     * in the views. In certain configurations labels could be used as titles
-     * for the webpage.
-     * @var string
-     */
-    private $_label;
-
-    /**
      * A piece of text which briefly describes this controller. These 
      * descriptions are normally rendered as part of the views. 
      * @var string
@@ -168,6 +160,7 @@ class Controller
         $package_main = "";
 
         //Go through the whole path and build the folder location of the system
+        $pathLenghtj = count($path);
         for($i = 0; $i<count($path); $i++)
         {
             $p = $path[$i];

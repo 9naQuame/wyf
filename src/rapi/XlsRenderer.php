@@ -30,6 +30,51 @@ class XlsRenderer extends ReportRenderer
     {
         
     }
+    
+    private function renderRow($rowData, $types, $style, $fill)
+    {
+        foreach($rowData as $i => $field)
+        {
+            switch($types[$i])
+            {
+                case "number":
+                    $field = str_replace(",", "", $field);
+                    $field = $field === null || $field == "" ? "0" : round($field, 0);
+                    $this->worksheet->getCellByColumnAndRow($col, $this->row)
+                        ->getStyle()->getNumberFormat()
+                        ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER);
+                     break;
+                case "double":
+                    $field = str_replace(",", "", $field);
+                    $field = $field === null || $field == "" ? "0.00" : round($field, 2);
+                    $this->worksheet->getCellByColumnAndRow($col, $this->row)
+                        ->getStyle()->getNumberFormat()
+                        ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
+                    break;
+                default:
+                    if(is_numeric($field))
+                    {
+                        $field = "'$field";
+                    }
+                    break;
+            }
+            $this->worksheet->setCellValueByColumnAndRow($col, $this->row, trim($field));
+            $this->worksheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+            $this->worksheet->getStyleByColumnAndRow($col, $this->row)
+                ->getBorders()->getAllBorders()
+                ->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN)
+                ->getColor()->setRGB($style['body:border']);
+
+            if($fill)
+            {
+                $this->worksheet->getStyleByColumnAndRow($col, $this->row)
+                    ->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+                $this->worksheet->getStyleByColumnAndRow($col, $this->row)
+                    ->getFill()->getStartColor()->setARGB($style['body:stripe']);
+            }
+            $col++;
+        }        
+    }
 
     public function renderTable(TableContent $content) 
     {
@@ -52,6 +97,9 @@ class XlsRenderer extends ReportRenderer
                 $this->worksheet->getStyleByColumnAndRow($i, $this->row)
                     ->getFont()
                     ->setBold(true);
+                
+                $this->worksheet->getStyleByColumnAndRow($i, $this->row)
+                    ->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK)->getColor()->setRGB($style['body:border']);
             }
         }
         else
@@ -59,48 +107,25 @@ class XlsRenderer extends ReportRenderer
             $headers = $content->getHeaders();
             $this->numColumns = count($headers);
 
-            foreach($headers as $col=>$header)
+            $col = 0;
+            foreach($headers as $header)
             {
                 $this->worksheet->setCellValueByColumnAndRow($col,$this->row,str_replace("\\n","\n",$header));
                 $this->worksheet->getStyleByColumnAndRow($col, $this->row)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
                 $this->worksheet->getStyleByColumnAndRow($col, $this->row)->getFill()->getStartColor()->setRGB($style['header:background']);
                 $this->worksheet->getStyleByColumnAndRow($col, $this->row)->getFont()->setBold(true)->getColor()->setRGB($style['header:text']);
+                $col++;
             }
 
             $fill = false;
             $types = $content->getDataTypes();
             $widths = $content->getTableWidths();
 
-            foreach($content->getData() as $this->rowData)
+            foreach($content->getData() as $rowData)
             {
                 $this->row++;
                 $col = 0;
-                foreach($this->rowData as $field)
-                {
-                    switch($content->data_params["type"][$col])
-                    {
-                         case "number":
-                             $field = str_replace(",", "", $field);
-                             $field = $field === null || $field == "" ? "0" : round($field, 0);
-                             break;
-                         case "double":
-                             $field = str_replace(",", "", $field);
-                             $field = $field === null || $field == "" ? "0.00" : round($field, 2);
-                             break;
-                         case "right_align":
-                             break;
-                     }
-                    $this->worksheet->setCellValueByColumnAndRow($col, $this->row, trim($field));
-                    $this->worksheet->getColumnDimensionByColumn($col)->setAutoSize(true);
-                    if($fill)
-                    {
-                        $this->worksheet->getStyleByColumnAndRow($col, $this->row)
-                            ->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-                        $this->worksheet->getStyleByColumnAndRow($col, $this->row)
-                            ->getFill()->getStartColor()->setARGB($style['body:stripe']);
-                    }
-                    $col++;
-                }
+                $this->renderRow($rowData, $types, $style, $fill);
                 $fill = !$fill;
             }
         }
@@ -109,10 +134,10 @@ class XlsRenderer extends ReportRenderer
 
     public function renderText(TextContent $content) 
     {
-        $this->worksheet->setCellValueByColumnAndRow(0, $this->row, $content->getText());
         switch($content->getStyle())
         {
             case 'title':
+                $this->worksheet->setCellValueByColumnAndRow(0, $this->row, $content->getText());
                 $this->worksheet->getStyleByColumnAndRow(0, $this->row)
                     ->getFont()
                         ->setBold(true)
@@ -121,6 +146,17 @@ class XlsRenderer extends ReportRenderer
                 $this->worksheet->getRowDimension($this->row)
                     ->setRowHeight(36);     
                 break;
+            
+            case 'heading':
+                $this->row++;
+                $this->worksheet->setCellValueByColumnAndRow(0, $this->row, $content->getText());
+                $this->worksheet->getStyleByColumnAndRow(0, $this->row)
+                    ->getFont()
+                        ->setBold(true)
+                        ->setSize(12)
+                        ->setName('Helvetica');
+                $this->worksheet->getRowDimension($this->row)
+                    ->setRowHeight(26);                     
         }
         $this->row++;
     }

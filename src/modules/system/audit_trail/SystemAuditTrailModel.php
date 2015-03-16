@@ -33,7 +33,7 @@ class SystemAuditTrailModel extends ORMSQLDatabaseModel
         return self::$instance;
     }
     
-    public static function log($params, $localDisable)
+    public static function log($params)
     {
         if($params['item_type'] != 'system.audit_trail')
         {
