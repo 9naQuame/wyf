@@ -32,3 +32,8 @@
     font-size: x-large;
     margin-bottom: 5px;
 }
+
+.rapi-text-heading{
+    font-weight: bold;
+    margin-top:15px;
+}

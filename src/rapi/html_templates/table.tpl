@@ -1,6 +1,16 @@
 {if $as_totals_box eq true}
     <table class="rapi-table">
-        <tr>{foreach from=$data item=total key=i}<td width="{$widths[$i] * 100|round}%">{$total}</td>{/foreach}</tr>
+        <tr class="rapi-total-row">
+            {foreach from=$data item=total key=i}
+            <td class='{if $types[$i] neq ''}rapi-column-{$types[$i]}{/if}' width="{$widths[$i] * 100|round}%">
+                {if $types[$i] eq 'double' or $types[$i] eq 'number'}
+                {$total|number_format:2}
+                {else}
+                {$total}
+                {/if}            
+            </td>
+            {/foreach}
+        </tr>
     </table>
 {else}
     <table class="rapi-table">

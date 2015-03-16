@@ -76,95 +76,6 @@ abstract class ReportController extends Controller
     }
 
     /**
-     * A utility function around the SQLDataStore::getMulti() method. This function
-     * allows for dynamic fields. These dynamic fields are fields which are read
-     * from a database table.
-     * 
-     * @param array $params
-     * @param int $mode
-     * @return array
-     * @see SQLDataStore::getMulti()
-     */
-    public static function getReportData($params,$mode=SQLDatabaseModel::MODE_ASSOC)
-    {
-        $dynamicFields = array();
-
-        if(is_array($params["dynamicHeaders"]))
-        {
-            foreach($params["dynamicHeaders"] as $key => $dynamicHeader)
-            {
-                $info = Model::resolvePath($dynamicHeader);
-                $headers = Model::load($info["model"]);
-                $data = $headers->get(array("fields"=>array($headers->getKeyField(),$info["field"])),SQLDataBaseModel::MODE_ARRAY);
-
-                foreach($data as $dat)
-                {
-                    $replacement[$dat[1]] = null;
-                }
-
-                $dynamicFields[$key]["replacement"] = $replacement;
-                $dynamicFields[$key]["headers"] = $data;
-                $dynamicFields[$key]["field"] = $params["dynamicFields"][$key];
-                $dynamicFields[$key]["keyField"] = count($params["fields"]);//array_search($headers->getKeyField(), $params["fields"]);
-                $dynamicFields[$key]["replaceIndex"] = array_search($params["dynamicFields"][$key],$params["fields"]);
-                $dynamicFields[$key]["numFields"] = count($data);
-                $params["fields"][] = $headers->package.".".$headers->getKeyField();
-            }
-        }
-
-        $data = SQLDBDataStore::getMulti($params, $mode);
-
-        $numData = count($data);
-
-        if($numData==0)
-        {
-            return $data;
-        }
-        elseif($numData==1)
-        {
-            foreach($dynamicFields as $dynamicField)
-            {
-                array_splice($data[0],$dynamicField["replaceIndex"],1,array_pad(array(),$dynamicField["numFields"],$data[0][$dynamicField["replaceIndex"]]));
-            }
-        }
-        else
-        {
-            if(count($dynamicFields)==0) return $data;
-            $keys = array_keys($data[0]);
-            $numReturnData = 0;
-
-            for($i = 0; $i<$numData;)
-            {
-                foreach($dynamicFields as $dynamicField)
-                {
-                    $base = $i;
-                    $returnData[] = $data[$i];
-                    array_splic($returnData[$numReturnData],$dynamicField["replaceIndex"],1,$dynamicField["replacement"]);
-
-                    foreach($dynamicField["headers"] as $header)
-                    {
-                        for($j=0; $j<$dynamicField["numFields"];$j++) 
-                        {
-                            if($data[$base+$j][$dynamicField["keyField"]] == $header[0])
-                            {
-                                $returnData[$numReturnData][$header[1]] = $data[$base+$j][$keys[$dynamicField["replaceIndex"]]];
-                                break;
-                            }
-                        }
-                        $i++;
-                    }
-                    
-                    unset($returnData[$numReturnData][$dynamicField["keyField"]]);
-                    $numReturnData ++;
-                }
-            }
-            $data = $returnData;
-        }
-
-        return $data;
-    }
-
-    /**
      * Draws a report table. This method could be overriden in subclasses to
      * present another means of presenting data. The method returns the total
      * values of the table in an array form based on the data parameters.
@@ -178,43 +89,31 @@ abstract class ReportController extends Controller
      */
     protected function drawTable($report, &$table)
     {
-        //$paramsCopy = $params;
-        /*if(is_array($params["ignored_fields"]))
+        $tableCopy = $table;
+        if(is_array($table['params']["ignored_fields"]))
         {
-            foreach($params["ignored_fields"] as $ignored)
+            foreach($table['params']["ignored_fields"] as $ignored)
             {
-                unset($paramsCopy["headers"][$ignored]);
-                unset($paramsCopy["data_params"]["type"][$ignored]);
-                unset($paramsCopy["data_params"]["total"][$ignored]);
-                unset($paramsCopy["data_params"]["widths"][$ignored]);
+                unset($tableCopy["headers"][$ignored]);
+                unset($tableCopy["params"]["type"][$ignored]);
+                unset($tableCopy["params"]["total"][$ignored]);
+                unset($this->widths[$ignored]);
             }
 
-            $paramsCopy["headers"] = array_values($paramsCopy["headers"]);
-            $paramsCopy["data_params"]["type"] = array_values($paramsCopy["data_params"]["type"]);
-            $paramsCopy["data_params"]["total"] = array_values($paramsCopy["data_params"]["total"]);
-            $paramsCopy["data_params"]["widths"] = array_values($paramsCopy["data_params"]["widths"]);
-            $this->widths = $paramsCopy["data_params"]["widths"];
-            $this->dataParams = $paramsCopy["data_params"];
-
-            foreach($data as $key => $row)
+            foreach($table['data'] as $key => $row)
             {
-                foreach($params["ignored_fields"] as $ignored)
+                foreach($table['params']["ignored_fields"] as $ignored)
                 {
-                    unset($data[$key][$ignored]);
-                    //$data[$key] = array_values($row);
+                    unset($tableCopy['data'][$key][$ignored]);
                 }
             }
-        }*/
-        
-        $tableContent = new TableContent($table["headers"], $table['data']);
-        
-        if($this->widths == null) 
-        {
-            $this->widths = $table->getTableWidths();
         }
-        $table['params']['widths'] = $this->widths;
         
-        $tableContent->setDataParams($table['params']);
+        $tableContent = new TableContent($tableCopy["headers"], $tableCopy['data']);
+        
+        $tableCopy['params']['widths'] = $this->widths;
+        
+        $tableContent->setDataParams($tableCopy['params']);
         $tableContent->setAutoTotals($table['totals']);
         
         $report->add($tableContent);
@@ -364,18 +263,25 @@ abstract class ReportController extends Controller
                 $params["grouping_level"]--;
                 array_pop($params["ignored_fields"]);
             }
-
+            
             if($this->drawTotals && $totals != null)
             {
                 $totalsBox = new TableContent($params["headers"], $totals);
                 $totalsBox->setAsTotalsBox(true);
+                $params['widths'] = $this->widths;
                 $totalsBox->setDataParams($params);
                 
                 $report->add($totalsBox);
                 foreach($totals as $i => $total)
                 {
-                    if($total === null) continue;
-                    $accumulatedTotals[$i] += $total;
+                    if($total === null)
+                    {
+                        $accumulatedTotals[$i] = null;
+                    }
+                    else
+                    {
+                        $accumulatedTotals[$i] += $total;
+                    }
                 }
             }
 

@@ -100,21 +100,18 @@ class TableContent extends ReportContent
     
     public function getTotals()
     {   
-        for($i = 0; $i < $this->numColumns; $i++)
+        foreach($this->data as $row)
         {
-            $totals[$i] = null;
-        }    
-        
-        foreach($this->data as $fields)
-        {
-            $i = 0;
-            foreach($fields as $field)
+            foreach($row as $i => $field)
             {
                 if($this->dataParams["total"][$i])
                 {
                     $totals[$i] += $this->getFieldValue($field, $this->dataParams['type'][$i]);
                 }
-                $i++;
+                else
+                {
+                    $totals[$i] = null;
+                }
             }
         }
 

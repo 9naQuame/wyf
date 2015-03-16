@@ -362,13 +362,13 @@ class XmlDefinedReportController extends ReportController {
             $params['limit'] = $_REQUEST[$name . "_limit"];
         }
         $params["no_num_formatting"] = true;
-        $this->reportData = ReportController::getReportData($params, SQLDatabaseModel::MODE_ARRAY);
+        $this->reportData = SQLDBDataStore::getMulti($params, SQLDatabaseModel::MODE_ARRAY);
 
         unset($params["sort_field"]);
         $wparams = $params;
         $wparams["global_functions"] = array("LENGTH", "MAX");
         $wparams["global_functions_set"] = true;
-        $this->widths = reset(ReportController::getReportData($wparams, SQLDatabaseModel::MODE_ARRAY));
+        $this->widths = reset(SQLDBDataStore::getMulti($wparams, SQLDatabaseModel::MODE_ARRAY));
         
         foreach ($tableHeaders as $i => $header) {
             foreach (explode("\\n", $header) as $line) {
@@ -378,40 +378,18 @@ class XmlDefinedReportController extends ReportController {
             }
         }
         
-        //$dataParams["widths"] = $this->widths;
-        //$params["data_params"] = $dataParams;
-
-        /*if (count($ignoredFields) > 0) {
-            foreach ($this->reportData as $key => $row) {
-                foreach ($ignoredFields as $ignored) {
-                    unset($this->reportData[$key][$ignored]);
-                    unset($params["headers"][$ignored]);
-                    unset($params["fields"][$ignored]);
-                    unset($params["data_params"]["type"][$ignored]);
-                    unset($params["data_params"]["total"][$ignored]);
-                    unset($params["data_params"]["widths"][$ignored]);
-                    unset($this->widths[$key]);
-                }
-                $this->reportData[$key] = array_values($this->reportData[$key]);
-            }
-            $params["headers"] = array_values($params["headers"]);
-            $params["fields"] = array_values($params["fields"]);
-            $params["data_params"]["type"] = array_values($params["data_params"]["type"]);
-            $params["data_params"]["total"] = array_values($params["data_params"]["total"]);
-            $params["data_params"]["widths"] = array_values($params["data_params"]["widths"]);
-            $this->widths = array_values($this->widths);
-        }*/
-
+        $params['ignored_fields'] = $ignoredFields;
+        
         if ($_REQUEST[$name . "_grouping"][0] == "") 
         {
             $tableDetails = array(
                 'headers' => $headers,
                 'data' => $this->reportData, 
-                'params' => $dataParams, 
+                'params' => $params, 
                 'totals' =>true
             );
             
-            $total = $this->drawTable($report, $tableDetails);
+            $this->drawTable($report, $tableDetails);
         } 
         else if ($_REQUEST[$name . "_grouping"][0] != "" && $_REQUEST["grouping_1_summary"] == '1') 
         {
@@ -419,14 +397,14 @@ class XmlDefinedReportController extends ReportController {
             $params["grouping_level"] = 0;
             $params["previous_headings"] = array();
             $params["ignored_fields"] = array();
-            $total = $this->generateSummaryTable($params);
+            $this->generateSummaryTable($params);
         } 
         else 
         {
             $params["grouping_fields"] = $_REQUEST[$name . "_grouping"];
             $params["grouping_level"] = 0;
             $params["previous_headings"] = array();
-            $params["ignored_fields"] = array();
+            //$params["ignored_fields"] = array();
             $total = $this->generateTable($report, $params);
 
             if (is_array($total) && count($total) > 0) 
