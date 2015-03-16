@@ -14,8 +14,10 @@ class XlsRenderer extends ReportRenderer
             ->setTitle('Report');
         
         $this->worksheet = $this->spreadsheet->getActiveSheet();
-        $this->worksheet->getHeaderFooter()->setEvenFooter("Generated on ".date("jS F, Y @ g:i:s A")." by ".$_SESSION["user_lastname"]." ".$_SESSION["user_firstname"]);
-        $this->worksheet->getHeaderFooter()->setOddFooter("Generated on ".date("jS F, Y @ g:i:s A")." by ".$_SESSION["user_lastname"]." ".$_SESSION["user_firstname"]);        
+        $this->worksheet->getHeaderFooter()
+            ->setEvenFooter("Generated on ".date("jS F, Y @ g:i:s A")." by ".$_SESSION["user_lastname"]." ".$_SESSION["user_firstname"]);
+        $this->worksheet->getHeaderFooter()
+            ->setOddFooter("Generated on ".date("jS F, Y @ g:i:s A")." by ".$_SESSION["user_lastname"]." ".$_SESSION["user_firstname"]);        
     }
     
     public function output() 

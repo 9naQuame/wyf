@@ -53,7 +53,7 @@ class TableContent extends ReportContent
         $i = 0;
         foreach($strings as $string)
         {
-            $widths[$i] = strlen($column) > $widths[$i] ? strlen($column) : $widths[$i];
+            $widths[$i] = strlen($string) > $widths[$i] ? strlen($string) : $widths[$i];
             $i++;
         }
         return $widths;

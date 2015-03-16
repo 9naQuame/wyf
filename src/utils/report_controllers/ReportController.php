@@ -307,6 +307,7 @@ abstract class ReportController extends Controller
     public function getContents()
     {
         $form = $this->getForm();
+        $form->setShowSubmit(false);
       
         $data = array(
             "filters" => $form->render(),
