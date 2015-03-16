@@ -190,7 +190,7 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
     public function totalsBox($totals, $params)
     {
         $this->SetFont
-                (isset($this->style["font"]) ? $this->style["font"] : "Helvetica", ($this->style["bold"] ? "B" : "B") . ($this->style["underline"] ? "U" : "") . ($this->style["italics"] ? "I" : ""), isset($this->style["font_size"]) ? $this->style["font_size"] : 8
+            (isset($this->style["font"]) ? $this->style["font"] : "Helvetica", ($this->style["bold"] ? "B" : "B") . ($this->style["underline"] ? "U" : "") . ($this->style["italics"] ? "I" : ""), isset($this->style["font_size"]) ? $this->style["font_size"] : 8
         );
 
         $arrayWidth = $this->twidth * (isset($this->style["width"]) ? $this->style["width"] : 1);
@@ -201,7 +201,7 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
         }
 
         $this->SetDrawColor(204, 255, 204);
-        for ($i = 0; $i < count($params["widths"]); $i++)
+        foreach ($params["widths"] as $i => $width)
         {
             if (isset($totals[$i]) && $i != 0)
             {
