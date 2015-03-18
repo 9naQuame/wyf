@@ -1,6 +1,6 @@
 <div id="report-wrapper">
     <div id="report-toolbar">
-        <ul id="report-export"><li id="report-toolbar-pdf" onclick='exportReport("pdf", true)'>Export PDF</li><li id="report-toolbar-xls" onclick='exportReport("xls", false)'>Export Excel</li></ul><ul id="report-options" onclick='$("#report-filter").fadeToggle()'><li id="report-options">Report Options</li></ul>
+        <ul id="report-export"><li id="report-toolbar-pdf" onclick='exportReport("pdf", true)'>Export PDF</li><li id="report-toolbar-xls" onclick='exportReport("xls", false)'>Export Excel</li></ul><ul id="report-options" onclick='$("#report-filter").fadeToggle()'><li id="report-options-button">Report Options</li></ul>
     </div>
     <div id='report-body-wrapper'>
         <div id="report-body">
