@@ -205,6 +205,21 @@ class ModelController extends Controller
         $this->setupListView();
         return '<div id="table-wrapper">' . $this->listView->render() . '</div>';
     }
+    
+    private function getFormDetails()
+    {
+        if($this->redirected)
+        {
+            $formName = $this->redirectedPackageName . Application::camelize($this->mainRedirectedPackage) . "Form";
+            $formPath = $this->redirectPath . "/" . str_replace(".", "/", $this->mainRedirectedPackage) . "/" . $formName . ".php";
+        }
+        else
+        {
+            $formName = Application::camelize($this->model->package) . "Form";
+            $formPath = $this->localPath . "/" . $formName . ".php";
+        }
+        return array('path' => $formPath, 'name' => $formName);
+    }
 
     /**
      * Returns the form that this controller uses to manipulate the data stored
@@ -217,21 +232,12 @@ class ModelController extends Controller
     protected function getForm()
     {
         // Load a local form if it exists.
-        if($this->redirected)
+        $formDetails = $this->getFormDetails();
+        if(is_file($formDetails['path']))
         {
-            $formName = $this->redirectedPackageName . Application::camelize($this->mainRedirectedPackage) . "Form";
-            $formPath = $this->redirectPath . "/" . str_replace(".", "/", $this->mainRedirectedPackage) . "/" . $formName . ".php";
-        }
-        else
-        {
-            $formName = Application::camelize($this->model->package) . "Form";
-            $formPath = $this->localPath . "/" . $formName . ".php";
-        }
-        
-        if(is_file($formPath))
-        {
-            include_once $formPath;
-            $form = new $formName();
+            include_once $formDetails['path'];
+            $formclass = $formDetails['name'];
+            $form = new $formclass();
         }
         else if (is_file($this->localPath."/".$this->name."Form.php"))
         {
@@ -243,7 +249,14 @@ class ModelController extends Controller
         {
             $form = new MCDefaultForm($this->model);
         }
+        
         $form->setRunValidations(false);
+        
+        if(strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')
+        {
+            $form->addAttribute('onsubmit', "alert('Submitted')");
+        }
+        
         return $form;
     }
     

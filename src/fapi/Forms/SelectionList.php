@@ -61,7 +61,10 @@ class SelectionList extends Field
             $this->addAttribute("onblur","fapiValidate('".$this->getId()."',$validations)");
         }
         $this->addAttribute("id",$this->getId());
-        if(count($this->jsOnChangeParams)>0) $this->addAttribute("onchange",$this->getId()."OnChangeFunction()");
+        if(count($this->jsOnChangeParams)>0) 
+        {
+            $this->addAttribute("onchange",$this->getId()."OnChangeFunction()");
+        }
         $ret = "<select {$this->getAttributes()} class='fapi-list ".$this->getCSSClasses()."' name='".$this->getName()."' ".($this->multiple?"multiple='multiple'":"").">";
         
         

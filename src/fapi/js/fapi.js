@@ -69,25 +69,25 @@ function fapiCheckUnique(id, validator)
         return;
     fapiShowMessage(id, "Checking availability ...", "info");
     $.ajax
-            ({
-                type: "GET",
-                url: validator.url,
-                data: validator.params + "&v=" + value,
-                dataType: "json",
-                success:
-                        function(response)
-                        {
-                            if (response.status)
-                            {
-                                fapiShowMessage(id, value + " is available", "info");
-                                setTimeout("fapiHideMessage('" + id + "')", 5000);
-                            }
-                            else
-                            {
-                                fapiShowMessage(id, value + " is not available. Please try another value.", "error");
-                            }
-                        }
-            });
+    ({
+      type: "GET",
+      url: validator.url,
+      data: validator.params + "&v=" + value,
+      dataType: "json",
+      success:
+        function(response)
+        {
+          if (response.status)
+          {
+            fapiShowMessage(id, value + " is available", "info");
+            setTimeout("fapiHideMessage('" + id + "')", 5000);
+          }
+          else
+          {
+            fapiShowMessage(id, value + " is not available. Please try another value.", "error");
+          }
+        }
+    });
     return true;
 }
 
@@ -107,39 +107,39 @@ function fapiValidate(id, validations)
 
 function fapiMultiFormReset(id)
 {
-    $('#multiform-contents-' + id).html('');
+  $('#multiform-contents-' + id).html('');
 }
 
 function fapiMultiFormRemove(id)
 {
-    $("#multiform-content-" + id).remove();
+  $("#multiform-content-" + id).remove();
 }
 
 function fapiMultiFormAdd(id)
 {
-    var numMultiForms = parseInt($("#multiform-numitems-" + id).val()) + 1;
-    $("#multiform-numitems-" + id).val(numMultiForms);
-    var form = $("#multiform-template-" + id).html()
-    $("#multiform-contents-" + id).append(form.replace(/--index--/g, numMultiForms));
+  var numMultiForms = parseInt($("#multiform-numitems-" + id).val()) + 1;
+  $("#multiform-numitems-" + id).val(numMultiForms);
+  var form = $("#multiform-template-" + id).html()
+  $("#multiform-contents-" + id).append(form.replace(/--index--/g, numMultiForms));
 }
 
 function remove(quem)
 {
-    if (quem !== null)
-        quem.parentNode.removeChild(quem);
+  if (quem !== null)
+      quem.parentNode.removeChild(quem);
 }
 
 function addEvent(obj, evType, fn)
 {
-    // elcio.com.br/crossbrowser
-    if (obj.addEventListener)
-    {
-        obj.addEventListener(evType, fn, true);
-    }
-    if (obj.attachEvent)
-    {
-        obj.attachEvent("on" + evType, fn);
-    }
+  // elcio.com.br/crossbrowser
+  if (obj.addEventListener)
+  {
+    obj.addEventListener(evType, fn, true);
+  }
+  if (obj.attachEvent)
+  {
+    obj.attachEvent("on" + evType, fn);
+  }
 }
 
 function removeEvent(obj, type, fn)
@@ -278,4 +278,11 @@ function fapiSetSearchValue(name, value, display, func)
 function fapiFieldsetCollapse(id)
 {
     $("#" + id +"_collapse").slideToggle();
+}
+
+function fapiAddModelItem(model)
+{
+  $('body').append("<div id='new_item_form'></div>");
+  $('#new_item_form').load('/' + model + '/add');
+  adjustUI();
 }

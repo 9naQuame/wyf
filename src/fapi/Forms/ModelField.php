@@ -53,6 +53,7 @@ class ModelField extends SelectionList
             Model::MODE_ARRAY
         );
 
+        $this->addOption("Add new " . Utils::singular($this->model->getEntity()), 'NEW');
         foreach($data as $datum)
         {
             if($datum[1] == "")
@@ -63,7 +64,8 @@ class ModelField extends SelectionList
             {
                 $this->addOption($datum[1],$datum[0]);
             }
-        }         
+        }   
+        $this->addAttribute('onchange', "fapiAddModelItem('" . str_replace('.', '/', $this->model->package) . "')");
     }
     
     public function setConditions($conditions)

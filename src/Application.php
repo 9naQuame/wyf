@@ -297,7 +297,7 @@ class Application
             ob_start();
         }
         
-        if(Application::$template == "")
+        if(Application::$template == "" || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')
         {
             print $module->content;
         }
@@ -323,18 +323,6 @@ class Application
                 array_merge((is_array($_SESSION['notes']) ? $_SESSION['notes'] : array()), self::$notes)
             );
             $t->display(Application::$template);
-        }
-                
-        if(Application::$cli)
-        {
-            if(Application::$cliOutput=="")
-            {
-                print ob_get_clean();
-            }
-            else
-            {
-                file_put_contents(Application::$cliOutput, ob_get_clean());
-            }
         }
     }
     
