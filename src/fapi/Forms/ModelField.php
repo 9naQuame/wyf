@@ -65,7 +65,10 @@ class ModelField extends SelectionList
                 $this->addOption($datum[1],$datum[0]);
             }
         }   
-        $this->addAttribute('onchange', "fapiAddModelItem('" . str_replace('.', '/', $this->model->package) . "')");
+        
+        $modelPath = str_replace('.', '/', $this->model->package);
+        //$id = $this->getId();
+        $this->addAttribute('onchange', "fapiAddModelItem('$modelPath', this, '$value')");
     }
     
     public function setConditions($conditions)

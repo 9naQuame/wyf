@@ -1,6 +1,6 @@
 var curtab = 0;
 var searchFieldConditions = [];
-var request = undefined;
+var fapiOnFormSubmit = false;
 
 /**
  * Switches the current FAPI tab to the one specified.
@@ -280,9 +280,38 @@ function fapiFieldsetCollapse(id)
     $("#" + id +"_collapse").slideToggle();
 }
 
-function fapiAddModelItem(model)
+function fapiAddModelItem(model, selectList, valueField)
 {
+  if(selectList.value !== 'NEW') return;
+  fapiOnFormSubmit = function(data)
+  {
+    console.log(data);
+    if(data.success)
+    {
+      $(selectList).append("<option value='" + data.id + "' selected='selected'>" + $('#' + valueField).val() + "</option>")
+      $('#new_item_form').fadeOut();
+    }
+  };
   $('body').append("<div id='new_item_form'></div>");
   $('#new_item_form').load('/' + model + '/add');
   adjustUI();
+}
+
+function fapiSubmitForm(model, formId, success, error)
+{
+  console.log(model);
+  $.ajax({
+    url : '/system/api/rest/' + model,
+    method : 'POST',
+    data:$("#" + formId).serialize(),
+    dataType:'json',
+    success : function(data){
+      if(typeof fapiOnFormSubmit === 'function')
+      {
+        fapiOnFormSubmit(data);
+      }
+    },
+    error: error
+  });
+  return false;
 }

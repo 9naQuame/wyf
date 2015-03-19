@@ -243,12 +243,7 @@ class Form extends Container
             $ret .= '</div>';
         }
         $id = $this->getId();
-        
-        if($id != '')
-        {
-            $ret .= "<input type='hidden' name='is_form_{$id}_sent' value='yes' />";
-        }
-        
+                
         $ret .= '<input type="hidden" name="is_form_sent" value="yes" />';
         $ret .= '</form>';
 

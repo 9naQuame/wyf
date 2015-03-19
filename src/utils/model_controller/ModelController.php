@@ -250,11 +250,13 @@ class ModelController extends Controller
             $form = new MCDefaultForm($this->model);
         }
         
+        $form->setId($this->name . '-form');
         $form->setRunValidations(false);
         
         if(strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')
         {
-            $form->addAttribute('onsubmit', "alert('Submitted')");
+            $path = str_replace(".", "/", $this->model->package);
+            $form->addAttribute('onsubmit', "return fapiSubmitForm('$path','{$form->getId()}')");
         }
         
         return $form;

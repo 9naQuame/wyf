@@ -123,6 +123,7 @@ class SystemApiController extends Controller
             
             // Create a new entry
             case 'POST':
+                unset($_POST['is_form_sent']);
                 $validate = $model->setData(
                     $_POST
                 );
