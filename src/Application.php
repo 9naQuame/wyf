@@ -299,7 +299,9 @@ class Application
         
         if(Application::$template == "" || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')
         {
-            print $module->content;
+            header("x-controller-label: {$module->label}");
+            header("x-controller-description: {$module->description}");
+            echo $module->content;
         }
         else
         {

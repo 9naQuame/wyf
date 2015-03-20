@@ -285,15 +285,25 @@ function fapiAddModelItem(model, selectList, valueField)
   if(selectList.value !== 'NEW') return;
   fapiOnFormSubmit = function(data)
   {
-    console.log(data);
-    if(data.success)
-    {
-      $(selectList).append("<option value='" + data.id + "' selected='selected'>" + $('#' + valueField).val() + "</option>")
-      $('#new_item_form').fadeOut();
-    }
+    $(selectList).append("<option value='" + data.id + "' selected='selected'>" + $('#' + valueField).val() + "</option>")
+    $('#new_item_form').fadeOut(function(){
+      $(this).remove();
+    });
   };
   $('body').append("<div id='new_item_form'></div>");
-  $('#new_item_form').load('/' + model + '/add');
+  $.ajax({
+    url:'/' + model + '/add',
+    dataType: 'html',
+    success: function(data, status, request)
+    {
+      $('#new_item_form').html(data);
+      $('#new_item_form > form').prepend(
+        "<h2 class='module-title'>" + request.getResponseHeader('x-controller-label') + "</h2>" + 
+        "<div class='module-description'>" + request.getResponseHeader('x-controller-description') + "</div>"
+      );
+    }
+  });
+  //$('#new_item_form').load('/' + model + '/add').fadeIn();
   adjustUI();
 }
 
@@ -311,7 +321,21 @@ function fapiSubmitForm(model, formId, success, error)
         fapiOnFormSubmit(data);
       }
     },
-    error: error
+    error: function(data){
+      $("<div class='fapi-error'><ul id='new_item_form_errors'></ul></div>").insertAfter(".module-description");
+      var errors = data.responseJSON.errors.errors;
+      for(var field in errors)
+      {
+        if(errors[field].length > 0)
+        {
+          $('#' + field).addClass('fapi-error');
+          for(var i in errors[field])
+          {
+            $('#new_item_form_errors').append("<li>" + errors[field][i] + "</li>");
+          }
+        }
+      }
+    }
   });
   return false;
 }

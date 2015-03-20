@@ -67,7 +67,6 @@ class ModelField extends SelectionList
         }   
         
         $modelPath = str_replace('.', '/', $this->model->package);
-        //$id = $this->getId();
         $this->addAttribute('onchange', "fapiAddModelItem('$modelPath', this, '$value')");
     }
     

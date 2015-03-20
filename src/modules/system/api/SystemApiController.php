@@ -137,6 +137,7 @@ class SystemApiController extends Controller
                 }
                 else
                 {
+                    http_response_code(400);
                     $data = array(
                         'success'   =>  false,
                         'errors'    =>  $validate
