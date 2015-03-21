@@ -7,10 +7,7 @@
  * @ingroup Forms
  */
 abstract class Field extends Element
-{
-    
-    protected $jsValidations = array();
-
+{    
     /**
      * A flag for setting the required state of the form. If this value
      * is set as true then the form would not be validated if there is
@@ -48,10 +45,6 @@ abstract class Field extends Element
     public function getId()
     {
         $id = parent::getId();
-        if($id == "" && $this->ajax)
-        {
-            $id = str_replace(".","_",$this->getName());
-        }
         return $id;
     }
 
@@ -109,13 +102,6 @@ abstract class Field extends Element
      */
     public function setRequired($required)
     {
-        //$this->addAttribute("onblur","fapiCheckRequired('".$this->getId()."')");
-        $this->addJsValidation
-        (array(
-            "func"=>"fapiCheckRequired",
-            "message"=>Field::prepareMessage($this->getLabel()." is required.")
-            )
-        );
         $this->required = $required;
         return $this;
     }
@@ -128,13 +114,6 @@ abstract class Field extends Element
     public function getRequired()
     {
         return $this->required;
-    }
-
-    //! Sets whether the value of this field is unique in the database.
-    public function setUnique($unique,$param=null,$url="lib/fapi/ajax.php",$extra=null)
-    {
-        $this->unique = $unique;
-        return $this;
     }
 
     //! Returns the data held by this field. This data is returned as a
@@ -279,22 +258,6 @@ abstract class Field extends Element
     public function getOptions()
     {
         return array();
-    }
-
-    public function addJsValidation($validator)
-    {
-        $keys = array_keys($validator);
-        $members = array();
-        for($i=0; $i<count($validator); $i++)
-        {
-            $members[] = $keys[$i].":".$validator[$keys[$i]];
-        }
-        $this->jsValidations[] = "{".implode(",",$members)."}";
-    }
-
-    public function getJsValidations()
-    {
-        return "[".implode($this->jsValidations,",")."]";
     }
     
     public function setJsOnChange($params)

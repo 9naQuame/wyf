@@ -130,6 +130,8 @@ class SystemApiController extends Controller
                 if($validate === true)
                 {
                     $id = $model->save();
+                    header("x-model-entity: " . Utils::singular($model->getEntity()));
+                    header("x-model-item: " . $model);
                     $data = array(
                         'success'   =>  true,
                         'id'        =>  $id

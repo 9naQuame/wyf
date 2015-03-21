@@ -21,7 +21,6 @@ class MCDefaultForm extends Form
             }
             
             $element->setRequired($field['required']);
-            $element->setUnique($field['unique']);
             
             $this->add($element);
         }

@@ -27,12 +27,6 @@ class TextField extends Field
         $this->addAttribute("id", $this->getId());
         $this->addAttribute("value", $this->getValue());
         
-        $validations = $this->getJsValidations();
-        if($this->ajax && $validations != "[]")
-        {
-            $this->addAttribute("onblur","fapiValidate('".$this->getId()."',$validations)");
-        }
-        
         return "<input {$this->getAttributes()} />";
     }
 
@@ -50,13 +44,6 @@ class TextField extends Field
     {
         $this->type="REGEXP";
         $this->regexp = $regexp;
-        $this->addJsValidation
-        (array(
-            "func"=>"fapiCheckRegexp",
-            "regexp"=>"/".$regexp."/",
-            "message"=>Field::prepareMessage("This {$this->getLabel()} format is not valid")
-            )
-        );
         return $this;
     }
 

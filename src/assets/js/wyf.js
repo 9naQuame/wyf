@@ -205,8 +205,24 @@ var wyf = {
     },
     
     notifications : {
-      show : function(notification)
+      show : function(param)
       {
+        var notification;
+        if(typeof param === 'string')
+        {
+          notification = {
+            message: param,
+            type: 'info',
+            presentation: 'popup'
+          }
+        }
+        else
+        {
+          notification = param;
+        }
+        
+        console.log(notification);
+        
         var object = document.createElement('div');
         object.innerHTML = notification.message;
         $(object).addClass('notification-' + notification.type).addClass(notification.presentation + '-notification');
@@ -216,6 +232,7 @@ var wyf = {
         setTimeout(
           function(){
             $(object).slideUp();
+            $(object).remove();
           },
           5000
         );

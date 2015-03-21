@@ -283,12 +283,10 @@ function fapiFieldsetCollapse(id)
 function fapiAddModelItem(model, selectList, valueField)
 {
   if(selectList.value !== 'NEW') return;
+  $(selectList).val("");
   fapiOnFormSubmit = function(data)
   {
     $(selectList).append("<option value='" + data.id + "' selected='selected'>" + $('#' + valueField).val() + "</option>")
-    $('#new_item_form').fadeOut(function(){
-      $(this).remove();
-    });
   };
   $('body').append("<div id='new_item_form'></div>");
   $.ajax({
@@ -301,9 +299,10 @@ function fapiAddModelItem(model, selectList, valueField)
         "<h2 class='module-title'>" + request.getResponseHeader('x-controller-label') + "</h2>" + 
         "<div class='module-description'>" + request.getResponseHeader('x-controller-description') + "</div>"
       );
+      $('#new_item_form > form > #fapi-submit-area').prepend("<a href='#' onclick='$(\"#new_item_form\").fadeOut(function(){$(this).remove()})'>Close</a> &nbsp;");
+      $('#new_item_form').fadeIn();
     }
   });
-  //$('#new_item_form').load('/' + model + '/add').fadeIn();
   adjustUI();
 }
 
@@ -315,10 +314,15 @@ function fapiSubmitForm(model, formId, success, error)
     method : 'POST',
     data:$("#" + formId).serialize(),
     dataType:'json',
-    success : function(data){
+    success : function(data, code, xhr){
       if(typeof fapiOnFormSubmit === 'function')
       {
         fapiOnFormSubmit(data);
+        $('#new_item_form').fadeOut(function(){
+          $(this).remove();
+          console.log("Added new " + xhr.getResponseHeader('x-model-entity') + ", " + xhr.getResponseHeader('x-model-item'));
+          wyf.notifications.show("Added new " + xhr.getResponseHeader('x-model-entity') + ", <b>" + xhr.getResponseHeader('x-model-item') + "</b>");          
+        });
       }
     },
     error: function(data){

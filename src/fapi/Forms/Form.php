@@ -143,8 +143,6 @@
  */
 class Form extends Container
 {
-    protected $ajaxSubmit;
-    
     /**
      * The value to be printed on the submit form.
      */
@@ -172,8 +170,6 @@ class Form extends Container
      */
     public $submitAttributes;
 
-    public $ajaxAction = "lib/fapi/ajax.php?action=save_data";
-
     public $successUrl;
     
     protected $runValidations = true;
@@ -189,7 +185,6 @@ class Form extends Container
 
         if($method=="") $method="POST";
         $this->setMethod($method);
-        $this->ajax = true;
         $this->setSubmitValue("Save");
         $this->addAttribute("class","fapi-form");
     }
@@ -220,9 +215,6 @@ class Form extends Container
         }
         $ret .= $this->renderElements();
 
-        $onclickFunction = "fapi_ajax_submit_".$this->getId()."()";
-        $onclickFunction = str_replace("-","_",$onclickFunction);
-        
         if($this->getShowClear())
         {
             $clearButton = '<input class="fapi-submit" type="reset" value="Clear"/>';
@@ -232,14 +224,7 @@ class Form extends Container
         {
             $ret .= '<div id="fapi-submit-area">';
             $submitValue = $this->submitValue?('value="'.$this->submitValue.'"'):"";
-            if($this->ajaxSubmit)
-            {
-                $ret .= sprintf('<input class="fapi-submit" type="button" %s onclick="%s"  /> %s',$submitValue,$onclickFunction,$clearButton);
-            }
-            else
-            {
-                $ret .= sprintf('<input class="fapi-submit" type="submit" %s /> %s',$submitValue,$clearButton);
-            }
+            $ret .= sprintf('<input class="fapi-submit" type="submit" %s /> %s',$submitValue,$clearButton);
             $ret .= '</div>';
         }
         $id = $this->getId();
@@ -247,40 +232,6 @@ class Form extends Container
         $ret .= '<input type="hidden" name="is_form_sent" value="yes" />';
         $ret .= '</form>';
 
-        if($this->ajaxSubmit)
-        {
-            $elements = $this->getFields();
-            $ajaxData = array();
-            foreach($elements as $element)
-            {
-                $id = $element->getId();
-                if($element->getStorable())
-                {
-                    $ajaxData[] = "'".urlencode($id)."='+document.getElementById('$id').".($element->getType()=="Field"?"value":"checked");
-                }
-                $validations = $element->getJsValidations();
-                $validators .= "if(!fapiValidate('$id',$validations)) error = true;\n";
-            }
-            $ajaxData[] = "'fapi_dt=".urlencode($this->getDatabaseTable())."'";
-            $ajaxData = addcslashes(implode("+'&'+", $ajaxData),"\\");
-
-            $ret .=
-            "<script type='text/javascript'>
-            function $onclickFunction
-            {
-                var error = false;
-                $validators
-                if(error == false)
-                {
-                    \$.ajax({
-                        type : 'POST',
-                        url : '{$this->ajaxAction}',
-                        data : $ajaxData
-                    });
-                }
-            }
-            </script>";
-        }
         return $ret;
     }
     
@@ -352,12 +303,6 @@ class Form extends Container
         Container::setShowField($show_field);
         $this->setShowSubmit($show_field);
         return $this;
-    }
-
-    public function useAjax($validation=true,$submit=true)
-    {
-        $this->ajax = $validation;
-        $this->ajaxSubmit = $submit;
     }
     
     public function setRunValidations($runValidations)

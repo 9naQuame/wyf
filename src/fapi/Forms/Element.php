@@ -15,8 +15,6 @@ abstract class Element
     const SCOPE_ELEMENT = "";
     const SCOPE_WRAPPER = "_wrapper";
 
-    protected $ajax = true;
-
     /**
      * The id of the form useful for CSS styling and DOM access.
      */
