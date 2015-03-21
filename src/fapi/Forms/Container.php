@@ -191,7 +191,6 @@ abstract class Container extends Element
                 $element->setMethod($this->getMethod());
                 $element->setShowField($this->getShowField());
                 $element->parent = $this;
-                $element->ajax = $this->ajax;
                 $this->hasFile |= $element->getHasFile();
             }
             else

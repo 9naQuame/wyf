@@ -55,11 +55,6 @@ class SelectionList extends Field
 
     public function render()
     {
-        $validations = $this->getJsValidations();
-        if($this->ajax && $validations != "[]")
-        {
-            $this->addAttribute("onblur","fapiValidate('".$this->getId()."',$validations)");
-        }
         $this->addAttribute("id",$this->getId());
         if(count($this->jsOnChangeParams)>0) 
         {
