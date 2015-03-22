@@ -120,32 +120,6 @@ class ModelController extends Controller
      */
     protected $permissionPrefix;
     
-    /**
-     * Should this model controller show the add operation.
-     * @var boolean
-     */
-    protected $hasAddOperation = true;
-    
-    /**
-     * Should this model controller show the edit operation.
-     * @var boolean
-     */
-    protected $hasEditOperation = true;
-    
-    /**
-     * Should this model controller show the delete operation.
-     * @var boolean
-     */
-    protected $hasDeleteOperation = true;
-    
-    /**
-     * Enforce the add operation. This overrides the permissions on the system.
-     * 
-     * @var boolean
-     */
-    protected $forceAddOperation = false;
-    protected $forceEditOperation = false;
-    protected $forceDeleteOperation = false;
     protected $historyModels = array();
     
     /**
@@ -605,9 +579,7 @@ class ModelController extends Controller
         
         if(is_array($parameters))
         {
-            //$controller->setParentNameField($parameters['parent_name_field']);
             $controller->setParentItemId($parameters['parent_item_id']);
-            //$controller->setEntity($parameters['entity']);
         }
         return $this->useNestedController($controller, $args);
     }
