@@ -294,10 +294,11 @@ function fapiAddModelItem(model, selectList, valueField)
     dataType: 'html',
     success: function(data, status, request)
     {
+      var description = request.getResponseHeader('x-controller-description');
       $('#new_item_form').html(data);
       $('#new_item_form > form').prepend(
         "<h2 class='module-title'>" + request.getResponseHeader('x-controller-label') + "</h2>" + 
-        "<div class='module-description'>" + request.getResponseHeader('x-controller-description') + "</div>"
+        "<div class='module-description'>" + (description === null ? '' : description) + "</div>"
       );
       $('#new_item_form > form > #fapi-submit-area').prepend("<a href='#' onclick='$(\"#new_item_form\").fadeOut(function(){$(this).remove()})'>Close</a> &nbsp;");
       $('#new_item_form').fadeIn();

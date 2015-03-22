@@ -45,6 +45,10 @@ abstract class Field extends Element
     public function getId()
     {
         $id = parent::getId();
+        if($id == "")
+        {
+            $id = str_replace(".","_",$this->getName());
+        }        
         return $id;
     }
 
