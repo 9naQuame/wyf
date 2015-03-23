@@ -308,12 +308,16 @@ class ModelController extends Controller
             if($instance->actionMethod === 'add')
             {
                 $id = $instance->model->save();
-                Application::queueNotification("Added new $entity, <b>{$instance->model}</b>");
+                Application::queueNotification(
+                    $instance->getAddNotificationMessage($entity, $instance->model)
+                ); 
             }
             else
             {
                 $id = $instance->model->update($key, $instance->currentItemId);
-                Application::queueNotification("Updated $entity, <b>{$instance->model}</b>");
+                Application::queueNotification(
+                    $instance->getUpdateNotificationMessage($entity, $instance->model)
+                );
             }
             Application::redirect($instance->urlPath);
         }
@@ -464,7 +468,7 @@ class ModelController extends Controller
             $data = $this->model->getWithField($this->model->getKeyField(),$params[0]);
             $this->model->delete($this->model->getKeyField(),$params[0]);
             $this->model->setData($data[0]);
-            Application::queueNotification("Deleted <b>" . Utils::singular($this->model->getEntity()) . "</b>, <b>" . $this->model . "</b>");
+            Application::queueNotification($this->getDeleteNotificationMessage(Utils::singular($this->model->getEntity()), $this->model));
             Application::redirect($this->urlPath);
     	}
     }
@@ -592,6 +596,21 @@ class ModelController extends Controller
     public function setUrlPath($urlPath)
     {
         $this->urlPath = $urlPath;
-    }    
+    }   
+    
+    public function getAddNotificationMessage($entity, $item)
+    {
+        return "Added new $entity, <b>$item</b>";
+    }
+    
+    public function getUpdateNotificationMessage($entity, $item)
+    {
+        return "Updated $entity, <b>$item</b>";
+    }
+    
+    public function getDeleteNotificationMessage($entity, $item)
+    {
+        return "Deleted $entity, <b>$item</b>";        
+    }
 }
 
