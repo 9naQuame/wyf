@@ -468,7 +468,9 @@ class ModelController extends Controller
             $data = $this->model->getWithField($this->model->getKeyField(),$params[0]);
             $this->model->delete($this->model->getKeyField(),$params[0]);
             $this->model->setData($data[0]);
-            Application::queueNotification($this->getDeleteNotificationMessage(Utils::singular($this->model->getEntity()), $this->model));
+            Application::queueNotification(
+                $this->getDeleteNotificationMessage(Utils::singular($this->model->getEntity()), $this->model)
+            );
             Application::redirect($this->urlPath);
     	}
     }
