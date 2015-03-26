@@ -7,6 +7,21 @@ class MCDataExporterJob extends ajumamoro\Ajuma
         $this->go();
     }
     
+    private function getData($fieldNames)
+    {
+        $this->model->setQueryResolve(false);        
+        $data = $this->model->get(array("fields"=>$fieldNames));        
+        foreach($data as $j => $row)
+        {
+            for($i = 0; $i < count($row); $i++)
+            {
+                $this->fields[$i]->setValue($row[$fieldNames[$i]]);
+                $data[$j][$fieldNames[$i]] = strip_tags($this->fields[$i]->getDisplayValue());
+            }
+        }        
+        return $data;
+    }
+    
     public function go()
     {
         $fieldNames = array();
@@ -17,30 +32,22 @@ class MCDataExporterJob extends ajumamoro\Ajuma
             $headers[] = $field->getLabel();
         }
         
-        $reportClass = strtoupper($this->format) . 'Report';
-        $report = new $reportClass();
-        
-        $title = new TextContent($this->label);
-        $title->style["size"] = 12;
-        $title->style["bold"] = true;
-        
-        $this->model->setQueryResolve(false);
-        $data = $this->model->get(array("fields"=>$fieldNames));
-        
-        foreach($data as $j => $row)
+        $report = new Report($this->format);
+                
+        if(!$this->exportOnlyHeaders)
         {
-            for($i = 0; $i < count($row); $i++)
-            {
-                $this->fields[$i]->setValue($row[$fieldNames[$i]]);
-                $data[$j][$fieldNames[$i]] = strip_tags($this->fields[$i]->getDisplayValue());
-            }
+            $title = new TextContent($this->label, array('bold' => true));
+            $report->add($title);
+            $data = $this->getData($fieldNames);
+        }
+        else
+        {
+            $data = array();
         }
         
         $table = new TableContent($headers,$data);
-        $table->style["decoration"] = true;
 
-        $report->add($title,$table);
+        $report->add($table);
         $report->output();
     }
-    
 }

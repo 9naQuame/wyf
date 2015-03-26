@@ -13,4 +13,9 @@ abstract class ReportRenderer
     abstract public function renderText(TextContent $content);
     abstract public function renderTable(TableContent $content);
     abstract public function output();
+    
+    public function getContentType()
+    {
+        
+    }
 }

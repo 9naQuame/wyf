@@ -24,10 +24,13 @@ class Report
             if($this->filterContent($content)) continue;
             $contentType = $content->getType();
             $method = "render{$contentType}";
-            //if(method_exists($this->generator, $method))
-            //{
-                $this->generator->$method($content);
-            //}
+            $this->generator->$method($content);
+        }
+        
+        $httpContentType = $this->generator->getContentType();
+        if($httpContentType != '')
+        {
+            header("Content-Type: $httpContentType");
         }
         
         echo $this->generator->output();

@@ -388,7 +388,6 @@ class ModelController extends Controller
      * Export the data in the model into a particular format. Formats depend on
      * the formats available in the reports api.
      * @param $params
-     * @return unknown_type
      * @see Report
      */
     public function export($params)
@@ -398,6 +397,14 @@ class ModelController extends Controller
         $exporter->format = $params[0];
         $exporter->model = $this->model;
         $exporter->label = $this->label;
+        if($_GET['template'] == 'yes')
+        {
+            $exporter->exportOnlyHeaders = true;
+        }
+        else
+        {
+            $exporter->exportOnlyHeaders = false;
+        }
         $exporter->run();
     }
 
@@ -409,10 +416,14 @@ class ModelController extends Controller
     public function import()
     {
         $this->label = "Import " . $this->label;
+        $entity = $this->model->getEntity();
+        $path = $this->urlPath;
         $form = new Form();
+        $form->setRenderer('default');
         $form->add(
-            Element::create("UploadField","File","file","Select the file you want to upload."),
-            Element::create("Checkbox","Break on errors","break_on_errors","","1")->setValue("1")
+            Element::create("HTMLBox", "This import utility would assist you to import new $entity into your database. You are expected to upload a CSV file which contains the data you want to import."
+                . " <p>Please click <a href='$path/export/csv?template=yes'>here</a> to download a template csv file.</p>"),
+            Element::create("UploadField","File","file","Select the file you want to upload.")
         );
         $form->addAttribute("style","width:50%");
         $form->setCallback($this->getClassName() . '::importCallback', $this);
@@ -468,7 +479,12 @@ class ModelController extends Controller
             $data = $this->model->getWithField($this->model->getKeyField(),$params[0]);
             $this->model->delete($this->model->getKeyField(),$params[0]);
             $this->model->setData($data[0]);
-            Application::queueNotification($this->getDeleteNotificationMessage(Utils::singular($this->model->getEntity()), $this->model));
+            Application::queueNotification(
+                $this->getDeleteNotificationMessage(
+                    Utils::singular($this->model->getEntity()), 
+                    $this->model
+                )
+            );
             Application::redirect($this->urlPath);
     	}
     }
