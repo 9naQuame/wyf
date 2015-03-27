@@ -115,9 +115,17 @@ class SelectionList extends Field
     {
         $value  = $this->getValueWithLabel($displayValue);
         if($value !== false)
+        {
             $this->setValue($value);
+        }
+        else if($displayValue == '')
+        {
+            $this->setValue(null);
+        }
         else
-            $this->setValue (null);
+        {
+            throw new Exception("Unknown option <b>$displayValue</b> for <b>{$this->label}</b> field. Posible options are (<b>" . implode('</b>, <b>', $this->options) . "</b>)");
+        }
     }
     
     public function getLabelWithValue($value)

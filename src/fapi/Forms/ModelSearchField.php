@@ -138,16 +138,22 @@ class ModelSearchField extends Field
         {
             $conditions[] = "{$searchField} = '{$value}'";
         }
-        $conditions = implode(" OR ", $conditions);
         
         $item = $this->model->get(
             array(
                 'fields' => array($this->getName()),
-                'conditions' => $conditions
+                'conditions' => implode(" OR ", $conditions)
             )
         );
         
-        $this->setValue($item[0][$this->getName()]);
+        if(count($item) > 0)
+        {
+            $this->setValue($item[0][$this->getName()]);
+        }
+        else
+        {
+            throw new Exception("Invalid option $value for {$this->label} field.");
+        }
     }
 
     public function getDisplayValue()

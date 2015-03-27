@@ -397,6 +397,7 @@ class ModelController extends Controller
         $exporter->format = $params[0];
         $exporter->model = $this->model;
         $exporter->label = $this->label;
+        header("Content-Disposition: attachment; filename={$this->model->name}.{$params[0]}");
         if($_GET['template'] == 'yes')
         {
             $exporter->exportOnlyHeaders = true;
@@ -439,9 +440,7 @@ class ModelController extends Controller
     
     public function importReport($status)
     {
-        self::getTemplateEngine()->assign('import_status', $status['statuses']);
-        self::getTemplateEngine()->assign('import_headers', $status['headers']);
-        self::getTemplateEngine()->assign('import_message', $status['message']);
+        self::getTemplateEngine()->assign('response', $status);
     }
     
     public static function importCallback($data, $form, $instance)

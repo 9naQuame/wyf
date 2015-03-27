@@ -9,15 +9,12 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     private $modelInstance;
     private $secondaryKey;
     private $tertiaryKey;
+    private $statuses;
     
     public function run()
     {
         try{
-            $status = array(
-                'statuses' => $this->go(),
-                'headers' => $this->headers,
-                'message' => 'Succesfully Imported'
-            );
+            $status = $this->go();
         }
         catch(Exception $e)
         {
@@ -26,20 +23,30 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         return $status;
     }
     
-    private function setModelData($data)
+    private function setModelData($data, &$errors)
     {
         $hasValues = false;
         
         foreach($data as $i => $value)
         {
+            $field = $this->fileFields[$i]->getName();
             if(trim($value) !== '') 
             {
                 $hasValues = true;
             }
             
-            $this->fields[$i]->setWithDisplayValue($value);
-            $this->displayData[$this->fileFields[$i]->getName()] = $value;
-            $this->modelData[$this->fileFields[$i]->getName()] = $this->fields[$i]->getValue();
+            try
+            {
+                $this->fields[$i]->setWithDisplayValue($value);
+            }
+            catch(Exception $e)
+            {
+                $hasValues = false;
+                $errors[$field] = array($e->getMessage());
+            }
+            
+            $this->displayData[$field] = $value;
+            $this->modelData[$field] = $this->fields[$i]->getValue();
         } 
         return $hasValues;
     }
@@ -120,10 +127,49 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         }
     }
     
+    private function flattenErrors($errors)
+    {
+        $flatErrors = array();
+        foreach($errors as $field => $fieldErrors)
+        {
+            $flatErrors = array_merge($fieldErrors, $flatErrors);
+        }
+        return $flatErrors;
+    }
+    
+    private function saveData()
+    {
+        if($this->secondaryKey!=null && $this->modelData[$this->secondaryKey] != '')
+        {
+            $validated = $this->updateData();
+        }
+        else
+        {
+            $validated = $this->addData();
+        }
+
+        if(isset($validated['errors']))
+        {
+            $this->statuses[] = array(
+                'success' => false,
+                'data' => $this->displayData,
+                'errors' => $validated['errors']
+            );
+            return false;
+        }
+        else
+        {
+            $this->statuses[] = array(
+                'success' => true,
+                'data' => $this->displayData
+            );
+            return true;
+        }        
+    }
+
     public function go()
     {
         $file = fopen($this->file, "r");
-        $statuses = array();
         $this->headers = fgetcsv($file);
         $this->modelInstance = Model::load($this->model);
         
@@ -132,7 +178,6 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         $this->primaryKey = $this->modelInstance->getKeyField();
         $this->tertiaryKey = $this->modelInstance->getKeyField("tertiary");
         $this->secondaryKey = $this->modelInstance->getKeyField('secondary');
-        $hasErrors = false;
         
 
         $this->modelInstance->datastore->beginTransaction();
@@ -141,51 +186,51 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         {
             $data = fgetcsv($file);
             $this->modelData = array();
+            $errors = array();
             
-            if(!is_array($data)) 
-            { 
-                continue; 
-            }
-            
-            if(!$this->setModelData($data)) 
+            if($this->setModelData($data, $errors)) 
             {
-                continue;
+                if(!$this->saveData())
+                {
+                    $hasErrors = true;
+                    break;
+                }
             }
-            if($this->secondaryKey!=null && $this->modelData[$this->secondaryKey] != '')
+            else 
             {
-                $validated = $this->updateData();
-            }
-            else
-            {
-                $validated = $this->addData();
-            }
-
-            if(isset($validated['errors']))
-            {
+                if(count($errors) > 0)
+                {
+                    $this->statuses[] = array(
+                        'success' => false,
+                        'data' => $this->displayData,
+                        'errors' => $errors
+                    );                    
+                }
                 $hasErrors = true;
-                $statuses[] = array(
-                    'success' => false,
-                    'data' => $this->displayData,
-                    'errors' => $validated['errors']
-                );
-            }
-            else
-            {
-                $statuses[] = array(
-                    'success' => true,
-                    'data' => $this->displayData
-                );
+                break;
             }
         }
         
         unlink($this->file);
         
+        $return = array(
+            'statuses' => $this->statuses,
+            'headers' => $this->headers
+        );
+        
         if(!$hasErrors) 
         {
+            $return['message'] = 'Succesfully Imported';
             $this->modelInstance->datastore->endTransaction();
         }
+        else
+        {
+            $return['message'] = 'Failed to import data';
+            $return['failed'] = true;
+            $return['errors'] = $this->flattenErrors($this->statuses[0]['errors']);
+        }
         
-        return $statuses;       
+        return $return;       
     }
 }
 
