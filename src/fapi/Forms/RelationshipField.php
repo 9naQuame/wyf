@@ -80,6 +80,11 @@ class RelationshipField extends Field
     
     public function setWithDisplayValue($value) 
     {
+        if($value === '' || $value === null)
+        {
+            parent::setValue(null);
+            return;
+        }
         $parts = explode("//", $value);
         $mainId = $this->mainModel->getKeyField();
         
@@ -92,8 +97,7 @@ class RelationshipField extends Field
         $possibleMainItem = reset($this->mainModel->getWithField2("trim($mainField)", trim($parts[0])));
         if($possibleMainItem === false)
         {
-            parent::setValue(null);
-            return;
+            throw new Exception("Invalid option <b>$value</b> for <b>{$this->label}</b> field.");
         }
         
         $possibleSubItem = reset($this->subModel->get(
@@ -103,7 +107,18 @@ class RelationshipField extends Field
             , Model::MODE_ASSOC, false, false
         ));
         
-        parent::setValue($possibleSubItem[$this->getName()]);
+        if($possibleSubItem === false)
+        {
+            throw new Exception("Invalid option <b>$value</b> for <b>{$this->label}</b> field.");
+        }
+        else if($possibleSubItem === false)
+        {
+            parent::setValue(null);
+        }
+        else
+        {
+            parent::setValue($possibleSubItem[$this->getName()]);
+        }
     }
 
     public function getDisplayValue()

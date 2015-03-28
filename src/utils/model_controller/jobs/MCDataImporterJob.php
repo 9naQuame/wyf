@@ -6,10 +6,15 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     private $headers;
     private $displayData;
     private $modelData;
+    /**
+     *
+     * @var Model
+     */
     private $modelInstance;
     private $secondaryKey;
     private $tertiaryKey;
     private $statuses;
+    private $line;
     
     public function run()
     {
@@ -130,7 +135,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     private function flattenErrors($errors)
     {
         $flatErrors = array();
-        foreach($errors as $field => $fieldErrors)
+        foreach($errors as $fieldErrors)
         {
             $flatErrors = array_merge($fieldErrors, $flatErrors);
         }
@@ -150,10 +155,12 @@ class MCDataImporterJob extends ajumamoro\Ajuma
 
         if(isset($validated['errors']))
         {
-            $this->statuses[] = array(
-                'success' => false,
-                'data' => $this->displayData,
-                'errors' => $validated['errors']
+            $this->statuses = array(
+                    array(
+                    'success' => false,
+                    'data' => $this->displayData,
+                    'errors' => $validated['errors'],
+                )
             );
             return false;
         }
@@ -181,12 +188,19 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         
 
         $this->modelInstance->datastore->beginTransaction();
+        $this->line = 1;
 
         while(!feof($file))
         {
+            $this->line++;
             $data = fgetcsv($file);
             $this->modelData = array();
             $errors = array();
+            
+            if(!is_array($data))
+            {
+                continue;
+            }
             
             if($this->setModelData($data, $errors)) 
             {
@@ -200,10 +214,12 @@ class MCDataImporterJob extends ajumamoro\Ajuma
             {
                 if(count($errors) > 0)
                 {
-                    $this->statuses[] = array(
-                        'success' => false,
-                        'data' => $this->displayData,
-                        'errors' => $errors
+                    $this->statuses = array(
+                        array(
+                            'success' => false,
+                            'data' => $this->displayData,
+                            'errors' => $errors,
+                        )
                     );                    
                 }
                 $hasErrors = true;
@@ -228,9 +244,9 @@ class MCDataImporterJob extends ajumamoro\Ajuma
             $return['message'] = 'Failed to import data';
             $return['failed'] = true;
             $return['errors'] = $this->flattenErrors($this->statuses[0]['errors']);
+            $return['line'] = $this->line;
         }
         
         return $return;       
     }
 }
-

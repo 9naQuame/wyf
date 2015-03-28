@@ -237,6 +237,16 @@ class ModelController extends Controller
     }
     
     /**
+     * This method is called by the importer when trying to find out which
+     * fields.
+     * @return Form
+     */
+    public function getImporterForm()
+    {
+        return $this->getForm();
+    }
+    
+    /**
      * Controller action method for adding new items to the model database.
      * @return String
      */
@@ -393,7 +403,7 @@ class ModelController extends Controller
     public function export($params)
     {
         $exporter = new MCDataExporterJob();
-        $exporter->fields = $this->getForm()->getFields(); 
+        $exporter->fields = $this->getImporterForm()->getFields(); 
         $exporter->format = $params[0];
         $exporter->model = $this->model;
         $exporter->label = $this->label;
@@ -452,7 +462,7 @@ class ModelController extends Controller
             $importer = new MCDataImporterJob();
             $importer->file = $uploadfile;
             $importer->model = $instance->model->package;
-            $importer->fields = $instance->getForm()->getFields();
+            $importer->fields = $instance->getImporterForm()->getFields();
             $status = $importer->run();
             $instance->importReport($status);
             if(is_string($status))

@@ -2,7 +2,7 @@
 
 <h3>{$response.message}</h3>
 {if $response.failed}
-    The following errors were discoverd in your data file.
+    The following errors were discoverd on line {$response.line} of your data file.
     <ul>
     {foreach from=$response.errors item=error}
         <li>{$error}</li>

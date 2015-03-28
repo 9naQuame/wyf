@@ -5,7 +5,6 @@ class NestedModelController extends ModelController
     public $_showInMenu = false;
     protected $parentItemId;
     private $methodName;
-    private $parentNameField;
 
     /**
      * 
@@ -63,11 +62,6 @@ class NestedModelController extends ModelController
         $this->parentItemId = $parentItemId;
     }
     
-    public function setParentNameField($parentNameField)
-    {
-        $this->parentNameField = $parentNameField;
-    }
-    
     public function getParentItemId()
     {
         return $this->parentItemId;
@@ -87,6 +81,25 @@ class NestedModelController extends ModelController
                 $this->parentItemId
             )
         );
+        return $form;
+    }
+    
+    public function getImporterForm() 
+    {
+        $key = $this->parentController->model->getKeyField();
+        $form = parent::getForm();
+        $list = Element::create(
+            'SelectionList',
+            Utils::singular($this->parentController->model->getEntity()),
+            $key
+        );
+        $items = $this->parentController->model->get();
+        foreach($items as $item)
+        {
+            $this->parentController->model->setData($item);
+            $list->addOption((string)$this->parentController->model, $item[$key]);
+        }
+        $form->add($list);
         return $form;
     }
 }
