@@ -637,7 +637,11 @@ abstract class Model implements ArrayAccess
 
     public function validatorRequired($name,$parameters)
     {
-        if((string)$this->datastore->data[$name]!=='')
+        if(is_bool($this->datastore->data[$name]))
+        {
+            return true;
+        }
+        if($this->datastore->data[$name]!=='')
         {
             return true;
         }

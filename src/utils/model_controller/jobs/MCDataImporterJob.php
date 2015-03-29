@@ -78,7 +78,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     private function updateData()
     {
         $tempData = reset(
-            $this->modelInstance->getWithField(
+            $this->modelInstance->getWithField2(
                 $this->secondaryKey,
                 $this->modelData[$this->secondaryKey]
             )
@@ -178,7 +178,8 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     {
         $file = fopen($this->file, "r");
         $this->headers = fgetcsv($file);
-        $this->modelInstance = Model::load($this->model);
+        $this->modelInstance = Model::load($this->model)->setQueryResolve(false)->setQueryExplicitRelations(false);
+        
         
         $this->setupFileFields();
         

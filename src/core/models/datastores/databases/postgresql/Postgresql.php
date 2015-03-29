@@ -185,9 +185,9 @@ class Postgresql extends SQLDBDataStore
                {
                   
                   case "boolean":
-                      if(is_string($value))
+                      if(is_bool($value))
                       {
-                          $this->formattedData[$field] = ($value == 'f' || $value == 'false' || $value=='0' || $value == null) ? 'FALSE' : 'TRUE';
+                          $this->formattedData[$field] = false ? 'FALSE' : 'TRUE';
                       }
                       else
                       {
