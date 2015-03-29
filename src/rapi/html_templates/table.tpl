@@ -23,7 +23,7 @@
                 {foreach from=$row item=column key=i}
                     <td width="{$widths[$i] * 100|round}%" class="{if $types[$i] neq ''}rapi-column-{$types[$i]}{/if}">
                     {if $types[$i] eq 'double' or $types[$i] eq 'number'}
-                    {$column|number_format:2}
+                    {$column|replace:',':''|number_format:2}
                     {else}
                     {$column}
                     {/if}
