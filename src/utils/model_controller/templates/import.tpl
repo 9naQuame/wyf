@@ -2,12 +2,16 @@
 
 <h3>{$response.message}</h3>
 {if $response.failed}
-    The following errors were discoverd on line {$response.line} of your data file.
+    <p>
+        The following errors were discoverd on line {$response.line} of your data file.
+    </p>
     <ul>
     {foreach from=$response.errors item=error}
         <li>{$error}</li>
     {/foreach}
     </ul>
+{else}
+    <p>{$response.added} new record(s) were added and {$response.updated} were updated.</p>
 {/if}
 <div class="import-table-wrapper">
     <table class="import-table">

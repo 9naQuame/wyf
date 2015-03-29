@@ -15,6 +15,8 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     private $tertiaryKey;
     private $statuses;
     private $line;
+    private $added = 0;
+    private $updated = 0;
     
     public function run()
     {
@@ -105,6 +107,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
                     $this->primaryKey,
                     $tempData[$this->primaryKey]
                 );
+                $this->updated++;
                 return 'Updated';
             }
             else
@@ -124,6 +127,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         if($validated===true) 
         {
             $this->modelInstance->save();
+            $this->added++;
             return 'Added';  
         }   
         else
@@ -238,6 +242,8 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         if(!$hasErrors) 
         {
             $return['message'] = 'Succesfully Imported';
+            $return['added'] = $this->added;
+            $return['updated'] = $this->updated;
             $this->modelInstance->datastore->endTransaction();
         }
         else
