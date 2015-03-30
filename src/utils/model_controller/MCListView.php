@@ -126,7 +126,7 @@ class MCListView
         $this->toolbar->addLinkButton("Search","#")->setLinkAttributes(
             "onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\""
         );
-
+            
         if(User::getPermission($this->permissionPrefix."_can_view"))
         {
             $this->table->addOperation("view","View");

@@ -551,15 +551,15 @@ class ModelController extends Controller
     {
         return array
         (
-            array("label"=>"Can add",    "name"=> $this->permissionPrefix . "_can_add"),
-            array("label"=>"Can edit",   "name"=> $this->permissionPrefix . "_can_edit"),
-            array("label"=>"Can delete", "name"=> $this->permissionPrefix . "_can_delete"),
-            array("label"=>"Can view",   "name"=> $this->permissionPrefix . "_can_view"),
-            array("label"=>"Can export", "name"=> $this->permissionPrefix . "_can_export"),
-            array("label"=>"Can import", "name"=> $this->permissionPrefix . "_can_import"),
-            array("label"=>"Can view audit trail", "name"=> $this->permissionPrefix . "_can_audit"),
-            array("label"=>"Can view notes", "name"=> $this->permissionPrefix . "_can_view_notes"),
-            array("label"=>"Can create notes", "name"=> $this->permissionPrefix . "_can_create_notes"),
+            array("label"=>"Can add {$this->label}",    "name"=> $this->permissionPrefix . "_can_add"),
+            array("label"=>"Can edit {$this->label}",   "name"=> $this->permissionPrefix . "_can_edit"),
+            array("label"=>"Can delete {$this->label}", "name"=> $this->permissionPrefix . "_can_delete"),
+            array("label"=>"Can view {$this->label}",   "name"=> $this->permissionPrefix . "_can_view"),
+            array("label"=>"Can export {$this->label}", "name"=> $this->permissionPrefix . "_can_export"),
+            array("label"=>"Can import {$this->label}", "name"=> $this->permissionPrefix . "_can_import"),
+            array("label"=>"Can view audit trail for {$this->label}", "name"=> $this->permissionPrefix . "_can_audit"),
+            array("label"=>"Can view notes for {$this->label}", "name"=> $this->permissionPrefix . "_can_view_notes"),
+            array("label"=>"Can create notes for {$this->label}", "name"=> $this->permissionPrefix . "_can_create_notes"),
         );
     }
     

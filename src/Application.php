@@ -228,7 +228,7 @@ class Application
      */
     public static function getLink($path)
     {
-        return Application::$prefix . $path;
+        return "/" . Application::$prefix . $path;
     }
 
     /**

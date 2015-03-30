@@ -49,7 +49,7 @@ class SystemLoginController extends Controller
         
         if ($_SESSION["logged_in"])
         {
-        	Application::redirect(Application::getLink("/"));
+            Application::redirect(Application::getLink(""));
         };
         $form = new Form();
         $form->setRenderer("default");
@@ -80,7 +80,7 @@ class SystemLoginController extends Controller
      */
     public static function change_password_callback($data, $errors, $form)
     {
-        $home = Application::getLink("/");
+        $home = Application::getLink("");
         if ($data["password"] == $data["password2"])
         {
             $users = Model::load("system.users");
@@ -129,7 +129,7 @@ class SystemLoginController extends Controller
         }
         else if (count($userData) == 1 && User::getPermission("can_log_in_to_web", $userData[0]["role_id"]))
         {
-            $home = Application::getLink("/");
+            $home = Application::getLink("");
             
             /* Verify the password of the user or check if the user is logging in
              * for the first time.

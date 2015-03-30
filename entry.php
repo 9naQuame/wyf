@@ -42,7 +42,6 @@ if(isset($_REQUEST["__api_session_id"]))
 /**
  * Initialize the session handler
  */
-require "vendor/autoload.php";
 session_start();
 
 // Load the applications configuration file and define the home
@@ -65,13 +64,14 @@ Application::$templateEngine = $t;
 
 // Authentication ... check if someone is already logged in if not force 
 // a login
-if ($_SESSION["logged_in"] == false && array_search($_GET["q"], $authExcludedPaths) === false && substr($_GET["q"], 0, 10) != "system/api")
+$apiBase = Application::getLink("system/api");
+if ($_SESSION["logged_in"] == false && array_search($_GET["q"], $authExcludedPaths) === false && substr($_GET["q"], 0, strlen($apiBase)) != $apiBase)
 {
-    $redirect = urlencode(Application::getLink("{$_GET["q"]}"));
+    $redirect = urlencode(Application::getLink("{$_GET["q"]}") . '?');
     foreach($_GET as $key=>$value) 
     {
         if($key == "q") continue;
-        $redirect .= urlencode("$key=$value");
+        $redirect .= urlencode("$key=$value&");
     }
     header("Location: ".Application::getLink("system/login") . "?redirect=$redirect");
 }
