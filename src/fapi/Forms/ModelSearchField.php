@@ -17,6 +17,7 @@ class ModelSearchField extends Field
     private $storedFieldSet = false;
     private $andConditions;
     private $onChangeAttribute;
+    private $textField;
     
     public function __construct($path=null,$value=null)
     {
@@ -34,6 +35,7 @@ class ModelSearchField extends Field
             $this->addSearchField($value);
             $this->storedField = $info["field"];
         }
+        $this->textField = new TextField();
     }
     
     public function setAndConditions($andConditions)
@@ -106,13 +108,12 @@ class ModelSearchField extends Field
         $path = Application::$prefix."/system/api/query?object=$object";
         $fields = urlencode(json_encode($jsonSearchFields));
         
-        $text = new TextField();
-        $text->addAttribute("onkeyup","fapiUpdateSearchField('$id','$path','$fields',this,".($this->boldFirst?"true":"false").",'{$this->onChangeAttribute}')");
-        $text->addAttribute("autocomplete","off");
+        $this->textField->addAttribute("onkeyup","fapiUpdateSearchField('$id','$path','$fields',this,".($this->boldFirst?"true":"false").",'{$this->onChangeAttribute}')");
+        $this->textField->addAttribute("autocomplete","off");
         
         foreach($this->attributes as $attribute)
         {
-            $text->addAttributeObject($attribute);
+            $this->textField->addAttributeObject($attribute);
         }
         
         if($this->getValue()!="")
@@ -122,11 +123,15 @@ class ModelSearchField extends Field
             {
                 $val .= $data[0][$jsonSearchFields[$i]]." ";
             }
-            $text->setValue($val);
+            $this->textField->setValue($val);
+        }
+        else
+        {
+            $this->textField->setValue('');
         }
         
-        $text->setId($id."_search_entry");        
-        $ret .= $text->render();
+        $this->textField->setId($id."_search_entry");        
+        $ret .= $this->textField->render();
         $ret .= "<div class='fapi-popup' id='{$id}_search_area'></div>";
         return $ret;
     }
@@ -166,5 +171,10 @@ class ModelSearchField extends Field
             $val .= $data[0][$jsonSearchFields[$i]]." ";
         }
         return $val;
+    }
+    
+    public function addCSSClass($class) 
+    {
+        $this->textField->addCSSClass($class);
     }
 }

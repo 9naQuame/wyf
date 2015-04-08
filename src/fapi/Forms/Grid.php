@@ -74,15 +74,15 @@ class Grid extends Field
         $data = $this->getData();
         
         // Header Table
-        $ret = "<table id='{$this->hash}' class='fapi-grid-header-table' width='100%'>";
+        $ret = "<div class='fapi-grid-wrapper'><table id='{$this->hash}' class='fapi-grid-header-table'>";
         $ret .= "<tr><td id='header-0'></td>";
-        $script = "$('#header-0').width($('#gauge-0').width());";
+        $script = "$('#header-0').width($('#gauge-0').width() - 8);";
         $gauge = "<tr><td id='gauge-0'></td>";
         foreach($this->columns as $column)
         {
             $ret .= "<td class='fapi-grid-header'  id='{$column->getName()}-header'>" . $column->getLabel() . "</td>";
             $gauge .= "<td id='{$column->getName()}-gauge'></td>";
-            $script .= "$('#{$column->getName()}-header').width($('#{$column->getName()}-gauge').width());";
+            $script .= "$('#{$column->getName()}-header').width($('#{$column->getName()}-gauge').width() - 8);";
         }
         $gauge .= "</tr>";
         $ret .= "</tr></table>";
@@ -123,7 +123,7 @@ class Grid extends Field
         }
         $gauge .= "</tr>";
 
-        $ret .= "</tr></table>";
+        $ret .= "</tr></table></div>";
         
         $ret .= "<script type='text/javascript'>"
                 . "$script"
@@ -148,6 +148,7 @@ class Grid extends Field
     public function addColumn($column, $totals = false)
     {
         $this->totals[$column->getName()] = $totals;
+        $column->addCssClass('grid-item');
         if($totals)
         {
             $column->addAttribute("onchange", "computeTotals()");
