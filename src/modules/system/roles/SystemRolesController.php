@@ -318,7 +318,7 @@ class SystemRolesController extends ModelController
         }        
         
         $list = array();
-        
+                
         // Go through every file in the module directory
         while (false !== ($entry = $d->read()))
         {
@@ -327,9 +327,8 @@ class SystemRolesController extends ModelController
             {
                 if($redirected)
                 {
-                    $urlPath = substr("$originalPath/$entry",strlen($prefix));
-                        $modulePath = substr("$originalPath/$entry", strlen($prefix)
-                    );
+                    $urlPath = substr("$originalPath/$entry",strlen($prefix) + 1);
+                    $modulePath = substr("$originalPath/$entry", strlen($prefix));
                     
                     $this->permissions->queryResolve = true;
                     $value = $this->permissions->get(array("conditions"=>"role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
@@ -337,9 +336,8 @@ class SystemRolesController extends ModelController
                 }
                 else
                 {
-                    $urlPath = substr("$path/$entry",strlen($prefix));
-                        $modulePath = substr("$path/$entry", strlen($prefix)
-                    );
+                    $urlPath = substr("$path/$entry",strlen($prefix) + 1);
+                    $modulePath = substr("$path/$entry", strlen($prefix));
                         
                     $this->permissions->queryResolve = true;
                     $value = $this->permissions->get(array("conditions"=>"role_id='$roleId' AND module = '{$modulePath}' AND value='1'"));
