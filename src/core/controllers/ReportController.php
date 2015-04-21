@@ -463,7 +463,7 @@ abstract class ReportController extends Controller
             )->setId("report_formats")->addAttribute("style","width:50%")
         );
         $this->form->setSubmitValue("Generate");
-        $this->form->addAttribute("action",Application::getLink($this->path."/generate"));
+        //$this->form->addAttribute("action",$this->path."/generate");
         $this->form->addAttribute("target","blank");
     }
 

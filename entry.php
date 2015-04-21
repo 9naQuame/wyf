@@ -110,11 +110,12 @@ else if ($_SESSION["logged_in"] === true )
     {
         for($i = 0; $i < count($top_menu_items); $i++)
         {
+            if($top_menu_items[$i] == '') continue;
             $item = $top_menu_items[$i];
-            $link .= "/" . $item;
+            $link .= $item . "/";
             while(is_numeric($top_menu_items[$i + 1]))
             {
-                $link .= "/" . $top_menu_items[$i + 1];
+                $link .= $top_menu_items[$i + 1] . "/";
                 $i++;
             }
             $item = str_replace("_", " ", $item);

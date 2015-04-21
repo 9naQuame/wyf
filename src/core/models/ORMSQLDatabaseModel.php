@@ -34,7 +34,7 @@ class ORMSQLDatabaseModel extends SQLDatabaseModel
         
         if($fields == null)
         {
-            throw new Exception("Database table does not exists");
+            throw new Exception("Database table does not exist");
         }
         
         $fixedConditions = array();

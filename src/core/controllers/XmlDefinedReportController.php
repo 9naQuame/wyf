@@ -687,7 +687,7 @@ class XmlDefinedReportController extends ReportController {
         }
 
         $this->form->setSubmitValue("Generate");
-        $this->form->addAttribute("action", Application::getLink($this->path . "/generate"));
+        $this->form->addAttribute("action", $this->path . "/generate");
         $this->form->addAttribute("target", "blank");
 
         return $this->form;

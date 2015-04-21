@@ -166,6 +166,8 @@ class Controller
         $redirect_path = "";
         $package_name = "";
         $package_main = "";
+        
+        $path = self::trimPath($path);
 
         //Go through the whole path and build the folder location of the system
         for($i = 0; $i<count($path); $i++)
@@ -370,6 +372,16 @@ class Controller
             self::$templateEngine = new TemplateEngine();
         }
         return self::$templateEngine;
+    }
+    
+    private function trimPath($path)
+    {
+        $output = array();
+        foreach($path as $leg)
+        {
+            if($leg != '') $output[] = $leg;
+        }
+        return $output;
     }
 
     /**
