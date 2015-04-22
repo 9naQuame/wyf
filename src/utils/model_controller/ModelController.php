@@ -435,7 +435,8 @@ class ModelController extends Controller
         return $this->arbitraryTemplate(
             Application::getWyfHome('utils/model_controller/templates/import.tpl'), 
             array(
-                'form' => $form->render()
+                'form' => $form->render(),
+                'template' => "{$this->path}/export/csv?template=yes"
             )
         );
     }

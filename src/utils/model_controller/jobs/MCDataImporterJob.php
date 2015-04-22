@@ -9,14 +9,16 @@ class MCDataImporterJob extends ajumamoro\Ajuma
     private $modelInstance;
     private $secondaryKey;
     private $tertiaryKey;
+    private $message = 'Succesfully imported data';
     
     public function run()
     {
         try{
+            $success = $this->go();
             $status = array(
-                'statuses' => $this->go(),
+                'statuses' => $success,
                 'headers' => $this->headers,
-                'message' => 'Succesfully Imported'
+                'message' => $this->message
             );
         }
         catch(Exception $e)
@@ -39,8 +41,9 @@ class MCDataImporterJob extends ajumamoro\Ajuma
             
             $this->fields[$i]->setWithDisplayValue($value);
             $this->displayData[$this->fileFields[$i]->getName()] = $value;
-            $this->modelData[$this->fileFields[$i]->getName()] = $this->fields[$i]->getValue();
+            $this->modelData[$this->fileFields[$i]->getName()] = trim($this->fields[$i]->getValue());
         } 
+        
         return $hasValues;
     }
     
@@ -159,7 +162,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
             {
                 $validated = $this->addData();
             }
-
+            
             if(isset($validated['errors']))
             {
                 $hasErrors = true;
@@ -183,6 +186,10 @@ class MCDataImporterJob extends ajumamoro\Ajuma
         if(!$hasErrors) 
         {
             $this->modelInstance->datastore->endTransaction();
+        }
+        else
+        {
+            $this->message = 'There were some errors importing data.';
         }
         
         return $statuses;       

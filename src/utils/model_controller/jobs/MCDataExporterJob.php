@@ -27,12 +27,15 @@ class MCDataExporterJob extends ajumamoro\Ajuma
         $this->model->setQueryResolve(false);
         $data = $this->model->get(array("fields"=>$fieldNames));
         
-        foreach($data as $j => $row)
+        if($_GET['template'] !== 'yes')
         {
-            for($i = 0; $i < count($row); $i++)
+            foreach($data as $j => $row)
             {
-                $this->fields[$i]->setValue($row[$fieldNames[$i]]);
-                $data[$j][$fieldNames[$i]] = strip_tags($this->fields[$i]->getDisplayValue());
+                for($i = 0; $i < count($row); $i++)
+                {
+                    $this->fields[$i]->setValue($row[$fieldNames[$i]]);
+                    $data[$j][$fieldNames[$i]] = strip_tags($this->fields[$i]->getDisplayValue());
+                }
             }
         }
         
@@ -41,6 +44,7 @@ class MCDataExporterJob extends ajumamoro\Ajuma
 
         $report->add($title,$table);
         $report->output();
+        die();
     }
     
 }
