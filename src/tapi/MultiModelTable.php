@@ -7,6 +7,7 @@ class MultiModelTable extends Table
     protected $params;
     protected $tableData;
     protected $model;
+    protected $count;
 
     public function __construct($prefix = null)
     {
@@ -30,6 +31,11 @@ class MultiModelTable extends Table
         }
         
         $this->tableData = SQLDBDataStore::getMulti($params);
+        unset($params['limit']);
+        unset($params['sort_field']);
+        unset($params['moreInfo']);
+        $params['enumerate'] = true;
+        $this->count = SQLDBDataStore::getMulti($params);
     }
 
     protected function renderHeader()
@@ -215,6 +221,8 @@ class MultiModelTable extends Table
         $table = parent::renderFooter();
         $params = $this->params;
         
+        $pages = ceil($this->count[0]['count'] / $this->itemsPerPage);
+        
         $table .= "<div id='{$this->name}Footer'>
             <ul class='table-pages'><li>
                         <a onclick=\"wyf.tapi.switchPage('$this->name',0)\">
@@ -228,7 +236,7 @@ class MultiModelTable extends Table
                     </li>".
                     "<li><a onclick=\"wyf.tapi.switchPage('$this->name',".($params["page"]+1).")\">Next &gt;</a></li>" .
                 "<li> | </li>
-                <li> Page <input style='font-size:small; width:50px' value = '".($params["page"]+1)."' onchange=\"wyf.tapi.switchPage('$this->name',(this.value > 0 )?this.value-1:0)\" type='text' /></li>
+                <li> Page <input style='font-size:small; width:50px' value = '".($params["page"]+1)."' onchange=\"wyf.tapi.switchPage('$this->name',(this.value > 0 )?this.value-1:0)\" type='text' /> of <b>{$pages}</b></li>
             </ul>
         </div>";
         return $table;
