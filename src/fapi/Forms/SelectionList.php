@@ -117,9 +117,17 @@ class SelectionList extends Field
     {
         $value  = $this->getValueWithLabel($displayValue);
         if($value !== false)
+        {
             $this->setValue($value);
+        }
+        else if($value === false && $displayValue != '')
+        {
+            throw new Exception("Invalid value $displayValue for {$this->getLabel()}");
+        }
         else
-            $this->setValue (null);
+        {
+            $this->setValue(null);
+        }
     }
     
     public function getLabelWithValue($value)

@@ -40,6 +40,7 @@ class MCDataImporterJob extends ajumamoro\Ajuma
             }
             
             $this->fields[$i]->setWithDisplayValue($value);
+            $class = new ReflectionClass($this->fields[$i]);
             $this->displayData[$this->fileFields[$i]->getName()] = $value;
             $this->modelData[$this->fileFields[$i]->getName()] = trim($this->fields[$i]->getValue());
         } 

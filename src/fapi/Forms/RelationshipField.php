@@ -86,7 +86,11 @@ class RelationshipField extends Field
         $subField = $subField['field'];
         
         $possibleMainItem = reset($this->mainModel->getWithField2("trim($mainField)", trim($parts[0])));
-        if($possibleMainItem === false)
+        if($possibleMainItem === false && $value != '')
+        {
+            throw new Exception("Invalid value $value for {$this->getLabel()}");
+        }
+        else if($possibleMainItem === false)
         {
             parent::setValue(null);
             return;
@@ -98,6 +102,11 @@ class RelationshipField extends Field
                 )
             , Model::MODE_ASSOC, false, false
         ));
+        
+        if($possibleSubItem === false && $value != '')
+        {
+            throw new Exception("Invalid value $value for {$this->getLabel()}");
+        }
         
         parent::setValue($possibleSubItem[$this->getName()]);
     }
