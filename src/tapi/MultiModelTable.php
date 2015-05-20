@@ -176,7 +176,7 @@ class MultiModelTable extends Table
         {
             $table .= "<tr>
                 <td align='center' colspan='".count($this->headers)."'>
-                    <img style='margin:80px' src='/".Application::getLink(Application::getWyfHome('tapi/images/loading-image-big.gif'))."' />
+                    <img style='margin:80px' src='".Application::getLink(Application::getWyfHome('tapi/images/loading-image-big.gif'))."' />
                 </td></tr>";
         }
         else
