@@ -187,7 +187,7 @@ class MCListView
         $params["page"] = 0;
         $params["sort_field"] = array(
             array(
-                "field" =>  $this->model->database . "." . $this->model->getKeyField(),
+                "field" =>  end(explode('.', reset($fieldNames))),
                 "type"  =>  "DESC"
             )
         );
