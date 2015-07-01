@@ -171,11 +171,10 @@ class ModelController extends Controller
         $this->model = Model::load($this->modelName);
         $this->name = $this->model->name;
         $this->urlPath = Application::$prefix."/".str_replace(".","/",$this->modelName);
-        $this->permissionPrefix = str_replace(".", "_", $this->modelName);
+        $this->permissionPrefix = $this->permissionPrefix == '' ? str_replace(".", "_", $this->modelName) : $this->permissionPrefix;
         $this->label = $this->model->label;
         $this->description = $this->model->description;
         Application::setTitle($this->label);
-        
         $this->_showInMenu = $this->model->showInMenu === "false" ? false : true;
     }
     
@@ -240,7 +239,11 @@ class ModelController extends Controller
             $formPath = $this->localPath . "/" . $formName . ".php";
         }
         
-        if(is_file($formPath))
+        if(class_exists($formName))
+        {
+            $form = new $formName();
+        }
+        else if(is_file($formPath))
         {
             include_once $formPath;
             $form = new $formName();

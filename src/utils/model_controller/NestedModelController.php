@@ -66,5 +66,14 @@ class NestedModelController extends ModelController
     {
         return $this->parentController;
     }
+    
+    public function getForm()
+    {
+        $form = parent::getForm();
+        $form->add(
+            Element::create('HiddenField', $this->parentController->model->getKeyField(), $this->parentItemId)
+        );        
+        return $form;
+    }  
 }
 

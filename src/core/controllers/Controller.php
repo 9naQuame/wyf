@@ -261,15 +261,6 @@ class Controller
                 {
                     $controller_name = $controller_class_name;
                     $controller = new $controller_class_name();
-                    $controller->setRedirectParameters(
-                        array(
-                            'redirected' => $redirected,
-                            'redirect_path' => $redirect_path,
-                            'package_path' => $package_path,
-                            'package_main' => $package_main,
-                            'package_name' => $package_name
-                        )
-                    );
                 }
                 break;
 
@@ -306,6 +297,19 @@ class Controller
                     $controller = new ErrorController();
                     $controller_name = "ErrorController";
                 }
+        }
+        
+        if($redirected)
+        {
+            $controller->setRedirectParameters(
+                array(
+                    'redirected' => $redirected,
+                    'redirect_path' => $redirect_path,
+                    'package_path' => $package_path,
+                    'package_main' => $package_main,
+                    'package_name' => $package_name
+                )
+            );            
         }
 
         // If the get contents flag has been set return all the contents of this

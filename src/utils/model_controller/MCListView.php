@@ -119,7 +119,6 @@ class MCListView
      */
     protected function setupList()
     {
-
         $this->setupCRUDOperations();
         $this->setupImportExportOperations();
         

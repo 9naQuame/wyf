@@ -44,6 +44,10 @@ if(isset($_REQUEST["__api_session_id"]))
  */
 session_start();
 
+// Can be overridden in the app bootstrap
+$fapiStyleSheet = false;
+
+
 // Load the applications configuration file and define the home
 require "wyf_bootstrap.php";
 
@@ -54,9 +58,6 @@ global $packageSchema;
 $authExcludedPaths = array(
     "system/login",
 );
-
-// Can be overridden in the app bootstrap
-$fapiStyleSheet = false;
 
 $t = new TemplateEngine();
 Application::$templateEngine = $t;
