@@ -284,7 +284,7 @@ class ModelController extends Controller
         return $form->render();
     }
     
-    private function setFormErrors($form, $errors)
+    protected function setFormErrors($form, $errors)
     {
         $fields = array_keys($errors);
         foreach($fields as $field)

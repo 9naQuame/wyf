@@ -51,7 +51,7 @@ class PgFileStore extends postgresql
         $file = 'app/temp/' . $oid . "_$postfix";
         $model = PgFileStore::getModel();
         $data = $model->getWithField("object_id", $oid);
-        file_put_contents($file, pg_unescape_bytea($data[0]["data"]));
+        stream_copy_to_stream($data[0]['data'], fopen($file, 'w'));
         return $file;
     }
 
