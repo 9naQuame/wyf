@@ -45,11 +45,12 @@ class MultiElements extends Container
     protected $relatedField;
     public $hasRelatedData = true;
 
-    public function __construct()
+    public function __construct($template)
     {
         parent::__construct();
         MultiElements::$numForms++;
         $this->index = MultiElements::$numForms;
+        $this->setTemplate($template);
     }
 
     public function validate()

@@ -34,6 +34,7 @@ class MultiModelTable extends Table
         unset($params['limit']);
         unset($params['sort_field']);
         unset($params['moreInfo']);
+        unset($params['offset']);
         $params['enumerate'] = true;
         $this->count = SQLDBDataStore::getMulti($params);
     }
@@ -220,7 +221,6 @@ class MultiModelTable extends Table
     {
         $table = parent::renderFooter();
         $params = $this->params;
-        
         $pages = ceil($this->count[0]['count'] / $this->itemsPerPage);
         
         $table .= "<div id='{$this->name}Footer'>

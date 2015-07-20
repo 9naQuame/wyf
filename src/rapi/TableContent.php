@@ -148,11 +148,19 @@ class TableContent extends ReportContent
     
     public function setDataTypes($types)
     {
+        if($this->data_params['enumerate'])
+        {
+            array_unshift($types, null);
+        }           
     	$this->data_params['type'] = $types;
     }
     
     public function setTotalsFields($total)
     {
+        if($this->data_params['enumerate'])
+        {
+            array_unshift($total, null);
+        }        
     	$this->data_params['total'] = $total;
     	$this->style['autoTotalsBox'] = true;
     }
@@ -176,11 +184,25 @@ class TableContent extends ReportContent
             }
         }
         $this->data = $data;
+        
+        if($this->data_params['enumerate'])
+        {
+            $this->enumerate();
+        }
     }
     
     public function getData()
     {
         return $this->data;
+    }
+    
+    private function enumerate()
+    {
+        array_unshift($this->headers, '#');
+        foreach($this->data as $i => $row)
+        {
+            array_unshift($this->data[$i], $i+1);
+        }        
     }
     
     public function getType()
