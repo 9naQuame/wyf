@@ -42,11 +42,11 @@ class TemplateEngine extends Smarty
         $this->caching  = false;
         $this->assign('host',$_SERVER["HTTP_HOST"]);
     }
-    
+
     /**
-     * A static function for invoking the smarty template engine given the 
+     * A static function for invoking the smarty template engine given the
      * template and the data variables.
-     * 
+     *
      * @param string $template
      * @param string $data
      */
@@ -54,15 +54,15 @@ class TemplateEngine extends Smarty
     {
         $t = new TemplateEngine();
         $t->assign($data);
-        return $t->fetch("file:/" . getcwd() . "/$template");
+        return $t->fetch("file:" . getcwd() . "/$template");
     }
-    
+
     public static function renderString($template, $data)
     {
         $file = "app/temp/" . uniqid() . ".tpl";
         file_put_contents($file, $template);
         $rendered = self::render($file, $data);
         unlink($file);
-        return $rendered; 
+        return $rendered;
    }
 }
