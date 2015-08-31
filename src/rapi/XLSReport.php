@@ -100,8 +100,8 @@ class XLSReport extends Report
                                          $field = str_replace(",", "", $field);
                                          $field = $field === null || $field == "" ? "0.00" : round($field, 2);
                                          break;
-                                     case "right_align":
-                                         //$align = "R";
+                                     default:
+                                         $field = is_numeric($field) ? "'$field" : $field;
                                          break;
                                  }
                                 $worksheet->setCellValueByColumnAndRow($col, $row, trim($field));
