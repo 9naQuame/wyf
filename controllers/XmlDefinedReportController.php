@@ -463,7 +463,7 @@ class XmlDefinedReportController extends ReportController {
                         $params["ignored_fields"] = array();
                         $total = $this->generateTable($params);
 
-                        if (is_array($total) && count($total) > 0) {
+                        if (is_array($total) && count($total) > 0 && $_POST["overall"] === '1') {
                             $total[0] = $total[0] == "" ? "Overall Total" : $total[0];
                             $dataParams["widths"] = $this->widths;
                             $totalTable = new TableContent($tableHeaders, null);
@@ -676,12 +676,14 @@ class XmlDefinedReportController extends ReportController {
             $container = new FieldSet($table["name"]);
             $container->setId("{$table["name"]}_options");
             $container->add(
-                    Element::create("FieldSet", "Filters")->add($filters)->setId("table_{$table['name']}"), Element::create("FieldSet", "Sorting & Limiting")->add(
-                            $sortingField, Element::create("SelectionList", "Direction", "{$table["name"]}.sorting_direction")->addOption("Ascending", "ASC")->addOption("Descending", "DESC"), Element::create('TextField', 'Limit', "{$table['name']}.limit")->setAsNumeric()
-                    )->setId("{$table['name']}_sorting_fs"), Element::create("FieldSet", "Grouping")->
-                            setId("{$table['name']}_grouping_fs")->
-                            add($groupingTable)
+                Element::create("FieldSet", "Filters")->add($filters)->setId("table_{$table['name']}"), Element::create("FieldSet", "Sorting & Limiting")->add(
+                        $sortingField, Element::create("SelectionList", "Direction", "{$table["name"]}.sorting_direction")->addOption("Ascending", "ASC")->addOption("Descending", "DESC"), Element::create('TextField', 'Limit', "{$table['name']}.limit")->setAsNumeric()
+                )->setId("{$table['name']}_sorting_fs"), Element::create("FieldSet", "Grouping")->
+                        setId("{$table['name']}_grouping_fs")->
+                        add($groupingTable),
+                 Element::create("FieldSet", "Overalls")->setId("overall")->add(Element::create("Checkbox", "Show Overall Total", "overall", "", "1"))
             );
+           
             $sortingField->setName($table["name"] . "_sorting");
             $this->form->add($container);
         }
@@ -698,3 +700,4 @@ class XmlDefinedReportController extends ReportController {
     }
 
 }
+
