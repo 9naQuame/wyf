@@ -7,7 +7,8 @@ class FilterCompiler
     private static $filter;
     private static $tokens = array(
         'equals' => '\=',
-        'bind_param' => '\?|:[a-z][a-z0-9\_]+',
+        'bind_param' => '\\?',
+        'named_bind_param' => '\:[a-z][a-z0-9\_]+',
         'number' => '[0-9]+',
         'between' => 'between\b',
         'in' => 'in\b',
@@ -24,6 +25,8 @@ class FilterCompiler
         'add' => '\+',
         'subtract' => '\-',
         'multiply' => '\*',
+        'mod' => '\%',        
+        'cast' => '::',
         'function' => '[a-zA-Z][a-zA-Z0-9\_]*\s*\(',
         'identifier' => '[a-zA-Z][a-zA-Z0-9\.\_\:]*\b',
         'obracket' => '\(',
@@ -32,13 +35,13 @@ class FilterCompiler
     );
     
     private static $operators = array(
-        array('between', 'or' /*, 'like'*/),
+        array('between', 'or'),
         array('and'),
         array('not'),
         array('equals', 'greater', 'less', 'greater_or_equal', 'less_or_equal', 'not_equal', 'is'),
         array('add', 'subtract'),
         array('in'),
-        array('multiply')
+        array('multiply', 'mod', 'cast', 'like')
     );
     
     public static function compile($filter)
@@ -121,7 +124,7 @@ class FilterCompiler
         $size = 0;
         do{
             $size++;
-            $parameters .= self::parseExpression();
+            $parameters .= self::renderExpression(self::parseExpression());
             if(self::$lookahead == 'comma')
             {
                 self::getToken();
@@ -150,10 +153,11 @@ class FilterCompiler
                 $name = self::$token;
                 self::getToken();
                 $parameters = self::parseFunctionParams();
-                $return = "$name($parameters)";
+                $return = "$name$parameters)";
                 break;
             case 'identifier':
             case 'bind_param':
+            case 'named_bind_param':
             case 'number':
                 $return = self::$token;
                 self::getToken();
