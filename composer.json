@@ -1,7 +1,6 @@
 {
-
-    "name" : "ekowabaka/wyf",
-    "description" : "WYF Half-Baked App",
+    "name" : "9naquame/wyf",
+    "description" : "A fork of ekowabaka/wyf with various adjustments",
     "license" : "MIT",
     "require" : {
         "smarty/smarty" : "3.1.*",
