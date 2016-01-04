@@ -6,7 +6,12 @@
             "type": "vcs",
             "url": "git@github.com:9naQuame/fpdf.git"
         }
-    ],    
+    ],   
+    "require": {
+        "smarty/smarty" : "3.1.19",
+        "phpoffice/phpexcel": "1.8.0",
+        "9naquame/fpdf" : "dev-master"        
+    }, 
     "license": "MIT",
     "authors": [
         {
@@ -14,11 +19,6 @@
             "email": "jainooson@gmail.com"
         }
     ],
-    "require": {
-        "smarty/smarty" : "3.1.19",
-        "phpoffice/phpexcel": "1.8.0",
-        "9naquame/fpdf" : "dev-master"        
-    },
     "include-path" : [
         "./",
         "core/model_controller",
