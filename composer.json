@@ -19,7 +19,6 @@
             "email": "9naquame@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "include-path" : [
         "./",
         "core/model_controller",
