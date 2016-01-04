@@ -1,16 +1,10 @@
 {
     "name": "9naquame/wyf",
     "description": "A fork of ekowabaka/wyf to cater for my dependencies",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:9naQuame/fpdf.git"
-        }
-    ],   
     "require": {
         "smarty/smarty" : "3.1.19",
         "phpoffice/phpexcel": "1.8.0",
-        "9naquame/fpdf" : "dev-master"        
+        "itbz/fpdf" : "1.7.*"        
     }, 
     "license": "MIT",
     "authors": [
