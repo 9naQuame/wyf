@@ -10,7 +10,7 @@
     "require": {
         "smarty/smarty" : "3.1.19",
         "phpoffice/phpexcel": "1.8.0",
-        "itbz/fpdf" : "dev-master"        
+        "9naquame/fpdf" : "dev-master"        
     }, 
     "license": "MIT",
     "authors": [
