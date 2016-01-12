@@ -40,7 +40,7 @@ color:#a0a0a0;
 -moz-border-radius:3px 3px 3px 3px;    
 }
 
-.permission-button : hover
+.permission-button
 {
 	color:#808080
 }
