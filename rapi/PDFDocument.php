@@ -365,7 +365,7 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
                 }
                 else
                 {
-                    $this->Cell($widths[$i], $this->style["cell_height"], str_replace("\n", " ", $field), $border, 0, $align, true);
+                    $this->Cell($widths[$i], $this->style["cell_height"], str_replace('\n', " ", $field), $border, 0, $align, true);
                 }
 
                 if (is_array($params['total']))
