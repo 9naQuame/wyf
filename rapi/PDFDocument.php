@@ -356,16 +356,17 @@ class PDFDocument extends fpdf\FPDF_EXTENDED
                         $align = "L";
                         break;
                 }
-
+                
+                $replace = $params['wrapper'] ? : " ";
                 if ($params['wrap_cell'] === true)
                 {
                     $this->WrapCell(
-                            $widths[$i], $this->style['cell_height'], $field, $border, 0, $align, true
+                            $widths[$i], $this->style['cell_height'], str_replace('\n', "\n", $field), $border, 0, $align, true
                     );
                 }
                 else
                 {
-                    $this->Cell($widths[$i], $this->style["cell_height"], str_replace('\n', " ", $field), $border, 0, $align, true);
+                    $this->Cell($widths[$i], $this->style["cell_height"], str_replace('\n', $replace, $field), $border, 0, $align, true);
                 }
 
                 if (is_array($params['total']))
