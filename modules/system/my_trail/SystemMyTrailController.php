@@ -14,10 +14,10 @@ class SystemMyTrailController extends Controller
         $table->setParams(
             array(
                 'fields' => array(
-                    'system.audit_trail.audit_trail_id',
-                    'system.audit_trail.audit_date',
-                    'system.audit_trail.description',
-                    'system.audit_trail.item_type'
+                    '.audit_trail.audit_trail_id',
+                    '.audit_trail.audit_date',
+                    '.audit_trail.description',
+                    '.audit_trail.item_type'
                 ),
                 'conditions' => "user_id = '{$_SESSION['user_id']}'",
                 'sort_field' => 'audit_trail_id DESC'

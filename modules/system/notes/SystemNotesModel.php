@@ -2,6 +2,6 @@
 
 class SystemNotesModel extends ORMSQLDatabaseModel
 {
-    public $database = 'system.notes';
+    public $database = '.notes';
     public $showInMenus = false;
 }

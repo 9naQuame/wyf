@@ -2,6 +2,6 @@
 
 class SystemConfigurationsModel extends ORMSQLDatabaseModel
 {
-    public $database = 'system.configurations';
+    public $database = '.configurations';
     public $disableAuditTrails = true;
 }

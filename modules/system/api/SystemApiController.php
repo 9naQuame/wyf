@@ -27,7 +27,7 @@ class SystemApiController extends Controller
                 $aggregatedKey .= $key . substr($_GET[$key], 0, 15);
             }
             try{
-                @$apiKey = reset(Model::load('system.api_keys')->setQueryResolve(false)->getWithField2('key', $_REQUEST['__api_key']));
+                @$apiKey = reset(Model::load('.api_keys')->setQueryResolve(false)->getWithField2('key', $_REQUEST['__api_key']));
                 if($apiKey['active'] === true)
                 {
                     $signature = sha1($aggregatedKey . $apiKey['secret']);
@@ -258,7 +258,7 @@ class SystemApiController extends Controller
             $conditions = "user_name='{$_REQUEST['username']}'";
         }
         
-        $user = Model::load("system.users");
+        $user = Model::load(".users");
         $userData = $user->get(
             array(
                 "fields"     => null,

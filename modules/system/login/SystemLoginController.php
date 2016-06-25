@@ -78,7 +78,7 @@ class SystemLoginController extends Controller
         $home = Application::getLink("/");
         if ($data["password"] == $data["password2"])
         {
-            $users = Model::load("system.users");
+            $users = Model::load(".users");
             $userData = $users->getWithField("user_id", $_SESSION["user_id"]);
             $userData[0]["password"] = md5($data["password"]);
             $userData[0]["user_status"] = 1;
@@ -107,7 +107,7 @@ class SystemLoginController extends Controller
      */
     public static function callback($data, $form, $callback_pass = null)
     {
-        $user = Model::load("system.users");
+        $user = Model::load(".users");
         $userData = $user->get(
             array(
                 "conditions" => "user_name='{$data["username"]}'"

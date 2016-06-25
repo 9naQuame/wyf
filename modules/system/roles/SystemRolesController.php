@@ -46,7 +46,7 @@ class SystemRolesController extends ModelController
         if ($_POST["is_sent"] == "yes")
         {
             //Save the permission values
-            $this->permissions = Model::load("system.permissions");
+            $this->permissions = Model::load(".permissions");
             $permissions = $_POST;
             array_pop($permissions);
             foreach($permissions as $permission => $value)
