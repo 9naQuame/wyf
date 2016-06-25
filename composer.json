@@ -14,8 +14,6 @@
     ],
     "include-path" : [
         "./",
-        "core/model_controller",
-        "core/model_controller/jobs",
         "controllers",
         "fapi/Forms",
         "toolbar",
