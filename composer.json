@@ -25,6 +25,7 @@
         "models",
         "models/datastores",
         "models/datastores/databases/postgresql",
-        "cache/"
+        "cache/",
+        "modules/system/audit_trail"
     ]
 }
