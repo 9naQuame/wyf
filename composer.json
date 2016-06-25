@@ -25,6 +25,7 @@
         "models/datastores/databases/postgresql",
         "cache/",
         "modules/system/audit_trail",
-        "modules/system/permissions"
+        "modules/system/permissions",
+        "modules/system/reminders"
     ]
 }
