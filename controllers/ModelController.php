@@ -178,6 +178,9 @@ class ModelController extends Controller
      */
     protected $hasDeleteOperation = true;
     
+    protected $hasMenuBar = true;
+
+
     /**
      * Enforce the add operation. This overrides the permissions on the system.
      * 
@@ -252,30 +255,32 @@ class ModelController extends Controller
      */
     protected function setupList()
     {
-        if($this->hasAddOperation)
+        if($this->hasMenuBar)
         {
-            if(User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation)
+            if($this->hasAddOperation)
             {
-                $this->toolbar->addLinkButton("New",$this->name . "/add");
+                if(User::getPermission($this->permissionPrefix . "_can_add") || $this->forceAddOperation)
+                {
+                    $this->toolbar->addLinkButton("New",$this->name . "/add");
+                }
+            }
+
+            if(User::getPermission($this->permissionPrefix."_can_export"))
+            {
+                $exportButton = new MenuButton("Export");
+                $exportButton->addMenuItem("PDF", "#","wyf.openWindow('".$this->urlPath."/export/pdf')");
+                $exportButton->addMenuItem("Data", "#","wyf.openWindow('".$this->urlPath."/export/csv')");
+                $exportButton->addMenuItem("Template", "#","wyf.openWindow('".$this->urlPath."/export/csv/template')");
+                $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
+                $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
+                $this->toolbar->add($exportButton);//addLinkButton("Export",$this->urlPath."/export");
+            }
+
+            if(User::getPermission($this->permissionPrefix."_can_import"))
+            {
+                $this->toolbar->addLinkButton("Import",$this->urlPath."/import");
             }
         }
-
-        if(User::getPermission($this->permissionPrefix."_can_export"))
-        {
-            $exportButton = new MenuButton("Export");
-            $exportButton->addMenuItem("PDF", "#","wyf.openWindow('".$this->urlPath."/export/pdf')");
-            $exportButton->addMenuItem("Data", "#","wyf.openWindow('".$this->urlPath."/export/csv')");
-            $exportButton->addMenuItem("Template", "#","wyf.openWindow('".$this->urlPath."/export/csv/template')");
-            $exportButton->addMenuItem("HTML", "#","wyf.openWindow('".$this->urlPath."/export/html')");
-            $exportButton->addMenuItem("Excel", "#","wyf.openWindow('".$this->urlPath."/export/xls')");
-            $this->toolbar->add($exportButton);//addLinkButton("Export",$this->urlPath."/export");
-        }
-
-        if(User::getPermission($this->permissionPrefix."_can_import"))
-        {
-            $this->toolbar->addLinkButton("Import",$this->urlPath."/import");
-        }
-        
         $this->toolbar->addLinkButton("Search","#")->linkAttributes="onclick=\"wyf.tapi.showSearchArea('{$this->table->name}')\"";
     
         if($this->hasEditOperation)
