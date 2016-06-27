@@ -27,8 +27,8 @@ class SystemAuditTrailModel extends ORMSQLDatabaseModel
     {
         if(self::$instance === false)
         {
-            self::$instance = Model::load('.audit_trail');
-            self::$dataModel = Model::load('.audit_trail_data');
+            self::$instance = Model::load('system.audit_trail');
+            self::$dataModel = Model::load('system.audit_trail_data');
         }
         return self::$instance;
     }
