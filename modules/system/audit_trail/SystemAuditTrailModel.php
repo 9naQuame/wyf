@@ -10,7 +10,7 @@ class SystemAuditTrailModel extends ORMSQLDatabaseModel
     private static $instance = false;
     private static $dataModel;
     
-    public $database = '.audit_trail';
+    public $database = 'system.audit_trail';
     private $auditTrailData;
     
     public function update()
