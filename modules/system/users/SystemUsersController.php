@@ -1,8 +1,6 @@
 <?php
 class SystemUsersController extends ModelController 
 {
-    public $modelName = ".users";
-    
     public $listFields = array(
         ".users.user_id",
         ".users.user_name",
@@ -10,7 +8,13 @@ class SystemUsersController extends ModelController
         ".users.last_name",
         ".roles.role_name"
     );
-        
+    
+    public function __construct()
+    {
+        parent::__construct(".users");
+        $this->table->addOperation('reset', "Reset Password");
+    }
+
     public function reset($params)
     {
         $this->model->queryResolve = false;
