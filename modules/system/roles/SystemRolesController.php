@@ -189,7 +189,10 @@ class SystemRolesController extends ModelController
      */
     private function getPermissionList($path,$prefix)
     {
+        global $redirectedPackage;
+        
         $redirected = false;
+        $redirectedPackage = "";
         
         if(file_exists($path . "/package_redirect.php"))
         {
